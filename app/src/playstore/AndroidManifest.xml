@@ -92,7 +92,7 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <action android:name="android.intent.action.APPLICATION_PREFERENCES"/>
 
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
             <meta-data
                 android:name="WindowManagerPreference:SuppressWindowControlNavigationButton"
@@ -100,8 +100,7 @@
         </activity-alias>
         <activity
             android:name=".activity.DesktopLauncherActivity"
-            android:label="@string/tb_desktop_launcher_name"
-            android:icon="@mipmap/tb_launcher"
+            android:label="${appName}"
             android:launchMode="singleTask"
             android:taskAffinity=".desktop"
             android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation|keyboard|keyboardHidden"

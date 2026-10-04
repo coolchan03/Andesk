@@ -239,6 +239,8 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
 
         isSecondaryHome = this instanceof SecondaryHomeActivity;
         isDesktopLauncher = this instanceof DesktopLauncherActivity;
+        if(isDesktopLauncher)
+            LauncherHelper.getInstance().setDesktopLauncherOpen(true);
         if(isSecondaryHome) {
             windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
             Display display = windowManager.getDefaultDisplay();
@@ -767,6 +769,8 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
     }
 
     private void stopDesktopSession() {
+        LauncherHelper.getInstance().setDesktopLauncherOpen(false);
+
         SharedPreferences pref = U.getSharedPreferences(this);
         pref.edit().putBoolean(PREF_TASKBAR_ACTIVE, false).apply();
 

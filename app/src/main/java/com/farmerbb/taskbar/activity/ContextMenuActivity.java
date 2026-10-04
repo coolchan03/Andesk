@@ -296,6 +296,13 @@ public class ContextMenuActivity extends PreferenceActivity implements Preferenc
                 findPreference(PREF_FILE_MANAGER).setOnPreferenceClickListener(this);
             else
                 getPreferenceScreen().removePreference(findPreference(PREF_FILE_MANAGER));
+
+            // When running as the desktop launcher, offer settings and a visible way to exit
+            if(LauncherHelper.getInstance().isDesktopLauncherOpen()) {
+                addPreferencesFromResource(R.xml.tb_pref_context_menu_desktop_session);
+                findPreference(PREF_OPEN_TASKBAR_SETTINGS).setOnPreferenceClickListener(this);
+                findPreference(PREF_QUIT_TASKBAR).setOnPreferenceClickListener(this);
+            }
         } else if(desktopIcon != null && entry == null) {
             addPreferencesFromResource(R.xml.tb_pref_context_menu_desktop_icons);
             findPreference(PREF_ADD_ICON_TO_DESKTOP).setOnPreferenceClickListener(this);
