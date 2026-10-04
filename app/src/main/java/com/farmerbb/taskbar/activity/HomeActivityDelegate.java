@@ -41,6 +41,7 @@ import android.util.SparseArray;
 import android.view.Display;
 import android.view.DragEvent;
 import android.view.GestureDetector;
+import android.view.KeyEvent;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -428,6 +429,7 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
 
             if(isDesktopLauncher) {
                 desktopWidgets = new DesktopWidgetManager(this, layout);
+                updateMargins();
                 layout.setOnLongClickListener(v -> {
                     showDesktopMenu();
                     return true;
@@ -723,6 +725,28 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
     protected void onSaveInstanceState(Bundle outState) {
         outState.putBoolean("icon_arrange_mode", iconArrangeMode);
         super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        if(isDesktopLauncher) {
+            // Windows/Meta key opens and closes the start menu
+            if((keyCode == KeyEvent.KEYCODE_META_LEFT || keyCode == KeyEvent.KEYCODE_META_RIGHT)
+                    && !event.isAltPressed() && !event.isCtrlPressed()) {
+                U.sendBroadcast(this, ACTION_TOGGLE_START_MENU);
+                return true;
+            }
+
+            // Alt+F4 exits the desktop
+            if(keyCode == KeyEvent.KEYCODE_F4 && event.isAltPressed()) {
+                Intent quitIntent = new Intent(ACTION_QUIT);
+                quitIntent.setPackage(getPackageName());
+                sendBroadcast(quitIntent);
+                return true;
+            }
+        }
+
+        return super.onKeyUp(keyCode, event);
     }
 
     @Override
@@ -1043,25 +1067,37 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
         } catch (JSONException ignored) {}
     }
 
-    private void updateMargins() {
-        if(desktopIcons == null || fab == null) return;
-
+    // Space taken up by the taskbar, as {left, top, right, bottom}
+    private int[] getTaskbarMargins() {
         String position = TaskbarPosition.getTaskbarPosition(this);
         int iconSize = getResources().getDimensionPixelSize(R.dimen.tb_icon_size);
 
-        int left = 0;
-        int top = 0;
-        int right = 0;
-        int bottom = 0;
-
+        int[] margins = new int[4];
         if(TaskbarPosition.isVerticalLeft(position))
-            left = iconSize;
+            margins[0] = iconSize;
         else if(TaskbarPosition.isVerticalRight(position))
-            right = iconSize;
+            margins[2] = iconSize;
         else if(TaskbarPosition.isBottom(position))
-            bottom = iconSize;
+            margins[3] = iconSize;
         else
-            top = iconSize;
+            margins[1] = iconSize;
+
+        return margins;
+    }
+
+    private void updateMargins() {
+        if(desktopWidgets != null) {
+            int[] m = getTaskbarMargins();
+            desktopWidgets.setMargins(m[0], m[1], m[2], m[3]);
+        }
+
+        if(desktopIcons == null || fab == null) return;
+
+        int[] taskbarMargins = getTaskbarMargins();
+        int left = taskbarMargins[0];
+        int top = taskbarMargins[1];
+        int right = taskbarMargins[2];
+        int bottom = taskbarMargins[3];
 
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT,

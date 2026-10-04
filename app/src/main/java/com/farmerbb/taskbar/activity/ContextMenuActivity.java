@@ -22,6 +22,7 @@ import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.LauncherActivityInfo;
@@ -505,6 +506,27 @@ public class ContextMenuActivity extends PreferenceActivity implements Preferenc
                 prepareToClose();
                 break;
             case PREF_QUIT_TASKBAR:
+                if(isOverflowMenu && LauncherHelper.getInstance().isDesktopLauncherOpen()) {
+                    // Confirm first, so the desktop isn't closed by accident
+                    new AlertDialog.Builder(this)
+                            .setTitle(R.string.tb_exit_desktop)
+                            .setMessage(R.string.tb_are_you_sure)
+                            .setNegativeButton(R.string.tb_action_cancel, (dialog, which) -> {
+                                prepareToClose();
+                                finish();
+                            })
+                            .setPositiveButton(R.string.tb_action_ok, (dialog, which) -> {
+                                Intent exitIntent = new Intent(ACTION_QUIT);
+                                exitIntent.setPackage(getPackageName());
+                                sendBroadcast(exitIntent);
+                                prepareToClose();
+                                finish();
+                            })
+                            .setCancelable(false)
+                            .show();
+                    break;
+                }
+
                 Intent quitIntent = new Intent(ACTION_QUIT);
                 quitIntent.setPackage(getPackageName());
                 sendBroadcast(quitIntent);

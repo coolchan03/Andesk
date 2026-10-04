@@ -101,6 +101,15 @@ public class DesktopWidgetManager {
         restoreWidgets();
     }
 
+    /** Keeps widgets clear of the taskbar. */
+    public void setMargins(int left, int top, int right, int bottom) {
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT);
+        params.setMargins(left, top, right, bottom);
+        container.setLayoutParams(params);
+    }
+
     public void startListening() {
         try {
             appWidgetHost.startListening();
