@@ -60,6 +60,7 @@ import com.farmerbb.taskbar.util.Callbacks;
 import com.farmerbb.taskbar.util.TaskbarPosition;
 import com.farmerbb.taskbar.service.DashboardService;
 import com.farmerbb.taskbar.service.NotificationService;
+import com.farmerbb.taskbar.widget.DesktopWidgetManager;
 import com.farmerbb.taskbar.service.StartMenuService;
 import com.farmerbb.taskbar.service.TaskbarService;
 import com.farmerbb.taskbar.ui.DashboardController;
@@ -111,6 +112,7 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
 
     private boolean isSecondaryHome;
     private boolean isDesktopLauncher;
+    private DesktopWidgetManager desktopWidgets;
     private boolean waitingForPermission;
     private boolean isWallpaperEnabled;
     private boolean isTaskVirtualDisplay;
@@ -422,6 +424,14 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
                 }
             }
 
+            if(isDesktopLauncher) {
+                desktopWidgets = new DesktopWidgetManager(this, layout);
+                layout.setOnLongClickListener(v -> {
+                    showDesktopMenu();
+                    return true;
+                });
+            }
+
             // The desktop launcher doesn't register as a system home screen,
             // so it must not touch the home screen / desktop mode preferences
             if(!isDesktopLauncher) {
@@ -467,6 +477,22 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
         U.initPrefs(this);
     }
 
+    private void showDesktopMenu() {
+        CharSequence[] items = {
+                getString(R.string.tb_add_widget),
+                getString(R.string.tb_set_wallpaper)
+        };
+
+        new AlertDialog.Builder(this)
+                .setItems(items, (dialog, which) -> {
+                    if(which == 0)
+                        desktopWidgets.startAddWidget();
+                    else
+                        setWallpaper();
+                })
+                .show();
+    }
+
     private void setWallpaper() {
         U.sendBroadcast(this, ACTION_TEMP_HIDE_TASKBAR);
 
@@ -504,6 +530,7 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
         super.onStart();
 
         U.sendBroadcast(this, ACTION_HIDE_START_MENU);
+        if(desktopWidgets != null) desktopWidgets.startListening();
         init();
     }
 
@@ -607,6 +634,11 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
     protected void onStop() {
         super.onStop();
 
+        if(desktopWidgets != null) {
+            desktopWidgets.exitEditMode();
+            desktopWidgets.stopListening();
+        }
+
         SharedPreferences pref = U.getSharedPreferences(this);
         if(!canBootToFreeform()) {
             if(U.shouldCollapse(this, false)) {
@@ -693,6 +725,9 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
 
     @Override
     public void onBackPressed() {
+        if(desktopWidgets != null && desktopWidgets.exitEditMode())
+            return;
+
         U.sendBroadcast(this, ACTION_HIDE_START_MENU);
     }
 
@@ -1190,6 +1225,9 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
+        if(desktopWidgets != null && desktopWidgets.handleActivityResult(requestCode, resultCode, data))
+            return;
 
         if(resultCode != RESULT_OK)
             return;

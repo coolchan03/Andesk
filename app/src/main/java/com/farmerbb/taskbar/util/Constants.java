@@ -107,6 +107,7 @@ public class Constants {
     public static final String PREF_CHROME_OS_CONTEXT_MENU_FIX = "chrome_os_context_menu_fix";
     public static final String PREF_CLEAR_PINNED_APPS = "clear_pinned_apps";
     public static final String PREF_COLLAPSED = "collapsed";
+    public static final String PREF_DESKTOP_WIDGETS = "desktop_widgets";
     public static final String PREF_DASHBOARD = "dashboard";
     public static final String PREF_DASHBOARD_GRID_SIZE = "dashboard_grid_size";
     public static final String PREF_DASHBOARD_HEIGHT = "dashboard_height";
