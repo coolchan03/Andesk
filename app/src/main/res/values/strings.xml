@@ -17,6 +17,7 @@
 <resources>
 
     <string name="tb_app_name">Taskbar</string>
+    <string name="tb_desktop_launcher_name">Taskbar Desktop</string>
     <string name="tb_app_name_debug">Taskbar (Debug)</string>
 
     <string name="tb_taskbar_is_active">Taskbar is active</string>

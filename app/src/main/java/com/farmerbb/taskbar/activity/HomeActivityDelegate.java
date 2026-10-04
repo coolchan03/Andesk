@@ -110,6 +110,7 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
     private int endDragIndex;
 
     private boolean isSecondaryHome;
+    private boolean isDesktopLauncher;
     private boolean waitingForPermission;
     private boolean isWallpaperEnabled;
     private boolean isTaskVirtualDisplay;
@@ -119,7 +120,17 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
     private final BroadcastReceiver killReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            killHomeActivity();
+            // The desktop launcher is a regular app, so it must not be killed
+            // just because the (unrelated) home screen component got disabled
+            if(!isDesktopLauncher)
+                killHomeActivity();
+        }
+    };
+
+    private final BroadcastReceiver exitDesktopReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            finish();
         }
     };
 
@@ -225,6 +236,7 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
         SharedPreferences pref = U.getSharedPreferences(this);
 
         isSecondaryHome = this instanceof SecondaryHomeActivity;
+        isDesktopLauncher = this instanceof DesktopLauncherActivity;
         if(isSecondaryHome) {
             windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
             Display display = windowManager.getDefaultDisplay();
@@ -280,7 +292,7 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
             }
         };
 
-        isWallpaperEnabled = !isTaskVirtualDisplay && (isSecondaryHome || U.isChromeOs(this));
+        isWallpaperEnabled = !isTaskVirtualDisplay && (isSecondaryHome || isDesktopLauncher || U.isChromeOs(this));
         if(isWallpaperEnabled) {
             wallpaper = new ImageView(this);
             wallpaper.setScaleType(ImageView.ScaleType.CENTER_CROP);
@@ -398,6 +410,7 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
 
         if((this instanceof HomeActivity
                 || isSecondaryHome
+                || isDesktopLauncher
                 || U.isLauncherPermanentlyEnabled(this))) {
             setContentView(layout);
 
@@ -409,10 +422,14 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
                 }
             }
 
-            pref.edit()
-                    .putBoolean(PREF_LAUNCHER, !isSecondaryHome)
-                    .putBoolean(PREF_DESKTOP_MODE, U.isDesktopModeSupported(this) && isSecondaryHome)
-                    .apply();
+            // The desktop launcher doesn't register as a system home screen,
+            // so it must not touch the home screen / desktop mode preferences
+            if(!isDesktopLauncher) {
+                pref.edit()
+                        .putBoolean(PREF_LAUNCHER, !isSecondaryHome)
+                        .putBoolean(PREF_DESKTOP_MODE, U.isDesktopModeSupported(this) && isSecondaryHome)
+                        .apply();
+            }
         } else
             killHomeActivity();
 
@@ -428,6 +445,9 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
 
         if(isSecondaryHome)
             U.registerReceiver(this, restartReceiver, ACTION_RESTART);
+
+        if(isDesktopLauncher)
+            U.registerReceiver(this, exitDesktopReceiver, ACTION_EXIT_DESKTOP_LAUNCHER);
 
         if(isWallpaperEnabled) {
             U.registerReceiver(this, removeDesktopWallpaperReceiver, ACTION_REMOVE_DESKTOP_WALLPAPER);
@@ -460,7 +480,7 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
     protected void onResume() {
         super.onResume();
 
-        if(U.canBootToFreeform(this)) {
+        if(canBootToFreeform()) {
             if(U.launcherIsDefault(this))
                 startFreeformHack();
             else {
@@ -489,7 +509,7 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
 
     private void init() {
         if(U.canDrawOverlays(this)) {
-            if(!U.canBootToFreeform(this)) {
+            if(!canBootToFreeform()) {
                 setOnHomeScreen(true);
 
                 if(forceTaskbarStart) {
@@ -542,11 +562,24 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
             startMenuController.onCreateHost(this);
             dashboardController.onCreateHost(this);
         } else {
+            if(isDesktopLauncher) {
+                // Opening the desktop starts a Taskbar session that stays active
+                // (even while other apps are in front) until the desktop is closed
+                pref.edit()
+                        .putBoolean(PREF_IS_HIDDEN, false)
+                        .putBoolean(PREF_TASKBAR_ACTIVE, true)
+                        .putLong(PREF_TIME_OF_SERVICE_START, System.currentTimeMillis())
+                        .apply();
+            }
+
             // We always start the Taskbar and Start Menu services, even if the app isn't normally running
             try {
                 startService(new Intent(this, TaskbarService.class));
                 startService(new Intent(this, StartMenuService.class));
                 startService(new Intent(this, DashboardService.class));
+
+                if(isDesktopLauncher)
+                    startService(new Intent(this, NotificationService.class));
             } catch (IllegalStateException ignored) {}
         }
 
@@ -556,6 +589,11 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
         // Show the Taskbar temporarily, as nothing else will be visible on screen
         U.newHandler().postDelayed(() ->
                 U.sendBroadcast(this, ACTION_TEMP_SHOW_TASKBAR), 100);
+    }
+
+    private boolean canBootToFreeform() {
+        // The desktop launcher is never the system home screen, so it can't boot to freeform
+        return !isDesktopLauncher && U.canBootToFreeform(this);
     }
 
     private void startFreeformHack() {
@@ -570,7 +608,7 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
         super.onStop();
 
         SharedPreferences pref = U.getSharedPreferences(this);
-        if(!U.canBootToFreeform(this)) {
+        if(!canBootToFreeform()) {
             if(U.shouldCollapse(this, false)) {
                 U.sendBroadcast(this, ACTION_TEMP_HIDE_TASKBAR);
             }
@@ -616,6 +654,13 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+
+        if(isDesktopLauncher) {
+            U.unregisterReceiver(this, exitDesktopReceiver);
+
+            if(isFinishing())
+                stopDesktopSession();
+        }
 
         U.unregisterReceiver(this, killReceiver);
         U.unregisterReceiver(this, forceTaskbarStartReceiver);
@@ -684,6 +729,22 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
             setOnHomeScreen(false);
             finish();
         });
+    }
+
+    private void stopDesktopSession() {
+        SharedPreferences pref = U.getSharedPreferences(this);
+        pref.edit().putBoolean(PREF_TASKBAR_ACTIVE, false).apply();
+
+        setOnHomeScreen(false);
+
+        stopService(new Intent(this, TaskbarService.class));
+        stopService(new Intent(this, StartMenuService.class));
+        stopService(new Intent(this, DashboardService.class));
+        stopService(new Intent(this, NotificationService.class));
+
+        U.clearCaches(this);
+        U.stopFreeformHack(this);
+        U.sendBroadcast(this, ACTION_START_MENU_DISAPPEARING);
     }
 
     private void updateWindowFlags() {

@@ -99,6 +99,21 @@
                 android:value="true" />
         </activity-alias>
         <activity
+            android:name=".activity.DesktopLauncherActivity"
+            android:label="@string/tb_desktop_launcher_name"
+            android:icon="@mipmap/tb_launcher"
+            android:launchMode="singleTask"
+            android:taskAffinity=".desktop"
+            android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation|keyboard|keyboardHidden"
+            android:theme="@style/Taskbar.HomeActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+        <activity
             android:name=".activity.InvisibleActivity"
             android:documentLaunchMode="always"
             android:excludeFromRecents="true"
