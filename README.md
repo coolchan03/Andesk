@@ -6,6 +6,15 @@ Taskbar supports Android 10's Desktop Mode, allowing you to connect your compati
 
 Taskbar is also supported on Android TV (sideloaded) and Chrome OS - use Taskbar as a secondary Android app launcher on your Chromebook, or turn your Nvidia Shield into an Android-powered PC!
 
+## Desktop launcher (this fork)
+Opening the app now turns your device into a desktop instead of showing a settings screen: wallpaper, desktop icons, widgets, the taskbar and the start menu.
+
+* **Open it** from the app icon. The taskbar stays up over other apps while the desktop is running.
+* **Close it** with "Exit desktop" in the start menu's overflow (⋮) menu, with Alt+F4, or by swiping it away from recents. This stops Taskbar completely.
+* **Widgets:** long-press an empty spot on the desktop and choose "Add widget". Long-press a widget to move, resize or remove it.
+* **Settings:** use "Open settings" in the start menu's overflow menu, the settings gear on the system app-info page, or the Taskbar notification.
+* **Keyboard:** the Windows/Meta key opens and closes the start menu; Alt+F4 exits the desktop.
+
 ## Features
 * Start menu - shows you all applications installed on the device, configurable as a list or as a grid
 * Recent apps tray - shows your most recently used apps and lets you easily switch between them
