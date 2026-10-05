@@ -108,6 +108,7 @@ public class Constants {
     public static final String PREF_CLEAR_PINNED_APPS = "clear_pinned_apps";
     public static final String PREF_COLLAPSED = "collapsed";
     public static final String PREF_DESKTOP_WIDGETS = "desktop_widgets";
+    public static final String PREF_DESKTOP_SESSION = "desktop_session_active";
     public static final String PREF_DASHBOARD = "dashboard";
     public static final String PREF_DASHBOARD_GRID_SIZE = "dashboard_grid_size";
     public static final String PREF_DASHBOARD_HEIGHT = "dashboard_height";

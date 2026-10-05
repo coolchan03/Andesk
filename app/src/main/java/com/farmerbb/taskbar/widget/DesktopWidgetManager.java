@@ -56,7 +56,7 @@ public class DesktopWidgetManager {
 
     private static final int HOST_ID = 4242;
     private static final int MIN_SIZE_DP = 56;
-    private static final int HANDLE_SIZE_DP = 40;
+    private static final int HANDLE_SIZE_DP = 36;
 
     private static final class Entry {
         int id;
@@ -67,7 +67,7 @@ public class DesktopWidgetManager {
         AppWidgetHostView hostView;
         WidgetFrame frame;
         View border;
-        View handle;
+        View[] handles;
         ImageView done;
     }
 
@@ -203,6 +203,9 @@ public class DesktopWidgetManager {
 
         addEntry(entry);
         saveWidgets();
+
+        // Show the move/resize handles right away so they're easy to discover
+        if(entry.frame != null) enterEditMode(entry);
     }
 
     /* Widget views */
@@ -262,14 +265,20 @@ public class DesktopWidgetManager {
                 activity.getString(R.string.tb_remove_widget)
         };
 
-        new AlertDialog.Builder(activity)
+        AlertDialog menu = new AlertDialog.Builder(activity)
                 .setItems(items, (dialog, which) -> {
                     if(which == 0)
                         enterEditMode(entry);
                     else
                         removeEntry(entry);
                 })
-                .show();
+                .create();
+
+        menu.show();
+
+        // Keep the desktop visible behind the menu instead of darkening it
+        if(menu.getWindow() != null)
+            menu.getWindow().setDimAmount(0.15f);
     }
 
     private void enterEditMode(Entry entry) {
@@ -287,19 +296,34 @@ public class DesktopWidgetManager {
 
         int size = dp(HANDLE_SIZE_DP);
 
-        GradientDrawable handleBackground = new GradientDrawable();
-        handleBackground.setShape(GradientDrawable.OVAL);
-        handleBackground.setColor(Color.WHITE);
-        handleBackground.setStroke(dp(2), Color.DKGRAY);
+        // One handle on each corner, so the widget can be resized from anywhere
+        int[] gravities = {
+                Gravity.TOP | Gravity.START,
+                Gravity.TOP | Gravity.END,
+                Gravity.BOTTOM | Gravity.START,
+                Gravity.BOTTOM | Gravity.END
+        };
 
-        entry.handle = new View(activity);
-        entry.handle.setBackground(handleBackground);
-        entry.handle.setOnTouchListener(new ResizeTouchListener(entry));
+        entry.handles = new View[4];
+        for(int i = 0; i < 4; i++) {
+            GradientDrawable handleBackground = new GradientDrawable();
+            handleBackground.setShape(GradientDrawable.OVAL);
+            handleBackground.setColor(Color.WHITE);
+            handleBackground.setStroke(dp(3), Color.DKGRAY);
 
-        FrameLayout.LayoutParams handleParams = new FrameLayout.LayoutParams(size / 2, size / 2);
-        handleParams.gravity = Gravity.BOTTOM | Gravity.END;
-        handleParams.setMargins(0, 0, dp(4), dp(4));
-        entry.frame.addView(entry.handle, handleParams);
+            boolean isLeft = (gravities[i] & Gravity.START) == Gravity.START;
+            boolean isTop = (gravities[i] & Gravity.TOP) == Gravity.TOP;
+
+            View handle = new View(activity);
+            handle.setBackground(handleBackground);
+            handle.setOnTouchListener(new ResizeTouchListener(entry, isLeft, isTop));
+
+            FrameLayout.LayoutParams handleParams = new FrameLayout.LayoutParams(size, size);
+            handleParams.gravity = gravities[i];
+            handleParams.setMargins(dp(2), dp(2), dp(2), dp(2));
+            entry.frame.addView(handle, handleParams);
+            entry.handles[i] = handle;
+        }
 
         entry.done = new ImageView(activity);
         entry.done.setImageResource(R.drawable.tb_done);
@@ -308,7 +332,7 @@ public class DesktopWidgetManager {
         entry.done.setOnClickListener(v -> exitEditMode());
 
         FrameLayout.LayoutParams doneParams = new FrameLayout.LayoutParams(size, size);
-        doneParams.gravity = Gravity.TOP | Gravity.END;
+        doneParams.gravity = Gravity.TOP | Gravity.CENTER_HORIZONTAL;
         entry.frame.addView(entry.done, doneParams);
     }
 
@@ -321,10 +345,11 @@ public class DesktopWidgetManager {
             return false;
 
         entry.frame.removeView(entry.border);
-        entry.frame.removeView(entry.handle);
+        for(View handle : entry.handles)
+            entry.frame.removeView(handle);
         entry.frame.removeView(entry.done);
         entry.border = null;
-        entry.handle = null;
+        entry.handles = null;
         entry.done = null;
 
         saveWidgets();
@@ -356,7 +381,13 @@ public class DesktopWidgetManager {
         public boolean onInterceptTouchEvent(MotionEvent ev) {
             if(editingId == entry.id) {
                 // Let the handle and done button receive their own touches
-                return !isInside(entry.handle, ev) && !isInside(entry.done, ev);
+                if(isInside(entry.done, ev)) return false;
+
+                if(entry.handles != null)
+                    for(View handle : entry.handles)
+                        if(isInside(handle, ev)) return false;
+
+                return true;
             }
 
             detector.onTouchEvent(ev);
@@ -398,13 +429,19 @@ public class DesktopWidgetManager {
 
     private final class ResizeTouchListener implements View.OnTouchListener {
         private final Entry entry;
+        private final boolean fromLeft;
+        private final boolean fromTop;
         private float downRawX;
         private float downRawY;
+        private int startX;
+        private int startY;
         private int startWidth;
         private int startHeight;
 
-        ResizeTouchListener(Entry entry) {
+        ResizeTouchListener(Entry entry, boolean fromLeft, boolean fromTop) {
             this.entry = entry;
+            this.fromLeft = fromLeft;
+            this.fromTop = fromTop;
         }
 
         @Override
@@ -413,17 +450,41 @@ public class DesktopWidgetManager {
                 case MotionEvent.ACTION_DOWN:
                     downRawX = ev.getRawX();
                     downRawY = ev.getRawY();
+                    startX = entry.x;
+                    startY = entry.y;
                     startWidth = entry.width;
                     startHeight = entry.height;
                     return true;
                 case MotionEvent.ACTION_MOVE:
-                    int maxW = container.getWidth() - entry.x;
-                    int maxH = container.getHeight() - entry.y;
-                    int newWidth = startWidth + Math.round(ev.getRawX() - downRawX);
-                    int newHeight = startHeight + Math.round(ev.getRawY() - downRawY);
+                    int dx = Math.round(ev.getRawX() - downRawX);
+                    int dy = Math.round(ev.getRawY() - downRawY);
+                    int minSize = dp(MIN_SIZE_DP);
 
-                    entry.width = Math.max(dp(MIN_SIZE_DP), maxW > 0 ? Math.min(newWidth, maxW) : newWidth);
-                    entry.height = Math.max(dp(MIN_SIZE_DP), maxH > 0 ? Math.min(newHeight, maxH) : newHeight);
+                    int newWidth = Math.max(minSize, fromLeft ? startWidth - dx : startWidth + dx);
+                    int newHeight = Math.max(minSize, fromTop ? startHeight - dy : startHeight + dy);
+                    int newX = fromLeft ? startX + startWidth - newWidth : startX;
+                    int newY = fromTop ? startY + startHeight - newHeight : startY;
+
+                    // Keep the widget on screen
+                    if(newX < 0) {
+                        newWidth += newX;
+                        newX = 0;
+                    }
+
+                    if(newY < 0) {
+                        newHeight += newY;
+                        newY = 0;
+                    }
+
+                    int maxW = container.getWidth();
+                    int maxH = container.getHeight();
+                    if(maxW > 0 && newX + newWidth > maxW) newWidth = maxW - newX;
+                    if(maxH > 0 && newY + newHeight > maxH) newHeight = maxH - newY;
+
+                    entry.x = newX;
+                    entry.y = newY;
+                    entry.width = newWidth;
+                    entry.height = newHeight;
                     applyBounds(entry, false);
                     return true;
                 case MotionEvent.ACTION_UP:

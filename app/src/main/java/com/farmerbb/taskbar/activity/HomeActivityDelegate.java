@@ -36,6 +36,10 @@ import android.os.UserManager;
 
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.ColorUtils;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.appcompat.app.AppCompatActivity;
 import android.util.SparseArray;
 import android.view.Display;
@@ -338,7 +342,21 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
             });
         }
 
-        layout.setFitsSystemWindows(true);
+        if(isDesktopLauncher && U.isGestureNavigation(this)) {
+            // Draw behind the gesture bar so there's no gap at the bottom of the desktop
+            WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
+
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
+                getWindow().setNavigationBarContrastEnforced(false);
+
+            ViewCompat.setOnApplyWindowInsetsListener(layout, (v, insets) -> {
+                Insets bars = insets.getInsets(
+                        WindowInsetsCompat.Type.statusBars() | WindowInsetsCompat.Type.displayCutout());
+                v.setPadding(bars.left, bars.top, bars.right, 0);
+                return insets;
+            });
+        } else
+            layout.setFitsSystemWindows(true);
 
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.P 
                 && isDesktopIconsEnabled
@@ -487,14 +505,20 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
                 getString(R.string.tb_set_wallpaper)
         };
 
-        new AlertDialog.Builder(this)
+        AlertDialog menu = new AlertDialog.Builder(this)
                 .setItems(items, (dialog, which) -> {
                     if(which == 0)
                         desktopWidgets.startAddWidget();
                     else
                         setWallpaper();
                 })
-                .show();
+                .create();
+
+        menu.show();
+
+        // Keep the desktop visible behind the menu instead of darkening it
+        if(menu.getWindow() != null)
+            menu.getWindow().setDimAmount(0.15f);
     }
 
     private void setWallpaper() {
@@ -599,6 +623,7 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
                 pref.edit()
                         .putBoolean(PREF_IS_HIDDEN, false)
                         .putBoolean(PREF_TASKBAR_ACTIVE, true)
+                        .putBoolean(PREF_DESKTOP_SESSION, true)
                         .putLong(PREF_TIME_OF_SERVICE_START, System.currentTimeMillis())
                         .apply();
             }
@@ -796,7 +821,10 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
         LauncherHelper.getInstance().setDesktopLauncherOpen(false);
 
         SharedPreferences pref = U.getSharedPreferences(this);
-        pref.edit().putBoolean(PREF_TASKBAR_ACTIVE, false).apply();
+        pref.edit()
+                .putBoolean(PREF_TASKBAR_ACTIVE, false)
+                .putBoolean(PREF_DESKTOP_SESSION, false)
+                .apply();
 
         setOnHomeScreen(false);
 
