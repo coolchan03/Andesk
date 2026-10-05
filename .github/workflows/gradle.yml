@@ -22,6 +22,12 @@ jobs:
         java-version: 21
     - name: Build
       run: ./gradlew assembleFreeDebug
+    - name: Upload debug APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: taskbar-debug-apk
+        path: app/build/outputs/apk/free/debug/*.apk
+        if-no-files-found: error
     - name: Spotless Check
       run: ./gradlew spotlessCheck
     - name: Run tests
