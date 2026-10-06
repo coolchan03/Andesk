@@ -10,8 +10,6 @@ import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
@@ -32,7 +30,6 @@ import android.widget.TextView;
 import androidx.core.graphics.ColorUtils;
 
 import com.farmerbb.taskbar.R;
-import com.farmerbb.taskbar.util.Constants;
 import com.farmerbb.taskbar.util.U;
 
 import java.util.Date;
@@ -45,11 +42,8 @@ public class SystemTrayActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        SharedPreferences pref = U.getSharedPreferences(this);
-        boolean windowsStyle = Constants.PREF_TASKBAR_STYLE_WINDOWS.equals(
-                pref.getString(Constants.PREF_TASKBAR_STYLE, Constants.PREF_TASKBAR_STYLE_CLASSIC));
-        accentColor = windowsStyle ? Color.WHITE : U.getAccentColor(this);
-        int backgroundColor = windowsStyle ? Color.rgb(32, 32, 32) : U.getBackgroundTint(this);
+        accentColor = U.getTaskbarAccentColor(this);
+        int backgroundColor = U.getTaskbarBackgroundColor(this);
         root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
         root.setPadding(dp(16), dp(14), dp(16), dp(14));

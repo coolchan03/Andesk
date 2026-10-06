@@ -251,6 +251,8 @@ public class Constants {
 
     public static final String PREF_TASKBAR_STYLE_CLASSIC = "classic";
     public static final String PREF_TASKBAR_STYLE_WINDOWS = "windows";
+    public static final String PREF_TASKBAR_STYLE_WINDOWS_10 = "windows10";
+    public static final String PREF_TASKBAR_STYLE_WINDOWS_11 = "windows11";
 
     // TaskbarPosition values
 

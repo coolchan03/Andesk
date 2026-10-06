@@ -503,11 +503,8 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
         if(!isDesktopLauncher)
             return;
 
-        SharedPreferences pref = U.getSharedPreferences(this);
-        boolean windowsStyle = PREF_TASKBAR_STYLE_WINDOWS.equals(
-                pref.getString(PREF_TASKBAR_STYLE, PREF_TASKBAR_STYLE_CLASSIC));
         int color = TaskbarPosition.isBottom(this)
-                ? (windowsStyle ? Color.rgb(32, 32, 32) : U.getBackgroundTint(this))
+                ? U.getTaskbarBackgroundColor(this)
                 : Color.TRANSPARENT;
 
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)

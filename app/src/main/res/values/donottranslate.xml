@@ -50,7 +50,8 @@
 
     <string-array name="tb_pref_taskbar_style_values">
         <item>classic</item>
-        <item>windows</item>
+        <item>windows10</item>
+        <item>windows11</item>
     </string-array>
     <string-array name="tb_pref_sort_order_values_alt">
         <item>false</item>

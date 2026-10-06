@@ -32,6 +32,7 @@
     <dimen name="tb_max_width">@dimen/tb_match_parent</dimen>
     <dimen name="tb_app_drawer_icon_padding">4dp</dimen>
     <dimen name="tb_app_drawer_icon_padding_alt">7dp</dimen>
+    <dimen name="tb_windows_start_icon_padding">16dp</dimen>
     <dimen name="tb_base_size_start_plus_divider">65dp</dimen>
     <dimen name="tb_base_size_collapse_button">28dp</dimen>
     <dimen name="tb_dashboard_button_size">48dp</dimen>

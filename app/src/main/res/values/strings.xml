@@ -78,10 +78,11 @@
     </string-array>
 
     <string name="tb_pref_title_taskbar_style">Taskbar style</string>
-    <string name="tb_pref_summary_taskbar_style">Choose the desktop taskbar appearance</string>
+    <string name="tb_pref_summary_taskbar_style">Choose a preset, or use Classic to customize the colors and layout below</string>
     <string-array name="tb_pref_taskbar_style">
-        <item>Classic Taskbar</item>
-        <item>Windows-like</item>
+        <item>Classic / customizable</item>
+        <item>Windows 10-like</item>
+        <item>Windows 11-like</item>
     </string-array>
 
     <string name="tb_pref_header_advanced">Advanced features</string>

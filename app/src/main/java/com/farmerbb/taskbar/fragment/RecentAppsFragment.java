@@ -42,11 +42,6 @@ import static com.farmerbb.taskbar.util.Constants.*;
 public class RecentAppsFragment extends SettingsFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     @Override
-    protected void addPrefsToSanitize() {
-        prefsToSanitize.put(PREF_SYS_TRAY, R.bool.class);
-    }
-
-    @Override
     protected void loadPrefs() {
         // Add preferences
         addPreferencesFromResource(R.xml.tb_pref_recent_apps);
@@ -73,20 +68,6 @@ public class RecentAppsFragment extends SettingsFragment implements SharedPrefer
         bindPreferenceSummaryToValue(findPreference(PREF_RECENTS_AMOUNT));
         bindPreferenceSummaryToValue(findPreference(PREF_SORT_ORDER));
         bindPreferenceSummaryToValue(findPreference(PREF_DISABLE_SCROLLING_LIST));
-        bindPreferenceSummaryToValue(findPreference(PREF_FULL_LENGTH));
-        bindPreferenceSummaryToValue(findPreference(PREF_CENTERED_ICONS));
-
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if(U.isLibrary(getActivity()) || U.isAndroidTV(getActivity()))
-                getPreferenceScreen().removePreference(findPreference(PREF_NOTIFICATION_COUNT));
-            else
-                findPreference(PREF_NOTIFICATION_COUNT).setOnPreferenceClickListener(this);
-
-            bindPreferenceSummaryToValue(findPreference(PREF_SYS_TRAY));
-        } else {
-            getPreferenceScreen().removePreference(findPreference(PREF_NOTIFICATION_COUNT));
-            getPreferenceScreen().removePreference(findPreference(PREF_SYS_TRAY));
-        }
 
         updateMaxNumOfRecents(false);
         updateRefreshFrequency(false);
@@ -213,13 +194,6 @@ public class RecentAppsFragment extends SettingsFragment implements SharedPrefer
 
                 AlertDialog dialog2 = builder2.create();
                 dialog2.show();
-                break;
-            case PREF_NOTIFICATION_COUNT:
-                try {
-                    startActivity(new Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS));
-                } catch (ActivityNotFoundException e) {
-                    U.showToast(getActivity(), R.string.tb_lock_device_not_supported);
-                }
                 break;
         }
 

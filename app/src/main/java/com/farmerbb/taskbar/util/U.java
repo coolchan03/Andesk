@@ -1826,15 +1826,60 @@ public class U {
                 && !shouldLaunchTouchAbsorber(context);
     }
 
+    public static String getTaskbarStyle(Context context) {
+        String style = getSharedPreferences(context).getString(
+                PREF_TASKBAR_STYLE, PREF_TASKBAR_STYLE_CLASSIC);
+
+        // Migrate the first Windows-like preset to the Windows 11-like
+        // behavior it originally implemented: full width and centered apps.
+        return PREF_TASKBAR_STYLE_WINDOWS.equals(style)
+                ? PREF_TASKBAR_STYLE_WINDOWS_11
+                : style;
+    }
+
+    public static boolean isWindows10TaskbarStyle(Context context) {
+        return PREF_TASKBAR_STYLE_WINDOWS_10.equals(getTaskbarStyle(context));
+    }
+
+    public static boolean isWindows11TaskbarStyle(Context context) {
+        return PREF_TASKBAR_STYLE_WINDOWS_11.equals(getTaskbarStyle(context));
+    }
+
+    public static boolean isWindowsTaskbarStyle(Context context) {
+        return isWindows10TaskbarStyle(context) || isWindows11TaskbarStyle(context);
+    }
+
+    public static boolean isTaskbarFullLength(Context context) {
+        return isWindowsTaskbarStyle(context)
+                || getSharedPreferences(context).getBoolean(PREF_FULL_LENGTH, true);
+    }
+
+    public static boolean isTaskbarCentered(Context context) {
+        if(isWindows10TaskbarStyle(context))
+            return false;
+        if(isWindows11TaskbarStyle(context))
+            return true;
+
+        return getSharedPreferences(context).getBoolean(PREF_CENTERED_ICONS, false);
+    }
+
+    public static int getTaskbarBackgroundColor(Context context) {
+        if(isWindows10TaskbarStyle(context))
+            return Color.rgb(32, 32, 32);
+        if(isWindows11TaskbarStyle(context))
+            return Color.argb(232, 32, 32, 32);
+
+        return getBackgroundTint(context);
+    }
+
+    public static int getTaskbarAccentColor(Context context) {
+        return isWindowsTaskbarStyle(context) ? Color.WHITE : getAccentColor(context);
+    }
+
     public static boolean isSystemTrayEnabled(Context context) {
-        SharedPreferences pref = getSharedPreferences(context);
-
-        boolean windowsStyle = PREF_TASKBAR_STYLE_WINDOWS.equals(
-                pref.getString(PREF_TASKBAR_STYLE, PREF_TASKBAR_STYLE_CLASSIC));
-
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
                 && getBooleanPrefWithDefault(context, PREF_SYS_TRAY)
-                && (windowsStyle || pref.getBoolean(PREF_FULL_LENGTH, true))
+                && isTaskbarFullLength(context)
                 && !TaskbarPosition.isVertical(context);
     }
 
