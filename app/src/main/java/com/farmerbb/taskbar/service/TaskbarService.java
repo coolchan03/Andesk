@@ -15,13 +15,38 @@
 
 package com.farmerbb.taskbar.service;
 
+import android.content.ComponentName;
+import android.content.Intent;
+
+import com.farmerbb.taskbar.activity.DesktopLauncherActivity;
 import com.farmerbb.taskbar.ui.UIHostService;
 import com.farmerbb.taskbar.ui.UIController;
 import com.farmerbb.taskbar.ui.TaskbarController;
+
+import static com.farmerbb.taskbar.util.Constants.ACTION_QUIT;
+import static com.farmerbb.taskbar.util.Constants.EXTRA_DESKTOP_SESSION;
 
 public class TaskbarService extends UIHostService {
     @Override
     public UIController newController() {
         return new TaskbarController(this);
+    }
+
+    @Override
+    public void onTaskRemoved(Intent rootIntent) {
+        if(isDesktopLauncherTask(rootIntent)) {
+            Intent quitIntent = new Intent(ACTION_QUIT);
+            quitIntent.setPackage(getPackageName());
+            quitIntent.putExtra(EXTRA_DESKTOP_SESSION, true);
+            sendBroadcast(quitIntent);
+        }
+
+        super.onTaskRemoved(rootIntent);
+    }
+
+    static boolean isDesktopLauncherTask(Intent intent) {
+        ComponentName component = intent == null ? null : intent.getComponent();
+        return component != null
+                && DesktopLauncherActivity.class.getName().equals(component.getClassName());
     }
 }

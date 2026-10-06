@@ -754,6 +754,14 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
         if(desktopWidgets != null && desktopWidgets.exitEditMode())
             return;
 
+        if(isDesktopLauncher && !MenuHelper.getInstance().isStartMenuOpen()) {
+            Intent quitIntent = new Intent(ACTION_QUIT);
+            quitIntent.setPackage(getPackageName());
+            quitIntent.putExtra(EXTRA_DESKTOP_SESSION, true);
+            sendBroadcast(quitIntent);
+            return;
+        }
+
         U.sendBroadcast(this, ACTION_HIDE_START_MENU);
     }
 

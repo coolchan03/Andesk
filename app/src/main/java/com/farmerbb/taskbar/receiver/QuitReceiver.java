@@ -43,7 +43,11 @@ public class QuitReceiver extends BroadcastReceiver {
 
             pref.edit().putBoolean(PREF_TASKBAR_ACTIVE, false).apply();
 
-            if(!LauncherHelper.getInstance().isOnHomeScreen(context)) {
+            LauncherHelper launcherHelper = LauncherHelper.getInstance();
+            boolean desktopSession = intent.getBooleanExtra(EXTRA_DESKTOP_SESSION, false)
+                    || launcherHelper.isDesktopLauncherOpen();
+
+            if(desktopSession || !launcherHelper.isOnHomeScreen(context)) {
                 context.stopService(taskbarIntent);
                 context.stopService(startMenuIntent);
                 context.stopService(dashboardIntent);
@@ -53,6 +57,12 @@ public class QuitReceiver extends BroadcastReceiver {
             }
 
             context.stopService(notificationIntent);
+
+            if(desktopSession) {
+                launcherHelper.setDesktopLauncherOpen(false);
+                launcherHelper.setOnPrimaryHomeScreen(false);
+                U.stopFreeformHack(context);
+            }
 
             // Close the desktop launcher, if it's open
             U.sendBroadcast(context, ACTION_EXIT_DESKTOP_LAUNCHER);
