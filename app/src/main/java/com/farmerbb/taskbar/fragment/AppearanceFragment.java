@@ -52,6 +52,9 @@ public class AppearanceFragment extends SettingsFragment {
         // Add preferences
         addPreferencesFromResource(R.xml.tb_pref_appearance);
 
+        if(!pref.contains(PREF_TASKBAR_STYLE))
+            pref.edit().putString(PREF_TASKBAR_STYLE, PREF_TASKBAR_STYLE_CLASSIC).apply();
+
         // Set OnClickListeners for certain preferences
         findPreference(PREF_ICON_PACK_LIST).setOnPreferenceClickListener(this);
         findPreference(PREF_RESET_COLORS).setOnPreferenceClickListener(this);
@@ -70,6 +73,7 @@ public class AppearanceFragment extends SettingsFragment {
         }
 
         bindPreferenceSummaryToValue(findPreference(PREF_THEME));
+        bindPreferenceSummaryToValue(findPreference(PREF_TASKBAR_STYLE));
         bindPreferenceSummaryToValue(findPreference(PREF_INVISIBLE_BUTTON));
         bindPreferenceSummaryToValue(findPreference(PREF_START_BUTTON_IMAGE));
         bindPreferenceSummaryToValue(findPreference(PREF_ICON_PACK_USE_MASK));

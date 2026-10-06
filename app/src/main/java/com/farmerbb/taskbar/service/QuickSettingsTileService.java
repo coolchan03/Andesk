@@ -43,11 +43,11 @@ public class QuickSettingsTileService extends TileService {
     public void onClick() {
         super.onClick();
 
-        Intent intent = new Intent(U.isServiceRunning(this, NotificationService.class)
-                ? ACTION_QUIT
-                : ACTION_START);
-
+        boolean active = U.isServiceRunning(this, NotificationService.class);
+        Intent intent = new Intent(active ? ACTION_QUIT : ACTION_START);
         intent.setPackage(getPackageName());
+        if(active)
+            intent.putExtra(EXTRA_DESKTOP_SESSION, true);
         sendBroadcast(intent);
 
         U.newHandler().postDelayed(this::updateState, 100);

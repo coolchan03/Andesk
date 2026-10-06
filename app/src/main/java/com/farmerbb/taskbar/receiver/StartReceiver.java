@@ -29,61 +29,26 @@ import static com.farmerbb.taskbar.util.Constants.*;
 public class StartReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
-        SharedPreferences pref = U.getSharedPreferences(context);
-
-        boolean taskbarNotActive = !U.isServiceRunning(context, NotificationService.class);
-        boolean taskbarActiveButHidden = !taskbarNotActive && pref.getBoolean(PREF_IS_HIDDEN, false);
+        if(intent == null || !ACTION_START.equals(intent.getAction()))
+            return;
 
         if(!U.canDrawOverlays(context)) {
             U.newHandler().postDelayed(() -> {
-                Intent intent2 = new Intent(context, DummyActivity.class);
-                intent2.putExtra(EXTRA_SHOW_PERMISSION_DIALOG, true);
-                intent2.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
-                context.startActivity(intent2);
+                Intent permissionIntent = new Intent(context, DummyActivity.class);
+                permissionIntent.putExtra(EXTRA_SHOW_PERMISSION_DIALOG, true);
+                permissionIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                context.startActivity(permissionIntent);
             }, 250);
-        } else if(taskbarNotActive || taskbarActiveButHidden) {
-            U.initPrefs(context);
+            return;
+        }
 
-            SharedPreferences.Editor editor = pref.edit();
-            editor.putBoolean(PREF_IS_HIDDEN, false);
-
-            if(taskbarNotActive) {
-                if(pref.getBoolean(PREF_FIRST_RUN, true)) {
-                    editor.putBoolean(PREF_FIRST_RUN, false);
-                    editor.putBoolean(PREF_COLLAPSED, true);
-
-                    U.newHandler().postDelayed(() -> {
-                        Intent intent2 = new Intent(context, DummyActivity.class);
-                        intent2.putExtra(EXTRA_SHOW_RECENT_APPS_DIALOG, true);
-                        intent2.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
-                        context.startActivity(intent2);
-                    }, 250);
-                }
-
-                editor.putBoolean(PREF_TASKBAR_ACTIVE, true);
-                editor.putLong(PREF_TIME_OF_SERVICE_START, System.currentTimeMillis());
-            }
-
-            editor.apply();
-
-            if(taskbarActiveButHidden)
-                context.stopService(new Intent(context, NotificationService.class));
-
-            if(U.hasFreeformSupport(context) && U.isFreeformModeEnabled(context)) {
-                Intent intent2 = new Intent(context, DummyActivity.class);
-                intent2.putExtra(EXTRA_START_FREEFORM_HACK, true);
-                intent2.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
-                context.startActivity(intent2);
-            }
-
-            Intent notificationIntent = new Intent(context, NotificationService.class);
-            notificationIntent.putExtra(EXTRA_START_SERVICES, true);
-
-            U.startForegroundService(context, notificationIntent);
-        } else if(intent.hasExtra(EXTRA_SECONDSCREEN))
-            pref.edit().putBoolean(PREF_SKIP_QUIT_RECEIVER, true).apply();
+        // This fork is session-scoped: every user-facing "start Taskbar"
+        // entry point launches the desktop owner activity instead of creating
+        // a background-only persistent taskbar.
+        Intent desktopIntent = new Intent(context, com.farmerbb.taskbar.activity.DesktopLauncherActivity.class);
+        desktopIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+                | Intent.FLAG_ACTIVITY_CLEAR_TOP
+                | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        context.startActivity(desktopIntent);
     }
 }

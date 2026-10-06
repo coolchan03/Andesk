@@ -25,6 +25,16 @@
         android:positiveButtonText="@null"
         android:title="@string/tb_pref_title_theme"/>
 
+    <ListPreference
+        android:defaultValue="classic"
+        android:entries="@array/tb_pref_taskbar_style"
+        android:entryValues="@array/tb_pref_taskbar_style_values"
+        android:key="taskbar_style"
+        android:negativeButtonText="@null"
+        android:positiveButtonText="@null"
+        android:title="@string/tb_pref_title_taskbar_style"
+        android:summary="@string/tb_pref_summary_taskbar_style"/>
+
     <Preference
         android:key="icon_pack_list"
         android:title="@string/tb_icon_pack" />

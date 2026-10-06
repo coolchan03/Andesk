@@ -61,6 +61,18 @@ public class NotificationService extends Service {
                 : START_STICKY;
     }
 
+    @Override
+    public void onTaskRemoved(Intent rootIntent) {
+        if(TaskbarService.isDesktopLauncherTask(rootIntent)) {
+            Intent quitIntent = new Intent(ACTION_QUIT);
+            quitIntent.setPackage(getPackageName());
+            quitIntent.putExtra(EXTRA_DESKTOP_SESSION, true);
+            sendBroadcast(quitIntent);
+        }
+
+        super.onTaskRemoved(rootIntent);
+    }
+
     BroadcastReceiver userForegroundReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
