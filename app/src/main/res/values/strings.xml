@@ -503,7 +503,5 @@
     <string name="tb_wifi">Wi-Fi</string>
     <string name="tb_bluetooth">Bluetooth</string>
     <string name="tb_notifications">Notifications</string>
-    <string name="tb_on">On</string>
-    <string name="tb_off">Off</string>
 
 </resources>
