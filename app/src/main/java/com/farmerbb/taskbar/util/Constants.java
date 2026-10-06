@@ -127,6 +127,7 @@ public class Constants {
     public static final String PREF_DONATE = "donate";
     public static final String PREF_DONT_SHOW_DOUBLE_TAP_DIALOG = "dont_show_double_tap_dialog";
     public static final String PREF_DONT_SHOW_UNINSTALL_DIALOG = "dont_show_uninstall_dialog";
+    public static final String PREF_DESKTOP_SESSION_ACTIVE = "desktop_session_active";
     public static final String PREF_DONT_STOP_DASHBOARD = "dont_stop_dashboard";
     public static final String PREF_DOUBLE_TAP_DIALOG_SHOWN = "double_tap_dialog_shown";
     public static final String PREF_DOUBLE_TAP_TO_SLEEP = "double_tap_to_sleep";
@@ -212,6 +213,7 @@ public class Constants {
     public static final String PREF_SYSTEM_SETTINGS = "system_settings";
     public static final String PREF_SYS_TRAY = "sys_tray";
     public static final String PREF_TASKBAR_ACTIVE = "taskbar_active";
+    public static final String PREF_TASKBAR_STYLE = "taskbar_style";
     public static final String PREF_TASKER_ENABLED = "tasker_enabled";
     public static final String PREF_THEME = "theme";
     public static final String PREF_TIME_OF_SERVICE_START = "time_of_service_start";
@@ -246,6 +248,9 @@ public class Constants {
     public static final String PREF_START_BUTTON_IMAGE_APP_LOGO = "app_logo";
     public static final String PREF_START_BUTTON_IMAGE_CUSTOM  = "custom";
     public static final String PREF_START_BUTTON_IMAGE_DEFAULT = "default";
+
+    public static final String PREF_TASKBAR_STYLE_CLASSIC = "classic";
+    public static final String PREF_TASKBAR_STYLE_WINDOWS = "windows";
 
     // TaskbarPosition values
 

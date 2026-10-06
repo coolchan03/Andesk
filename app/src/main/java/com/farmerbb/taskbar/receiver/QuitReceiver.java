@@ -41,11 +41,15 @@ public class QuitReceiver extends BroadcastReceiver {
             Intent dashboardIntent = new Intent(context, DashboardService.class);
             Intent notificationIntent = new Intent(context, NotificationService.class);
 
-            pref.edit().putBoolean(PREF_TASKBAR_ACTIVE, false).apply();
-
             LauncherHelper launcherHelper = LauncherHelper.getInstance();
             boolean desktopSession = intent.getBooleanExtra(EXTRA_DESKTOP_SESSION, false)
+                    || pref.getBoolean(PREF_DESKTOP_SESSION_ACTIVE, false)
                     || launcherHelper.isDesktopLauncherOpen();
+
+            pref.edit()
+                    .putBoolean(PREF_DESKTOP_SESSION_ACTIVE, false)
+                    .putBoolean(PREF_TASKBAR_ACTIVE, false)
+                    .apply();
 
             if(desktopSession || !launcherHelper.isOnHomeScreen(context)) {
                 context.stopService(taskbarIntent);

@@ -47,6 +47,11 @@
         <item>most_used_false</item>
         <item>most_used_true</item>
     </string-array>
+
+    <string-array name="tb_pref_taskbar_style_values">
+        <item>classic</item>
+        <item>windows</item>
+    </string-array>
     <string-array name="tb_pref_sort_order_values_alt">
         <item>false</item>
         <item>true</item>

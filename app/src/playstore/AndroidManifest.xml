@@ -413,12 +413,19 @@
             android:name=".activity.dark.EnableAdditionalSettingsActivityDark"
             android:theme="@style/Taskbar.Dialog.FullWidth.Dark"/>
 
+        <!-- TaskbarService remains alive just long enough to receive
+             onTaskRemoved() and broadcast the centralized quit action. -->
         <service android:name=".service.TaskbarService"/>
-        <service android:name=".service.StartMenuService"/>
-        <service android:name=".service.DashboardService"/>
+        <service
+            android:name=".service.StartMenuService"
+            android:stopWithTask="true"/>
+        <service
+            android:name=".service.DashboardService"
+            android:stopWithTask="true"/>
 
         <service
             android:name=".service.NotificationService"
+            android:stopWithTask="true"
             android:foregroundServiceType="specialUse">
             <property
                 android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"

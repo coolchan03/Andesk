@@ -1,6 +1,9 @@
 package com.farmerbb.taskbar.ui
 
+import android.app.Service
 import android.content.res.Configuration
+import com.farmerbb.taskbar.util.Constants
+import com.farmerbb.taskbar.util.U
 import org.junit.After
 import org.junit.Assert
 import org.junit.Before
@@ -29,6 +32,9 @@ class UIHostServiceTest {
         uiController.onCreateHost = null
         uiController.onRecreateHost = null
         uiController.onDestroyHost = null
+        U.getSharedPreferences(hostService).edit()
+                .remove(Constants.PREF_DESKTOP_SESSION_ACTIVE)
+                .apply()
     }
 
     @Test
@@ -59,6 +65,17 @@ class UIHostServiceTest {
         Assert.assertNull(uiController.onDestroyHost)
         controller.destroy()
         Assert.assertEquals(hostService, uiController.onDestroyHost)
+    }
+
+    @Test
+    fun testDesktopSessionIsNotSticky() {
+        val prefs = U.getSharedPreferences(hostService)
+
+        prefs.edit().putBoolean(Constants.PREF_DESKTOP_SESSION_ACTIVE, false).apply()
+        Assert.assertEquals(Service.START_STICKY, hostService.onStartCommand(null, 0, 0))
+
+        prefs.edit().putBoolean(Constants.PREF_DESKTOP_SESSION_ACTIVE, true).apply()
+        Assert.assertEquals(Service.START_NOT_STICKY, hostService.onStartCommand(null, 0, 0))
     }
 
     @Test

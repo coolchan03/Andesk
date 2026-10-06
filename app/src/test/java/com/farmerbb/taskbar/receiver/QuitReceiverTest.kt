@@ -44,10 +44,16 @@ class QuitReceiverTest {
 
     @Test
     fun testNonSkipQuitReceiver() {
-        prefs.edit().putBoolean(Constants.PREF_SKIP_QUIT_RECEIVER, false).apply()
-        prefs.edit().putBoolean(Constants.PREF_TASKBAR_ACTIVE, true).apply()
+        prefs.edit()
+                .putBoolean(Constants.PREF_SKIP_QUIT_RECEIVER, false)
+                .putBoolean(Constants.PREF_TASKBAR_ACTIVE, true)
+                .putBoolean(Constants.PREF_DESKTOP_SESSION_ACTIVE, true)
+                .apply()
+
         val intent = Intent(Constants.ACTION_QUIT)
         quitReceiver.onReceive(context, intent)
+
         Assert.assertFalse(prefs.getBoolean(Constants.PREF_TASKBAR_ACTIVE, true))
+        Assert.assertFalse(prefs.getBoolean(Constants.PREF_DESKTOP_SESSION_ACTIVE, true))
     }
 }

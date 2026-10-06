@@ -270,8 +270,9 @@ public class TaskbarController extends UIController {
         taskbar = layout.findViewById(R.id.taskbar);
         scrollView = layout.findViewById(R.id.taskbar_scrollview);
 
-        int backgroundTint = U.getBackgroundTint(context);
-        int accentColor = U.getAccentColor(context);
+        boolean windowsStyle = isWindowsStyle(pref);
+        int backgroundTint = windowsStyle ? Color.rgb(32, 32, 32) : U.getBackgroundTint(context);
+        int accentColor = windowsStyle ? Color.WHITE : U.getAccentColor(context);
 
         if(altButtonConfig) {
             space = layout.findViewById(R.id.space_alt);
@@ -339,7 +340,7 @@ public class TaskbarController extends UIController {
 
         layout.setBackgroundColor(backgroundTint);
         layout.findViewById(R.id.divider).setBackgroundColor(
-                pref.getBoolean(PREF_CENTERED_ICONS, false) ? 0 : accentColor
+                windowsStyle || pref.getBoolean(PREF_CENTERED_ICONS, false) ? 0 : accentColor
         );
         button.setTextColor(accentColor);
 
@@ -870,7 +871,7 @@ public class TaskbarController extends UIController {
         final List<AppEntry> entries = new ArrayList<>();
         List<LauncherActivityInfo> launcherAppCache = new ArrayList<>();
         int maxNumOfEntries = firstRefresh ? 0 : U.getMaxNumOfEntries(context);
-        boolean fullLength = pref.getBoolean(PREF_FULL_LENGTH, true);
+        boolean fullLength = isWindowsStyle(pref) || pref.getBoolean(PREF_FULL_LENGTH, true);
 
         PinnedBlockedApps pba = PinnedBlockedApps.getInstance(context);
         List<AppEntry> pinnedApps = pba.getPinnedApps();
@@ -1101,7 +1102,7 @@ public class TaskbarController extends UIController {
                     Space whitespaceEnd = layout.findViewById(R.id.whitespace_end);
                     int height = maxScreenSize - recentsSize;
 
-                    if(pref.getBoolean(PREF_CENTERED_ICONS, false)) {
+                    if(isWindowsStyle(pref) || pref.getBoolean(PREF_CENTERED_ICONS, false)) {
                         int startHeight = (height / 2) + (diff / (startIsBigger ? -2 : 2));
                         int endHeight = (height / 2) + (diff / (startIsBigger ? 2 : -2));
                         
@@ -1141,7 +1142,7 @@ public class TaskbarController extends UIController {
                     Space whitespaceEnd = layout.findViewById(R.id.whitespace_end);
                     int width = maxScreenSize - recentsSize;
 
-                    if(pref.getBoolean(PREF_CENTERED_ICONS, false)) {
+                    if(isWindowsStyle(pref) || pref.getBoolean(PREF_CENTERED_ICONS, false)) {
                         int startWidth = (width / 2) + (diff / (startIsBigger ? -2 : 2));
                         int endWidth = (width / 2) + (diff / (startIsBigger ? 2 : -2));
 
@@ -1801,6 +1802,16 @@ public class TaskbarController extends UIController {
         return entries;
     }
 
+    private boolean isWindowsStyle(SharedPreferences pref) {
+        return PREF_TASKBAR_STYLE_WINDOWS.equals(
+                pref.getString(PREF_TASKBAR_STYLE, PREF_TASKBAR_STYLE_CLASSIC));
+    }
+
+    private int getTaskbarAccentColor() {
+        SharedPreferences pref = U.getSharedPreferences(context);
+        return isWindowsStyle(pref) ? Color.WHITE : U.getAccentColor(context);
+    }
+
     private boolean hasLauncherIntent(String packageName) {
         Intent intentToResolve = new Intent(Intent.ACTION_MAIN);
         intentToResolve.addCategory(Intent.CATEGORY_LAUNCHER);
@@ -1842,7 +1853,7 @@ public class TaskbarController extends UIController {
                 notificationCountText.setTextColor(color);
 
                 Drawable drawable = ContextCompat.getDrawable(context, R.drawable.tb_circle);
-                drawable.setTint(U.getAccentColor(context));
+                drawable.setTint(getTaskbarAccentColor());
 
                 notificationCountCircle.setImageDrawable(drawable);
                 notificationCountText.setText(Integer.toString(notificationCount));
@@ -1853,7 +1864,7 @@ public class TaskbarController extends UIController {
             time.setText(context.getString(R.string.tb_systray_clock,
                     DateFormat.getTimeFormat(context).format(new Date()),
                     DateFormat.getDateFormat(context).format(new Date())));
-            time.setTextColor(U.getAccentColor(context));
+            time.setTextColor(getTaskbarAccentColor());
         });
     }
 
@@ -1958,7 +1969,7 @@ public class TaskbarController extends UIController {
 
         if(drawable == null) return null;
 
-        drawable.setTint(U.getAccentColor(context));
+        drawable.setTint(getTaskbarAccentColor());
         return drawable;
     }
 
