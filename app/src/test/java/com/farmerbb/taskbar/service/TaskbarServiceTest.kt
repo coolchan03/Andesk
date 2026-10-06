@@ -6,7 +6,10 @@ import com.farmerbb.taskbar.activity.DesktopLauncherActivity
 import com.farmerbb.taskbar.activity.MainActivity
 import org.junit.Assert
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
 
+@RunWith(RobolectricTestRunner::class)
 class TaskbarServiceTest {
     @Test
     fun testDesktopLauncherTaskDetection() {
