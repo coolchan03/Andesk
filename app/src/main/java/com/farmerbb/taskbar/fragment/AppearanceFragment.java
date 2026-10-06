@@ -95,6 +95,7 @@ public class AppearanceFragment extends SettingsFragment {
 
         bindPreferenceSummaryToValue(findPreference(PREF_THEME));
         bindPreferenceSummaryToValue(findPreference(PREF_TASKBAR_STYLE));
+        bindPreferenceSummaryToValue(findPreference(PREF_TASKBAR_SIZE));
         bindPreferenceSummaryToValue(findPreference(PREF_FULL_LENGTH));
         bindPreferenceSummaryToValue(findPreference(PREF_CENTERED_ICONS));
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)

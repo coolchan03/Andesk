@@ -91,7 +91,7 @@ public class SystemTrayActivity extends Activity {
         params.width = dp(320);
         params.height = WindowManager.LayoutParams.WRAP_CONTENT;
         params.x = dp(8);
-        params.y = getResources().getDimensionPixelSize(R.dimen.tb_icon_size) + dp(8);
+        params.y = U.getTaskbarIconSize(this) + dp(8);
         window.setAttributes(params);
     }
 
