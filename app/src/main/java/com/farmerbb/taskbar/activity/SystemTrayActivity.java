@@ -27,9 +27,11 @@ import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.VisibleForTesting;
 import androidx.core.graphics.ColorUtils;
 
 import com.farmerbb.taskbar.R;
+import com.farmerbb.taskbar.util.Constants;
 import com.farmerbb.taskbar.util.U;
 
 import java.util.Date;
@@ -70,16 +72,16 @@ public class SystemTrayActivity extends Activity {
         }), tileParams());
         root.addView(row2);
 
-        TextView settings = makeTile(getString(R.string.tb_settings), v -> {
+        LinearLayout row3 = new LinearLayout(this);
+        row3.setOrientation(LinearLayout.HORIZONTAL);
+        row3.addView(makeTile(getString(R.string.tb_settings), v -> {
             Intent intent = new Intent(this, MainActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
             finish();
-        });
-        LinearLayout.LayoutParams settingsParams = new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, dp(48));
-        settingsParams.topMargin = dp(8);
-        root.addView(settings, settingsParams);
+        }), tileParams());
+        row3.addView(makeTile(getString(R.string.tb_exit_desktop), v -> exitDesktop()), tileParams());
+        root.addView(row3);
 
         setContentView(root);
         setFinishOnTouchOutside(true);
@@ -189,6 +191,19 @@ public class SystemTrayActivity extends Activity {
         }
 
         startActivitySafely(new Intent(Settings.ACTION_BLUETOOTH_SETTINGS));
+    }
+
+    @VisibleForTesting
+    Intent getExitDesktopIntent() {
+        Intent intent = new Intent(Constants.ACTION_QUIT);
+        intent.setPackage(getPackageName());
+        intent.putExtra(Constants.EXTRA_DESKTOP_SESSION, true);
+        return intent;
+    }
+
+    private void exitDesktop() {
+        sendBroadcast(getExitDesktopIntent());
+        finish();
     }
 
     private void openVolumeControls() {
