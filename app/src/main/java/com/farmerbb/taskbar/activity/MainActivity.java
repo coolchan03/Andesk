@@ -377,47 +377,17 @@ public class MainActivity extends AppCompatActivity {
 
     @TargetApi(Build.VERSION_CODES.N)
     private void startTaskbarService() {
-        SharedPreferences pref = U.getSharedPreferences(this);
-        SharedPreferences.Editor editor = pref.edit();
-
-        editor.putBoolean(PREF_IS_HIDDEN, false);
-
-        if(pref.getBoolean(PREF_FIRST_RUN, true)) {
-            editor.putBoolean(PREF_FIRST_RUN, false);
-            editor.putBoolean(PREF_COLLAPSED, true);
-        }
-
-        editor.putBoolean(PREF_TASKBAR_ACTIVE, true);
-        editor.putLong(PREF_TIME_OF_SERVICE_START, System.currentTimeMillis());
-        editor.apply();
-
-        if(U.hasFreeformSupport(this)
-                && U.isFreeformModeEnabled(this)
-                && !FreeformHackHelper.getInstance().isFreeformHackActive()
-                && U.needsInvisibleActivityHacks()) {
-            U.startFreeformHack(this, true);
-        }
-
-        startService(new Intent(this, TaskbarService.class));
-        startService(new Intent(this, StartMenuService.class));
-        startService(new Intent(this, DashboardService.class));
-        startService(new Intent(this, NotificationService.class));
+        Intent startIntent = new Intent(ACTION_START);
+        startIntent.setPackage(getPackageName());
+        sendBroadcast(startIntent);
+        finish();
     }
 
     private void stopTaskbarService() {
-        SharedPreferences pref = U.getSharedPreferences(this);
-        pref.edit().putBoolean(PREF_TASKBAR_ACTIVE, false).apply();
-
-        if(!LauncherHelper.getInstance().isOnHomeScreen(this)) {
-            stopService(new Intent(this, TaskbarService.class));
-            stopService(new Intent(this, StartMenuService.class));
-            stopService(new Intent(this, DashboardService.class));
-
-            U.clearCaches(this);
-            U.sendBroadcast(this, ACTION_START_MENU_DISAPPEARING);
-        }
-
-        stopService(new Intent(this, NotificationService.class));
+        Intent quitIntent = new Intent(ACTION_QUIT);
+        quitIntent.setPackage(getPackageName());
+        quitIntent.putExtra(EXTRA_DESKTOP_SESSION, true);
+        sendBroadcast(quitIntent);
     }
 
     private void updateSwitch() {
