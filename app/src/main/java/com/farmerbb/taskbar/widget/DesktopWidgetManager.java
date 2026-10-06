@@ -69,6 +69,7 @@ public class DesktopWidgetManager {
         View border;
         View handle;
         ImageView done;
+        boolean resizing;
     }
 
     private final Activity activity;
@@ -277,7 +278,7 @@ public class DesktopWidgetManager {
         editingId = entry.id;
 
         GradientDrawable border = new GradientDrawable();
-        border.setColor(Color.argb(40, 255, 255, 255));
+        border.setColor(Color.TRANSPARENT);
         border.setStroke(dp(2), Color.WHITE);
         entry.border = new View(activity);
         entry.border.setBackground(border);
@@ -296,7 +297,7 @@ public class DesktopWidgetManager {
         entry.handle.setBackground(handleBackground);
         entry.handle.setOnTouchListener(new ResizeTouchListener(entry));
 
-        FrameLayout.LayoutParams handleParams = new FrameLayout.LayoutParams(size / 2, size / 2);
+        FrameLayout.LayoutParams handleParams = new FrameLayout.LayoutParams(size, size);
         handleParams.gravity = Gravity.BOTTOM | Gravity.END;
         handleParams.setMargins(0, 0, dp(4), dp(4));
         entry.frame.addView(entry.handle, handleParams);
@@ -326,6 +327,7 @@ public class DesktopWidgetManager {
         entry.border = null;
         entry.handle = null;
         entry.done = null;
+        entry.resizing = false;
 
         saveWidgets();
         return true;
@@ -355,7 +357,12 @@ public class DesktopWidgetManager {
         @Override
         public boolean onInterceptTouchEvent(MotionEvent ev) {
             if(editingId == entry.id) {
-                // Let the handle and done button receive their own touches
+                // Keep the active resize gesture owned by the handle even after the
+                // pointer leaves its bounds. Otherwise the parent steals ACTION_MOVE.
+                if(entry.resizing)
+                    return false;
+
+                // Let the handle and done button receive their own touches.
                 return !isInside(entry.handle, ev) && !isInside(entry.done, ev);
             }
 
@@ -411,6 +418,8 @@ public class DesktopWidgetManager {
         public boolean onTouch(View v, MotionEvent ev) {
             switch(ev.getActionMasked()) {
                 case MotionEvent.ACTION_DOWN:
+                    entry.resizing = true;
+                    v.getParent().requestDisallowInterceptTouchEvent(true);
                     downRawX = ev.getRawX();
                     downRawY = ev.getRawY();
                     startWidth = entry.width;
@@ -428,6 +437,8 @@ public class DesktopWidgetManager {
                     return true;
                 case MotionEvent.ACTION_UP:
                 case MotionEvent.ACTION_CANCEL:
+                    entry.resizing = false;
+                    v.getParent().requestDisallowInterceptTouchEvent(false);
                     saveWidgets();
                     return true;
             }

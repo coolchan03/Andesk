@@ -41,6 +41,7 @@ import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.BatteryManager;
@@ -52,6 +53,8 @@ import android.os.Process;
 import android.os.SystemClock;
 import android.os.UserHandle;
 import android.os.UserManager;
+import android.provider.AlarmClock;
+import android.provider.CalendarContract;
 import android.provider.Settings;
 import android.speech.RecognizerIntent;
 
@@ -88,6 +91,7 @@ import android.widget.Space;
 import android.widget.TextView;
 
 import com.farmerbb.taskbar.BuildConfig;
+import com.farmerbb.taskbar.activity.SystemTrayActivity;
 import com.farmerbb.taskbar.activity.HomeActivityDelegate;
 import com.farmerbb.taskbar.activity.MainActivity;
 import com.farmerbb.taskbar.R;
@@ -675,46 +679,43 @@ public class TaskbarController extends UIController {
         sysTrayLayout.setLayoutParams(sysTrayParams);
 
         if(!U.isLibrary(context)) {
-            sysTrayLayout.setOnClickListener(v -> {
-                U.sendAccessibilityAction(context, AccessibilityService.GLOBAL_ACTION_NOTIFICATIONS, () -> {
-                    if(LauncherHelper.getInstance().isOnSecondaryHomeScreen(context)) {
-                        U.showToast(context, R.string.tb_opening_notification_tray);
-                        U.sendBroadcast(context, ACTION_UNDIM_SCREEN);
-                    }
-                });
+            // A normal click now opens Taskbar's compact control center instead of
+            // pulling down Android's notification shade.
+            sysTrayLayout.setOnClickListener(v -> openControlCenter());
 
-                if(U.shouldCollapse(context, false))
-                    hideTaskbar(true);
+            View notificationView = sysTrayLayout.findViewById(R.id.notification_count);
+            notificationView.setOnClickListener(v -> openNotificationShade());
+
+            View wifiView = sysTrayLayout.findViewById(R.id.wifi);
+            wifiView.setOnClickListener(v -> openControlCenter());
+
+            View bluetoothView = sysTrayLayout.findViewById(R.id.bluetooth);
+            bluetoothView.setOnClickListener(v -> openControlCenter());
+
+            View cellularView = sysTrayLayout.findViewById(R.id.cellular);
+            cellularView.setOnClickListener(v -> openInternetPanel());
+
+            View batteryView = sysTrayLayout.findViewById(R.id.battery);
+            batteryView.setOnClickListener(v -> openBatterySettings());
+
+            time.setOnClickListener(v -> openClock());
+            time.setOnLongClickListener(v -> {
+                openCalendar();
+                return true;
             });
 
             if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                // Keep Android Quick Settings available as a secondary action.
                 sysTrayLayout.setOnLongClickListener(v -> {
-                    U.sendAccessibilityAction(context, AccessibilityService.GLOBAL_ACTION_QUICK_SETTINGS, () -> {
-                        if(LauncherHelper.getInstance().isOnSecondaryHomeScreen(context)) {
-                            U.showToast(context, R.string.tb_opening_quick_settings);
-                            U.sendBroadcast(context, ACTION_UNDIM_SCREEN);
-                        }
-                    });
-
-                    if(U.shouldCollapse(context, false))
-                        hideTaskbar(true);
-
+                    openQuickSettings();
                     return true;
                 });
 
                 sysTrayLayout.setOnGenericMotionListener((view, motionEvent) -> {
                     if(motionEvent.getAction() == MotionEvent.ACTION_BUTTON_PRESS
-                            && motionEvent.getButtonState() == MotionEvent.BUTTON_SECONDARY) {
-                        U.sendAccessibilityAction(context, AccessibilityService.GLOBAL_ACTION_QUICK_SETTINGS, () -> {
-                            if(LauncherHelper.getInstance().isOnSecondaryHomeScreen(context)) {
-                                U.showToast(context, R.string.tb_opening_quick_settings);
-                                U.sendBroadcast(context, ACTION_UNDIM_SCREEN);
-                            }
-                        });
+                            && motionEvent.getButtonState() == MotionEvent.BUTTON_SECONDARY)
+                        openQuickSettings();
 
-                        if(U.shouldCollapse(context, false))
-                            hideTaskbar(true);
-                    }
                     return true;
                 });
             }
@@ -733,6 +734,77 @@ public class TaskbarController extends UIController {
         sysTrayIconStates.put(R.id.wifi, false);
         sysTrayIconStates.put(R.id.battery, false);
         sysTrayIconStates.put(R.id.notification_count, false);
+    }
+
+    private void openControlCenter() {
+        Intent intent = new Intent(context, SystemTrayActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
+        try {
+            context.startActivity(intent);
+        } catch(ActivityNotFoundException ignored) {}
+    }
+
+    private void openNotificationShade() {
+        U.sendAccessibilityAction(context, AccessibilityService.GLOBAL_ACTION_NOTIFICATIONS, () -> {
+            if(LauncherHelper.getInstance().isOnSecondaryHomeScreen(context)) {
+                U.showToast(context, R.string.tb_opening_notification_tray);
+                U.sendBroadcast(context, ACTION_UNDIM_SCREEN);
+            }
+        });
+
+        if(U.shouldCollapse(context, false))
+            hideTaskbar(true);
+    }
+
+    private void openQuickSettings() {
+        U.sendAccessibilityAction(context, AccessibilityService.GLOBAL_ACTION_QUICK_SETTINGS, () -> {
+            if(LauncherHelper.getInstance().isOnSecondaryHomeScreen(context)) {
+                U.showToast(context, R.string.tb_opening_quick_settings);
+                U.sendBroadcast(context, ACTION_UNDIM_SCREEN);
+            }
+        });
+
+        if(U.shouldCollapse(context, false))
+            hideTaskbar(true);
+    }
+
+    private void openInternetPanel() {
+        Intent intent = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
+                ? new Intent(Settings.Panel.ACTION_INTERNET_CONNECTIVITY)
+                : new Intent(Settings.ACTION_WIRELESS_SETTINGS);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        try {
+            context.startActivity(intent);
+        } catch(ActivityNotFoundException ignored) {}
+    }
+
+    private void openBatterySettings() {
+        Intent intent = new Intent(Settings.ACTION_BATTERY_SAVER_SETTINGS);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        try {
+            context.startActivity(intent);
+        } catch(ActivityNotFoundException ignored) {}
+    }
+
+    private void openClock() {
+        Intent intent = new Intent(AlarmClock.ACTION_SHOW_ALARMS);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        try {
+            context.startActivity(intent);
+        } catch(ActivityNotFoundException ignored) {}
+    }
+
+    private void openCalendar() {
+        Uri uri = CalendarContract.CONTENT_URI.buildUpon()
+                .appendPath("time")
+                .appendPath(Long.toString(System.currentTimeMillis()))
+                .build();
+
+        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        try {
+            context.startActivity(intent);
+        } catch(ActivityNotFoundException ignored) {}
     }
 
     private void startRefreshingRecents() {
@@ -1856,8 +1928,10 @@ public class TaskbarController extends UIController {
 
     private Drawable getBluetoothDrawable() {
         BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
-        if(adapter != null && adapter.isEnabled())
-            return getDrawableForSysTray(R.drawable.tb_bluetooth);
+        try {
+            if(adapter != null && adapter.isEnabled())
+                return getDrawableForSysTray(R.drawable.tb_bluetooth);
+        } catch(SecurityException ignored) {}
 
         return null;
     }
