@@ -84,6 +84,13 @@
         <item>Windows 10-like</item>
         <item>Windows 11-like</item>
     </string-array>
+    <string name="tb_pref_title_taskbar_size">Taskbar size</string>
+    <string name="tb_pref_summary_taskbar_size">Choose compact, standard, or large taskbar controls</string>
+    <string-array name="tb_pref_taskbar_size">
+        <item>Compact</item>
+        <item>Standard</item>
+        <item>Large</item>
+    </string-array>
 
     <string name="tb_pref_header_advanced">Advanced features</string>
 

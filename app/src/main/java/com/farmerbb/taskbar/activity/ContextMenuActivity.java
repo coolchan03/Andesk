@@ -167,7 +167,7 @@ public class ContextMenuActivity extends PreferenceActivity implements Preferenc
 
             int x = args.getInt("x", display.width);
             int y = args.getInt("y", display.height);
-            int offset = getResources().getDimensionPixelSize(R.dimen.tb_icon_size);
+            int offset = U.getTaskbarIconSize(this);
 
             switch(TaskbarPosition.getTaskbarPosition(this)) {
                 case POSITION_BOTTOM_LEFT:

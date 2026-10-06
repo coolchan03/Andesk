@@ -35,6 +35,16 @@
         android:title="@string/tb_pref_title_taskbar_style"
         android:summary="@string/tb_pref_summary_taskbar_style"/>
 
+    <ListPreference
+        android:defaultValue="standard"
+        android:entries="@array/tb_pref_taskbar_size"
+        android:entryValues="@array/tb_pref_taskbar_size_values"
+        android:key="taskbar_size"
+        android:negativeButtonText="@null"
+        android:positiveButtonText="@null"
+        android:title="@string/tb_pref_title_taskbar_size"
+        android:summary="@string/tb_pref_summary_taskbar_size"/>
+
     <CheckBoxPreference
         android:defaultValue="true"
         android:key="full_length"

@@ -267,8 +267,19 @@ public class TaskbarController extends UIController {
         boolean altButtonConfig = pref.getBoolean(PREF_ALT_BUTTON_CONFIG, false);
 
         layout = (LinearLayout) LayoutInflater.from(U.wrapContext(context)).inflate(layoutId, null);
+        applyTaskbarSize(layout);
         taskbar = layout.findViewById(R.id.taskbar);
         scrollView = layout.findViewById(R.id.taskbar_scrollview);
+
+        View divider = layout.findViewById(R.id.divider);
+        ViewGroup.LayoutParams dividerParams = divider.getLayoutParams();
+        int dividerSpan = Math.max(1, U.getTaskbarIconSize(context)
+                - Math.round(16 * context.getResources().getDisplayMetrics().density));
+        if(positionIsVertical)
+            dividerParams.width = dividerSpan;
+        else
+            dividerParams.height = dividerSpan;
+        divider.setLayoutParams(dividerParams);
 
         boolean windowsStyle = U.isWindowsTaskbarStyle(context);
         int backgroundTint = U.getTaskbarBackgroundColor(context);
@@ -671,7 +682,7 @@ public class TaskbarController extends UIController {
 
         FrameLayout.LayoutParams sysTrayParams = new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.WRAP_CONTENT,
-                context.getResources().getDimensionPixelSize(R.dimen.tb_icon_size)
+                U.getTaskbarIconSize(context)
         );
 
         if(layoutId == R.layout.tb_taskbar_right) {
@@ -1085,7 +1096,7 @@ public class TaskbarController extends UIController {
                                    boolean fullLength,
                                    int numOfEntries) {
         DisplayInfo display = U.getDisplayInfo(context, true);
-        int recentsSize = context.getResources().getDimensionPixelSize(R.dimen.tb_icon_size) * numOfEntries;
+        int recentsSize = U.getTaskbarIconSize(context) * numOfEntries;
         float maxRecentsSize = fullLength ? Float.MAX_VALUE : recentsSize;
         int maxScreenSize;
 
@@ -1394,7 +1405,7 @@ public class TaskbarController extends UIController {
                 runningAppIndicator.setVisibility(View.GONE);
             else {
                 runningAppIndicator.setVisibility(View.VISIBLE);
-                runningAppIndicator.setColorFilter(U.getAccentColor(context));
+                runningAppIndicator.setColorFilter(U.getTaskbarAccentColor(context));
             }
         }
     }
@@ -1650,8 +1661,39 @@ public class TaskbarController extends UIController {
         }
     }
 
+    @VisibleForTesting
+    void applyTaskbarSize(View view) {
+        int defaultSize = context.getResources().getDimensionPixelSize(R.dimen.tb_icon_size);
+        int targetSize = U.getTaskbarIconSize(context);
+
+        if(defaultSize != targetSize) {
+            ViewGroup.LayoutParams params = view.getLayoutParams();
+            if(params != null) {
+                boolean changed = false;
+                if(params.width == defaultSize) {
+                    params.width = targetSize;
+                    changed = true;
+                }
+                if(params.height == defaultSize) {
+                    params.height = targetSize;
+                    changed = true;
+                }
+                if(changed)
+                    view.setLayoutParams(params);
+            }
+        }
+
+        if(view instanceof ViewGroup) {
+            ViewGroup group = (ViewGroup) view;
+            for(int i = 0; i < group.getChildCount(); i++) {
+                applyTaskbarSize(group.getChildAt(i));
+            }
+        }
+    }
+
     private View getView(List<AppEntry> list, int position) {
         View convertView = View.inflate(context, R.layout.tb_icon, null);
+        applyTaskbarSize(convertView);
 
         final AppEntry entry = list.get(position);
         final SharedPreferences pref = U.getSharedPreferences(context);
@@ -1659,7 +1701,7 @@ public class TaskbarController extends UIController {
         ImageView imageView = convertView.findViewById(R.id.icon);
         ImageView imageView2 = convertView.findViewById(R.id.shortcut_icon);
         imageView.setImageDrawable(entry.getIcon(context));
-        imageView2.setBackgroundColor(U.getAccentColor(context));
+        imageView2.setBackgroundColor(U.getTaskbarAccentColor(context));
 
         String taskbarPosition = TaskbarPosition.getTaskbarPosition(context);
         if(pref.getBoolean(PREF_SHORTCUT_ICON, true)) {
@@ -1713,7 +1755,7 @@ public class TaskbarController extends UIController {
         if(pref.getBoolean(PREF_VISUAL_FEEDBACK, true)) {
             layout.setOnHoverListener((v, event) -> {
                 if(event.getAction() == MotionEvent.ACTION_HOVER_ENTER) {
-                    int accentColor = U.getAccentColor(context);
+                    int accentColor = U.getTaskbarAccentColor(context);
                     accentColor = ColorUtils.setAlphaComponent(accentColor, Color.alpha(accentColor) / 2);
                     v.setBackgroundColor(accentColor);
                 }

@@ -18,6 +18,7 @@ class TaskbarStyleTest {
         context = ApplicationProvider.getApplicationContext()
         U.getSharedPreferences(context).edit()
                 .remove(Constants.PREF_TASKBAR_STYLE)
+                .remove(Constants.PREF_TASKBAR_SIZE)
                 .remove(Constants.PREF_FULL_LENGTH)
                 .remove(Constants.PREF_CENTERED_ICONS)
                 .remove(Constants.PREF_BACKGROUND_TINT)
@@ -81,5 +82,26 @@ class TaskbarStyleTest {
                 Constants.PREF_TASKBAR_STYLE_WINDOWS_11,
                 U.getTaskbarStyle(context))
         Assert.assertTrue(U.isTaskbarCentered(context))
+    }
+
+    @Test
+    fun testTaskbarSizes() {
+        val density = context.resources.displayMetrics.density
+        val prefs = U.getSharedPreferences(context)
+
+        prefs.edit().putString(
+                Constants.PREF_TASKBAR_SIZE,
+                Constants.PREF_TASKBAR_SIZE_COMPACT).apply()
+        Assert.assertEquals(Math.round(48 * density), U.getTaskbarIconSize(context))
+
+        prefs.edit().putString(
+                Constants.PREF_TASKBAR_SIZE,
+                Constants.PREF_TASKBAR_SIZE_STANDARD).apply()
+        Assert.assertEquals(Math.round(60 * density), U.getTaskbarIconSize(context))
+
+        prefs.edit().putString(
+                Constants.PREF_TASKBAR_SIZE,
+                Constants.PREF_TASKBAR_SIZE_LARGE).apply()
+        Assert.assertEquals(Math.round(72 * density), U.getTaskbarIconSize(context))
     }
 }

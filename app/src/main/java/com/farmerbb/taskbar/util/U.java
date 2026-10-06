@@ -522,7 +522,7 @@ public class U {
         int bottom = display.height;
 
         int iconSize = isOverridingFreeformHack(context) && !LauncherHelper.getInstance().isOnHomeScreen(context)
-                ? 0 : context.getResources().getDimensionPixelSize(R.dimen.tb_icon_size);
+                ? 0 : getTaskbarIconSize(context);
 
         if(TaskbarPosition.isVerticalLeft(position))
             left = left + iconSize;
@@ -645,7 +645,7 @@ public class U {
         int right = display.width;
         int bottom = display.height;
 
-        int iconSize = context.getResources().getDimensionPixelSize(R.dimen.tb_icon_size);
+        int iconSize = getTaskbarIconSize(context);
 
         if(TaskbarPosition.isVerticalLeft(position))
             right = iconSize;
@@ -729,7 +729,7 @@ public class U {
                 ? (display.height - getStatusBarHeight(context)) / density
                 : display.width / density;
 
-        float iconSize = context.getResources().getDimension(R.dimen.tb_icon_size) / density;
+        float iconSize = getTaskbarIconSize(context) / density;
 
         int userMaxNumOfColumns = Integer.parseInt(pref.getString(PREF_MAX_NUM_OF_RECENTS, "10"));
 
@@ -1181,7 +1181,8 @@ public class U {
 
     public static float getBaseTaskbarSizeStart(Context context) {
         SharedPreferences pref = getSharedPreferences(context);
-        float baseTaskbarSize = context.getResources().getDimension(R.dimen.tb_base_size_start_plus_divider);
+        float baseTaskbarSize = getTaskbarIconSize(context)
+                + context.getResources().getDimension(R.dimen.tb_divider_size);
 
         baseTaskbarSize += pref.getBoolean(PREF_ALT_BUTTON_CONFIG, false)
                 ? context.getResources().getDimension(R.dimen.tb_base_size_collapse_button) : 0;
@@ -1193,17 +1194,17 @@ public class U {
 
         if(pref.getBoolean(PREF_BUTTON_BACK, false)) {
             navbarButtonsEnabled = true;
-            baseTaskbarSize += context.getResources().getDimension(R.dimen.tb_icon_size);
+            baseTaskbarSize += getTaskbarIconSize(context);
         }
 
         if(pref.getBoolean(PREF_BUTTON_HOME, false)) {
             navbarButtonsEnabled = true;
-            baseTaskbarSize += context.getResources().getDimension(R.dimen.tb_icon_size);
+            baseTaskbarSize += getTaskbarIconSize(context);
         }
 
         if(pref.getBoolean(PREF_BUTTON_RECENTS, false)) {
             navbarButtonsEnabled = true;
-            baseTaskbarSize += context.getResources().getDimension(R.dimen.tb_icon_size);
+            baseTaskbarSize += getTaskbarIconSize(context);
         }
 
         if(navbarButtonsEnabled)
@@ -1824,6 +1825,27 @@ public class U {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1
                 && !canBootToFreeform(context, false)
                 && !shouldLaunchTouchAbsorber(context);
+    }
+
+    public static int getTaskbarIconSize(Context context) {
+        String size = getSharedPreferences(context).getString(
+                PREF_TASKBAR_SIZE, PREF_TASKBAR_SIZE_STANDARD);
+
+        int dp;
+        switch(size) {
+            case PREF_TASKBAR_SIZE_COMPACT:
+                dp = 48;
+                break;
+            case PREF_TASKBAR_SIZE_LARGE:
+                dp = 72;
+                break;
+            case PREF_TASKBAR_SIZE_STANDARD:
+            default:
+                dp = 60;
+                break;
+        }
+
+        return Math.round(dp * context.getResources().getDisplayMetrics().density);
     }
 
     public static String getTaskbarStyle(Context context) {

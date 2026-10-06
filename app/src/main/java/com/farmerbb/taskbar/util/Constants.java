@@ -213,6 +213,7 @@ public class Constants {
     public static final String PREF_SYSTEM_SETTINGS = "system_settings";
     public static final String PREF_SYS_TRAY = "sys_tray";
     public static final String PREF_TASKBAR_ACTIVE = "taskbar_active";
+    public static final String PREF_TASKBAR_SIZE = "taskbar_size";
     public static final String PREF_TASKBAR_STYLE = "taskbar_style";
     public static final String PREF_TASKER_ENABLED = "tasker_enabled";
     public static final String PREF_THEME = "theme";
@@ -248,6 +249,10 @@ public class Constants {
     public static final String PREF_START_BUTTON_IMAGE_APP_LOGO = "app_logo";
     public static final String PREF_START_BUTTON_IMAGE_CUSTOM  = "custom";
     public static final String PREF_START_BUTTON_IMAGE_DEFAULT = "default";
+
+    public static final String PREF_TASKBAR_SIZE_COMPACT = "compact";
+    public static final String PREF_TASKBAR_SIZE_STANDARD = "standard";
+    public static final String PREF_TASKBAR_SIZE_LARGE = "large";
 
     public static final String PREF_TASKBAR_STYLE_CLASSIC = "classic";
     public static final String PREF_TASKBAR_STYLE_WINDOWS = "windows";

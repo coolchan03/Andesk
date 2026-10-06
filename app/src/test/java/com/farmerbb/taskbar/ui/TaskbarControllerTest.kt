@@ -55,6 +55,9 @@ import com.farmerbb.taskbar.util.Constants.PREF_START_BUTTON_IMAGE
 import com.farmerbb.taskbar.util.Constants.PREF_START_BUTTON_IMAGE_APP_LOGO
 import com.farmerbb.taskbar.util.Constants.PREF_START_BUTTON_IMAGE_CUSTOM
 import com.farmerbb.taskbar.util.Constants.PREF_START_BUTTON_IMAGE_DEFAULT
+import com.farmerbb.taskbar.util.Constants.PREF_TASKBAR_SIZE
+import com.farmerbb.taskbar.util.Constants.PREF_TASKBAR_SIZE_COMPACT
+import com.farmerbb.taskbar.util.Constants.PREF_TASKBAR_STYLE
 import com.farmerbb.taskbar.util.Constants.PREF_TIME_OF_SERVICE_START
 import com.farmerbb.taskbar.util.TaskbarPosition
 import com.farmerbb.taskbar.util.U
@@ -90,18 +93,40 @@ class TaskbarControllerTest {
         context = ApplicationProvider.getApplicationContext()
         uiController = TaskbarController(context)
         prefs = U.getSharedPreferences(context)
+        prefs.edit()
+                .remove(PREF_TASKBAR_SIZE)
+                .remove(PREF_TASKBAR_STYLE)
+                .apply()
         uiController.onCreateHost(host)
     }
 
     @After
     fun tearDown() {
-        prefs.edit().remove(PREF_START_BUTTON_IMAGE).apply()
+        prefs.edit()
+                .remove(PREF_START_BUTTON_IMAGE)
+                .remove(PREF_TASKBAR_SIZE)
+                .remove(PREF_TASKBAR_STYLE)
+                .apply()
         uiController.onDestroyHost(host)
     }
 
     @Test
     fun testInitialization() {
         Assert.assertNotNull(uiController)
+    }
+
+    @Test
+    fun testApplyCompactTaskbarSize() {
+        val defaultSize = context.resources.getDimensionPixelSize(R.dimen.tb_icon_size)
+        val view = ImageView(context)
+        view.layoutParams = FrameLayout.LayoutParams(defaultSize, defaultSize)
+
+        prefs.edit().putString(PREF_TASKBAR_SIZE, PREF_TASKBAR_SIZE_COMPACT).apply()
+        uiController.applyTaskbarSize(view)
+
+        val expected = U.getTaskbarIconSize(context)
+        Assert.assertEquals(expected.toLong(), view.layoutParams.width.toLong())
+        Assert.assertEquals(expected.toLong(), view.layoutParams.height.toLong())
     }
 
     @Test
