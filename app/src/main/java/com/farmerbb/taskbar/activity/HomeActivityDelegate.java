@@ -503,12 +503,15 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
         if(!isDesktopLauncher)
             return;
 
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
-            getWindow().setNavigationBarContrastEnforced(false);
-
         int color = TaskbarPosition.isBottom(this)
                 ? U.getBackgroundTint(this)
                 : Color.TRANSPARENT;
+
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
+            getWindow().setNavigationBarContrastEnforced(false);
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
+            getWindow().setNavigationBarDividerColor(color);
+
         getWindow().setNavigationBarColor(color);
     }
 
