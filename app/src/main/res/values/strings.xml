@@ -28,7 +28,6 @@
     <string name="tb_action_show_alt">Show</string>
     <string name="tb_action_hide_alt">Hide</string>
     <string name="tb_action_quit">Quit</string>
-    <string name="tb_exit_desktop">Exit desktop</string>
     <string name="tb_action_grant_permission">Grant permission</string>
     <string name="tb_action_open_settings">Open Settings</string>
 
