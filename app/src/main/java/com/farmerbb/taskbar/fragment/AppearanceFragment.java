@@ -17,13 +17,16 @@ package com.farmerbb.taskbar.fragment;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
+import android.provider.Settings;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -41,6 +44,11 @@ import static com.farmerbb.taskbar.util.Constants.*;
 public class AppearanceFragment extends SettingsFragment {
     private int alpha, red, green, blue;
 
+    @Override
+    protected void addPrefsToSanitize() {
+        prefsToSanitize.put(PREF_SYS_TRAY, R.bool.class);
+    }
+
     private enum ColorPickerType { BACKGROUND_TINT, ACCENT_COLOR }
 
     @Override
@@ -52,7 +60,10 @@ public class AppearanceFragment extends SettingsFragment {
         // Add preferences
         addPreferencesFromResource(R.xml.tb_pref_appearance);
 
-        if(!pref.contains(PREF_TASKBAR_STYLE))
+        String taskbarStyle = pref.getString(PREF_TASKBAR_STYLE, PREF_TASKBAR_STYLE_CLASSIC);
+        if(PREF_TASKBAR_STYLE_WINDOWS.equals(taskbarStyle))
+            pref.edit().putString(PREF_TASKBAR_STYLE, PREF_TASKBAR_STYLE_WINDOWS_11).apply();
+        else if(!pref.contains(PREF_TASKBAR_STYLE))
             pref.edit().putString(PREF_TASKBAR_STYLE, PREF_TASKBAR_STYLE_CLASSIC).apply();
 
         // Set OnClickListeners for certain preferences
@@ -60,6 +71,16 @@ public class AppearanceFragment extends SettingsFragment {
         findPreference(PREF_RESET_COLORS).setOnPreferenceClickListener(this);
         findPreference(PREF_BACKGROUND_TINT_PREF).setOnPreferenceClickListener(this);
         findPreference(PREF_ACCENT_COLOR_PREF).setOnPreferenceClickListener(this);
+
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if(U.isLibrary(getActivity()) || U.isAndroidTV(getActivity()))
+                getPreferenceScreen().removePreference(findPreference(PREF_NOTIFICATION_COUNT));
+            else
+                findPreference(PREF_NOTIFICATION_COUNT).setOnPreferenceClickListener(this);
+        } else {
+            getPreferenceScreen().removePreference(findPreference(PREF_NOTIFICATION_COUNT));
+            getPreferenceScreen().removePreference(findPreference(PREF_SYS_TRAY));
+        }
 
         if(U.isAndroidGeneric(getActivity())) {
             String[] array = getResources().getStringArray(R.array.tb_pref_start_button_image_list);
@@ -74,6 +95,10 @@ public class AppearanceFragment extends SettingsFragment {
 
         bindPreferenceSummaryToValue(findPreference(PREF_THEME));
         bindPreferenceSummaryToValue(findPreference(PREF_TASKBAR_STYLE));
+        bindPreferenceSummaryToValue(findPreference(PREF_FULL_LENGTH));
+        bindPreferenceSummaryToValue(findPreference(PREF_CENTERED_ICONS));
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+            bindPreferenceSummaryToValue(findPreference(PREF_SYS_TRAY));
         bindPreferenceSummaryToValue(findPreference(PREF_INVISIBLE_BUTTON));
         bindPreferenceSummaryToValue(findPreference(PREF_START_BUTTON_IMAGE));
         bindPreferenceSummaryToValue(findPreference(PREF_ICON_PACK_USE_MASK));
@@ -132,6 +157,13 @@ public class AppearanceFragment extends SettingsFragment {
             case PREF_ICON_PACK_LIST:
                 Intent intent = U.getThemedIntent(getActivity(), IconPackActivity.class);
                 startActivityForResult(intent, 123);
+                break;
+            case PREF_NOTIFICATION_COUNT:
+                try {
+                    startActivity(new Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS));
+                } catch (ActivityNotFoundException e) {
+                    U.showToast(getActivity(), R.string.tb_lock_device_not_supported);
+                }
                 break;
             case PREF_RESET_COLORS:
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());

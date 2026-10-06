@@ -270,9 +270,9 @@ public class TaskbarController extends UIController {
         taskbar = layout.findViewById(R.id.taskbar);
         scrollView = layout.findViewById(R.id.taskbar_scrollview);
 
-        boolean windowsStyle = isWindowsStyle(pref);
-        int backgroundTint = windowsStyle ? Color.rgb(32, 32, 32) : U.getBackgroundTint(context);
-        int accentColor = windowsStyle ? Color.WHITE : U.getAccentColor(context);
+        boolean windowsStyle = U.isWindowsTaskbarStyle(context);
+        int backgroundTint = U.getTaskbarBackgroundColor(context);
+        int accentColor = U.getTaskbarAccentColor(context);
 
         if(altButtonConfig) {
             space = layout.findViewById(R.id.space_alt);
@@ -456,8 +456,16 @@ public class TaskbarController extends UIController {
 
         switch(pref.getString(PREF_START_BUTTON_IMAGE, U.getDefaultStartButtonImage(context))) {
             case PREF_START_BUTTON_IMAGE_DEFAULT:
-                startButton.setImageDrawable(allAppsIcon);
-                padding = context.getResources().getDimensionPixelSize(R.dimen.tb_app_drawer_icon_padding);
+                if(U.isWindowsTaskbarStyle(context)) {
+                    startButton.setImageDrawable(ContextCompat.getDrawable(
+                            context, R.drawable.tb_start_windows_like));
+                    padding = context.getResources().getDimensionPixelSize(
+                            R.dimen.tb_windows_start_icon_padding);
+                } else {
+                    startButton.setImageDrawable(allAppsIcon);
+                    padding = context.getResources().getDimensionPixelSize(
+                            R.dimen.tb_app_drawer_icon_padding);
+                }
                 break;
             case PREF_START_BUTTON_IMAGE_APP_LOGO:
                 Drawable drawable;
@@ -871,7 +879,7 @@ public class TaskbarController extends UIController {
         final List<AppEntry> entries = new ArrayList<>();
         List<LauncherActivityInfo> launcherAppCache = new ArrayList<>();
         int maxNumOfEntries = firstRefresh ? 0 : U.getMaxNumOfEntries(context);
-        boolean fullLength = isWindowsStyle(pref) || pref.getBoolean(PREF_FULL_LENGTH, true);
+        boolean fullLength = U.isTaskbarFullLength(context);
 
         PinnedBlockedApps pba = PinnedBlockedApps.getInstance(context);
         List<AppEntry> pinnedApps = pba.getPinnedApps();
@@ -1102,7 +1110,7 @@ public class TaskbarController extends UIController {
                     Space whitespaceEnd = layout.findViewById(R.id.whitespace_end);
                     int height = maxScreenSize - recentsSize;
 
-                    if(isWindowsStyle(pref) || pref.getBoolean(PREF_CENTERED_ICONS, false)) {
+                    if(U.isTaskbarCentered(context)) {
                         int startHeight = (height / 2) + (diff / (startIsBigger ? -2 : 2));
                         int endHeight = (height / 2) + (diff / (startIsBigger ? 2 : -2));
                         
@@ -1142,7 +1150,7 @@ public class TaskbarController extends UIController {
                     Space whitespaceEnd = layout.findViewById(R.id.whitespace_end);
                     int width = maxScreenSize - recentsSize;
 
-                    if(isWindowsStyle(pref) || pref.getBoolean(PREF_CENTERED_ICONS, false)) {
+                    if(U.isTaskbarCentered(context)) {
                         int startWidth = (width / 2) + (diff / (startIsBigger ? -2 : 2));
                         int endWidth = (width / 2) + (diff / (startIsBigger ? 2 : -2));
 
@@ -1802,16 +1810,6 @@ public class TaskbarController extends UIController {
         return entries;
     }
 
-    private boolean isWindowsStyle(SharedPreferences pref) {
-        return PREF_TASKBAR_STYLE_WINDOWS.equals(
-                pref.getString(PREF_TASKBAR_STYLE, PREF_TASKBAR_STYLE_CLASSIC));
-    }
-
-    private int getTaskbarAccentColor() {
-        SharedPreferences pref = U.getSharedPreferences(context);
-        return isWindowsStyle(pref) ? Color.WHITE : U.getAccentColor(context);
-    }
-
     private boolean hasLauncherIntent(String packageName) {
         Intent intentToResolve = new Intent(Intent.ACTION_MAIN);
         intentToResolve.addCategory(Intent.CATEGORY_LAUNCHER);
@@ -1849,11 +1847,11 @@ public class TaskbarController extends UIController {
             }
 
             if(notificationCount > 0) {
-                int color = ColorUtils.setAlphaComponent(U.getBackgroundTint(context), 255);
+                int color = ColorUtils.setAlphaComponent(U.getTaskbarBackgroundColor(context), 255);
                 notificationCountText.setTextColor(color);
 
                 Drawable drawable = ContextCompat.getDrawable(context, R.drawable.tb_circle);
-                drawable.setTint(getTaskbarAccentColor());
+                drawable.setTint(U.getTaskbarAccentColor(context));
 
                 notificationCountCircle.setImageDrawable(drawable);
                 notificationCountText.setText(Integer.toString(notificationCount));
@@ -1864,7 +1862,7 @@ public class TaskbarController extends UIController {
             time.setText(context.getString(R.string.tb_systray_clock,
                     DateFormat.getTimeFormat(context).format(new Date()),
                     DateFormat.getDateFormat(context).format(new Date())));
-            time.setTextColor(getTaskbarAccentColor());
+            time.setTextColor(U.getTaskbarAccentColor(context));
         });
     }
 
@@ -1969,7 +1967,7 @@ public class TaskbarController extends UIController {
 
         if(drawable == null) return null;
 
-        drawable.setTint(getTaskbarAccentColor());
+        drawable.setTint(U.getTaskbarAccentColor(context));
         return drawable;
     }
 
