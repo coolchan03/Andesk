@@ -74,11 +74,6 @@
         android:title="@string/tb_pref_title_anchor"/>
 
     <CheckBoxPreference
-        android:defaultValue="false"
-        android:key="start_on_boot"
-        android:title="@string/tb_pref_title_start_on_boot"/>
-
-    <CheckBoxPreference
         android:defaultValue="true"
         android:key="chrome_os_context_menu_fix"
         android:title="@string/tb_pref_title_chrome_os_context_menu_fix"

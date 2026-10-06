@@ -5,7 +5,6 @@ import android.content.Intent
 import android.content.SharedPreferences
 import androidx.test.core.app.ApplicationProvider
 import com.farmerbb.taskbar.mockito.BooleanAnswer
-import com.farmerbb.taskbar.service.NotificationService
 import com.farmerbb.taskbar.util.Constants
 import com.farmerbb.taskbar.util.U
 import org.junit.After
@@ -37,6 +36,10 @@ class BootReceiverTest {
         bootReceiver = BootReceiver()
         intent = Intent(Intent.ACTION_BOOT_COMPLETED)
         prefs = U.getSharedPreferences(context)
+        prefs.edit()
+                .remove(Constants.PREF_DESKTOP_SESSION_ACTIVE)
+                .remove(Constants.PREF_TASKBAR_ACTIVE)
+                .apply()
     }
 
     @After
@@ -87,17 +90,16 @@ class BootReceiverTest {
     }
 
     @Test
-    fun testStartOnBootInit() {
-        prefs.edit().putBoolean(Constants.PREF_START_ON_BOOT, true).apply()
+    fun testBootNeverRestoresDesktopSession() {
+        prefs.edit()
+                .putBoolean(Constants.PREF_START_ON_BOOT, true)
+                .putBoolean(Constants.PREF_TASKBAR_ACTIVE, true)
+                .putBoolean(Constants.PREF_DESKTOP_SESSION_ACTIVE, true)
+                .apply()
+
         bootReceiver.onReceive(context, intent)
-        Assert.assertTrue(prefs.getBoolean(Constants.PREF_TASKBAR_ACTIVE, false))
-        prefs.edit().putBoolean(Constants.PREF_START_ON_BOOT, false).apply()
-        prefs.edit().putBoolean(Constants.PREF_TASKBAR_ACTIVE, true).apply()
-        PowerMockito.mockStatic(U::class.java)
-        PowerMockito.`when`(U.getSharedPreferences(context)).thenReturn(prefs)
-        PowerMockito.`when`(U.isServiceRunning(context, NotificationService::class.java))
-                .thenReturn(false)
-        bootReceiver.onReceive(context, intent)
-        Assert.assertFalse(prefs.getBoolean(Constants.PREF_TASKBAR_ACTIVE, false))
+
+        Assert.assertFalse(prefs.getBoolean(Constants.PREF_TASKBAR_ACTIVE, true))
+        Assert.assertFalse(prefs.getBoolean(Constants.PREF_DESKTOP_SESSION_ACTIVE, true))
     }
 }

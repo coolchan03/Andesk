@@ -70,8 +70,13 @@ public class RecentAppsFragment extends SettingsFragment implements SharedPrefer
             }
         }
 
+        SharedPreferences prefs = U.getSharedPreferences(getActivity());
+        if(!prefs.contains(PREF_TASKBAR_STYLE))
+            prefs.edit().putString(PREF_TASKBAR_STYLE, PREF_TASKBAR_STYLE_CLASSIC).apply();
+
         bindPreferenceSummaryToValue(findPreference(PREF_RECENTS_AMOUNT));
         bindPreferenceSummaryToValue(findPreference(PREF_SORT_ORDER));
+        bindPreferenceSummaryToValue(findPreference(PREF_TASKBAR_STYLE));
         bindPreferenceSummaryToValue(findPreference(PREF_DISABLE_SCROLLING_LIST));
         bindPreferenceSummaryToValue(findPreference(PREF_FULL_LENGTH));
         bindPreferenceSummaryToValue(findPreference(PREF_CENTERED_ICONS));

@@ -56,7 +56,9 @@ public class NotificationService extends Service {
             startService(new Intent(this, DashboardService.class));
         }
 
-        return START_STICKY;
+        return U.getSharedPreferences(this).getBoolean(PREF_DESKTOP_SESSION_ACTIVE, false)
+                ? START_NOT_STICKY
+                : START_STICKY;
     }
 
     BroadcastReceiver userForegroundReceiver = new BroadcastReceiver() {

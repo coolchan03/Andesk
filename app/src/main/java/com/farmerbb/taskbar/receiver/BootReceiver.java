@@ -36,38 +36,16 @@ public class BootReceiver extends BroadcastReceiver {
             if(U.isAndroidGeneric(context) && !pref.getBoolean(PREF_BLISS_OS_PREFS, false))
                 U.initPrefs(context);
 
-            SharedPreferences.Editor editor = pref.edit();
+            SharedPreferences.Editor editor = pref.edit()
+                    // This fork is session-scoped: rebooting must never resurrect
+                    // the desktop/taskbar without the user launching the app.
+                    .putBoolean(PREF_DESKTOP_SESSION_ACTIVE, false)
+                    .putBoolean(PREF_TASKBAR_ACTIVE, false);
 
             if(!U.hasFreeformSupport(context))
                 editor.putBoolean(PREF_FREEFORM_HACK, false);
 
-            if(pref.getBoolean(PREF_START_ON_BOOT, false)) {
-                editor.putBoolean(PREF_TASKBAR_ACTIVE, true);
-                editor.putLong(PREF_TIME_OF_SERVICE_START, System.currentTimeMillis());
-                editor.apply();
-
-                boolean startServices = false;
-
-                if(!pref.getBoolean(PREF_IS_HIDDEN, false)) {
-                    if(U.hasFreeformSupport(context) && U.isFreeformModeEnabled(context)) {
-                        Intent intent2 = new Intent(context, DummyActivity.class);
-                        intent2.putExtra(EXTRA_START_FREEFORM_HACK, true);
-                        intent2.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
-                        context.startActivity(intent2);
-                    }
-
-                    startServices = true;
-                }
-
-                Intent notificationIntent = new Intent(context, NotificationService.class);
-                notificationIntent.putExtra(EXTRA_START_SERVICES, startServices);
-
-                U.startForegroundService(context, notificationIntent);
-            } else {
-                editor.putBoolean(PREF_TASKBAR_ACTIVE, U.isServiceRunning(context, NotificationService.class));
-                editor.apply();
-            }
+            editor.apply();
 
             ShortcutUtils.initFavoriteAppTiles(context);
         }

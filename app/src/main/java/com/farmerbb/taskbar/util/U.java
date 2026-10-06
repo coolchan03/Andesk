@@ -1829,9 +1829,12 @@ public class U {
     public static boolean isSystemTrayEnabled(Context context) {
         SharedPreferences pref = getSharedPreferences(context);
 
+        boolean windowsStyle = PREF_TASKBAR_STYLE_WINDOWS.equals(
+                pref.getString(PREF_TASKBAR_STYLE, PREF_TASKBAR_STYLE_CLASSIC));
+
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
                 && getBooleanPrefWithDefault(context, PREF_SYS_TRAY)
-                && pref.getBoolean(PREF_FULL_LENGTH, true)
+                && (windowsStyle || pref.getBoolean(PREF_FULL_LENGTH, true))
                 && !TaskbarPosition.isVertical(context);
     }
 

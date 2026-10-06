@@ -77,6 +77,13 @@
         <item>Recently launched (ascending)</item>
     </string-array>
 
+    <string name="tb_pref_title_taskbar_style">Taskbar style</string>
+    <string name="tb_pref_summary_taskbar_style">Choose the desktop taskbar appearance</string>
+    <string-array name="tb_pref_taskbar_style">
+        <item>Classic Taskbar</item>
+        <item>Windows-like</item>
+    </string-array>
+
     <string name="tb_pref_header_advanced">Advanced features</string>
 
     <string name="tb_pref_title_freeform_hack">Freeform window support</string>

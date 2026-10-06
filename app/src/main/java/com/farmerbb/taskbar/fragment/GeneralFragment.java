@@ -43,12 +43,14 @@ public class GeneralFragment extends SettingsFragment {
         // Set OnClickListeners for certain preferences
         findPreference(PREF_BLACKLIST).setOnPreferenceClickListener(this);
 
-        if(U.isLibrary(getActivity()) || U.isAndroidTV(getActivity())) {
-            getPreferenceScreen().removePreference(findPreference(PREF_NOTIFICATION_SETTINGS));
+        Preference startOnBoot = findPreference(PREF_START_ON_BOOT);
+        if(startOnBoot != null)
+            getPreferenceScreen().removePreference(startOnBoot);
+        U.getSharedPreferences(getActivity()).edit().putBoolean(PREF_START_ON_BOOT, false).apply();
 
-            if(!U.isAndroidTV(getActivity()))
-                getPreferenceScreen().removePreference(findPreference(PREF_START_ON_BOOT));
-        } else
+        if(U.isLibrary(getActivity()) || U.isAndroidTV(getActivity()))
+            getPreferenceScreen().removePreference(findPreference(PREF_NOTIFICATION_SETTINGS));
+        else
             findPreference(PREF_NOTIFICATION_SETTINGS).setOnPreferenceClickListener(this);
 
         if(U.canEnableFreeform(getActivity())

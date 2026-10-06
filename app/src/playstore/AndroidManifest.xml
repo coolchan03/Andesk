@@ -413,6 +413,8 @@
             android:name=".activity.dark.EnableAdditionalSettingsActivityDark"
             android:theme="@style/Taskbar.Dialog.FullWidth.Dark"/>
 
+        <!-- TaskbarService receives task-removal callbacks and only shuts
+             the session down when the removed task is DesktopLauncherActivity. -->
         <service android:name=".service.TaskbarService"/>
         <service android:name=".service.StartMenuService"/>
         <service android:name=".service.DashboardService"/>

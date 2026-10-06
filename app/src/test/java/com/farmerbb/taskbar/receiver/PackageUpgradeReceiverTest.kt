@@ -40,6 +40,7 @@ class PackageUpgradeReceiverTest {
         packageUpgradeReceiver = PackageUpgradeReceiver()
         intent = Intent(Intent.ACTION_MY_PACKAGE_REPLACED)
         prefs = U.getSharedPreferences(context)
+        prefs.edit().remove(Constants.PREF_DESKTOP_SESSION_ACTIVE).apply()
     }
 
     @Test
@@ -76,6 +77,22 @@ class PackageUpgradeReceiverTest {
         prefs.edit().putBoolean(Constants.PREF_IS_HIDDEN, false).apply()
         packageUpgradeReceiver.onReceive(context, intent)
         Assert.assertNull(Shadows.shadowOf(application).peekNextStartedActivity())
+    }
+
+    @Test
+    fun testDesktopSessionDoesNotRestartAfterUpgrade() {
+        val application = context as Application?
+        Shadows.shadowOf(application).clearStartedServices()
+        prefs.edit()
+                .putBoolean(Constants.PREF_TASKBAR_ACTIVE, true)
+                .putBoolean(Constants.PREF_DESKTOP_SESSION_ACTIVE, true)
+                .apply()
+
+        packageUpgradeReceiver.onReceive(context, intent)
+
+        Assert.assertFalse(prefs.getBoolean(Constants.PREF_TASKBAR_ACTIVE, true))
+        Assert.assertFalse(prefs.getBoolean(Constants.PREF_DESKTOP_SESSION_ACTIVE, true))
+        Assert.assertNull(Shadows.shadowOf(application).peekNextStartedService())
     }
 
     @Test

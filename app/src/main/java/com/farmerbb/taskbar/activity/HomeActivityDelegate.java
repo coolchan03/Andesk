@@ -503,8 +503,11 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
         if(!isDesktopLauncher)
             return;
 
+        SharedPreferences pref = U.getSharedPreferences(this);
+        boolean windowsStyle = PREF_TASKBAR_STYLE_WINDOWS.equals(
+                pref.getString(PREF_TASKBAR_STYLE, PREF_TASKBAR_STYLE_CLASSIC));
         int color = TaskbarPosition.isBottom(this)
-                ? U.getBackgroundTint(this)
+                ? (windowsStyle ? Color.rgb(32, 32, 32) : U.getBackgroundTint(this))
                 : Color.TRANSPARENT;
 
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
@@ -618,6 +621,7 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
                 // (even while other apps are in front) until the desktop is closed
                 SharedPreferences.Editor editor = pref.edit()
                         .putBoolean(PREF_IS_HIDDEN, false)
+                        .putBoolean(PREF_DESKTOP_SESSION_ACTIVE, true)
                         .putBoolean(PREF_TASKBAR_ACTIVE, true)
                         .putLong(PREF_TIME_OF_SERVICE_START, System.currentTimeMillis());
 
@@ -832,7 +836,10 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
         LauncherHelper.getInstance().setDesktopLauncherOpen(false);
 
         SharedPreferences pref = U.getSharedPreferences(this);
-        pref.edit().putBoolean(PREF_TASKBAR_ACTIVE, false).apply();
+        pref.edit()
+                .putBoolean(PREF_DESKTOP_SESSION_ACTIVE, false)
+                .putBoolean(PREF_TASKBAR_ACTIVE, false)
+                .apply();
 
         setOnHomeScreen(false);
 

@@ -37,7 +37,10 @@ public abstract class UIHostService extends Service implements UIHost {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        return START_STICKY;
+        return U.getSharedPreferences(this).getBoolean(
+                com.farmerbb.taskbar.util.Constants.PREF_DESKTOP_SESSION_ACTIVE, false)
+                ? START_NOT_STICKY
+                : START_STICKY;
     }
 
     @Override

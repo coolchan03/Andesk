@@ -31,6 +31,17 @@ public class PackageUpgradeReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         if(Intent.ACTION_MY_PACKAGE_REPLACED.equals(intent.getAction())) {
             SharedPreferences pref = U.getSharedPreferences(context);
+
+            // A desktop-launcher session is temporary. Package replacement must not
+            // resurrect it in the background if an update happens after process death.
+            if(pref.getBoolean(PREF_DESKTOP_SESSION_ACTIVE, false)) {
+                pref.edit()
+                        .putBoolean(PREF_DESKTOP_SESSION_ACTIVE, false)
+                        .putBoolean(PREF_TASKBAR_ACTIVE, false)
+                        .apply();
+                return;
+            }
+
             boolean startServices = false;
 
             if(pref.getBoolean(PREF_TASKBAR_ACTIVE, false) && !pref.getBoolean(PREF_IS_HIDDEN, false)) {
