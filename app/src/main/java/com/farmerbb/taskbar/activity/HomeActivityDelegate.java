@@ -240,8 +240,10 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
 
         isSecondaryHome = this instanceof SecondaryHomeActivity;
         isDesktopLauncher = this instanceof DesktopLauncherActivity;
-        if(isDesktopLauncher)
+        if(isDesktopLauncher) {
             LauncherHelper.getInstance().setDesktopLauncherOpen(true);
+            updateDesktopNavigationBar();
+        }
         if(isSecondaryHome) {
             windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
             Display display = windowManager.getDefaultDisplay();
@@ -497,6 +499,19 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
                 .show();
     }
 
+    private void updateDesktopNavigationBar() {
+        if(!isDesktopLauncher)
+            return;
+
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
+            getWindow().setNavigationBarContrastEnforced(false);
+
+        int color = TaskbarPosition.isBottom(this)
+                ? U.getBackgroundTint(this)
+                : Color.TRANSPARENT;
+        getWindow().setNavigationBarColor(color);
+    }
+
     private void setWallpaper() {
         U.sendBroadcast(this, ACTION_TEMP_HIDE_TASKBAR);
 
@@ -509,6 +524,8 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
     @Override
     protected void onResume() {
         super.onResume();
+
+        updateDesktopNavigationBar();
 
         if(canBootToFreeform()) {
             if(U.launcherIsDefault(this))
@@ -596,11 +613,19 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
             if(isDesktopLauncher) {
                 // Opening the desktop starts a Taskbar session that stays active
                 // (even while other apps are in front) until the desktop is closed
-                pref.edit()
+                SharedPreferences.Editor editor = pref.edit()
                         .putBoolean(PREF_IS_HIDDEN, false)
                         .putBoolean(PREF_TASKBAR_ACTIVE, true)
-                        .putLong(PREF_TIME_OF_SERVICE_START, System.currentTimeMillis())
-                        .apply();
+                        .putLong(PREF_TIME_OF_SERVICE_START, System.currentTimeMillis());
+
+                // Large-screen Android uses a centered system taskbar/dock. We cannot
+                // inject into SystemUI, but default our desktop taskbar to the same
+                // centered-dock layout unless the user has already chosen otherwise.
+                if(getResources().getConfiguration().smallestScreenWidthDp >= 600
+                        && !pref.contains(PREF_CENTERED_ICONS))
+                    editor.putBoolean(PREF_CENTERED_ICONS, true);
+
+                editor.apply();
             }
 
             // We always start the Taskbar and Start Menu services, even if the app isn't normally running
