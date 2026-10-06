@@ -266,6 +266,7 @@ public class Constants {
     public static final String EXTRA_COMPONENT_NAME = "component_name";
     public static final String EXTRA_CONTEXT_MENU_FIX = "context_menu_fix";
     public static final String EXTRA_COUNT = "count";
+    public static final String EXTRA_DESKTOP_SESSION = "desktop_session";
     public static final String EXTRA_IS_LAUNCHING_SHORTCUT = "is_launching_shortcut";
     public static final String EXTRA_PACKAGE_NAME = "package_name";
     public static final String EXTRA_START_SERVICES = "start_services";
