@@ -106,8 +106,13 @@ public class MainActivity extends AppCompatActivity {
                 setTheme(theme);
         }
 
-        if(pref.getBoolean(PREF_TASKBAR_ACTIVE, false) && !U.isServiceRunning(this, NotificationService.class))
+        if(!LauncherHelper.getInstance().isDesktopLauncherOpen()) {
+            editor.putBoolean(PREF_DESKTOP_SESSION_ACTIVE, false);
             editor.putBoolean(PREF_TASKBAR_ACTIVE, false);
+        } else if(pref.getBoolean(PREF_TASKBAR_ACTIVE, false)
+                && !U.isServiceRunning(this, NotificationService.class)) {
+            editor.putBoolean(PREF_TASKBAR_ACTIVE, false);
+        }
 
         // Ensure that components that should be enabled are enabled properly
         boolean launcherEnabled = (pref.getBoolean(PREF_LAUNCHER, false) && U.canDrawOverlays(this))

@@ -18,50 +18,21 @@ package com.farmerbb.taskbar.receiver;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 
-import com.farmerbb.taskbar.activity.DummyActivity;
-import com.farmerbb.taskbar.service.NotificationService;
 import com.farmerbb.taskbar.util.U;
 
-import static com.farmerbb.taskbar.util.Constants.*;
+import static com.farmerbb.taskbar.util.Constants.PREF_DESKTOP_SESSION_ACTIVE;
+import static com.farmerbb.taskbar.util.Constants.PREF_TASKBAR_ACTIVE;
 
 public class PackageUpgradeReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
-        if(Intent.ACTION_MY_PACKAGE_REPLACED.equals(intent.getAction())) {
-            SharedPreferences pref = U.getSharedPreferences(context);
+        if(intent == null || !Intent.ACTION_MY_PACKAGE_REPLACED.equals(intent.getAction()))
+            return;
 
-            // A desktop-launcher session is temporary. Package replacement must not
-            // resurrect it in the background if an update happens after process death.
-            if(pref.getBoolean(PREF_DESKTOP_SESSION_ACTIVE, false)) {
-                pref.edit()
-                        .putBoolean(PREF_DESKTOP_SESSION_ACTIVE, false)
-                        .putBoolean(PREF_TASKBAR_ACTIVE, false)
-                        .apply();
-                return;
-            }
-
-            boolean startServices = false;
-
-            if(pref.getBoolean(PREF_TASKBAR_ACTIVE, false) && !pref.getBoolean(PREF_IS_HIDDEN, false)) {
-                if(U.hasFreeformSupport(context) && U.isFreeformModeEnabled(context)) {
-                    Intent intent2 = new Intent(context, DummyActivity.class);
-                    intent2.putExtra(EXTRA_START_FREEFORM_HACK, true);
-                    intent2.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
-                    context.startActivity(intent2);
-                }
-
-                startServices = true;
-            }
-
-            if(pref.getBoolean(PREF_TASKBAR_ACTIVE, false)) {
-                Intent notificationIntent = new Intent(context, NotificationService.class);
-                notificationIntent.putExtra(EXTRA_START_SERVICES, startServices);
-
-                U.startForegroundService(context, notificationIntent);
-            }
-        }
+        U.getSharedPreferences(context).edit()
+                .putBoolean(PREF_DESKTOP_SESSION_ACTIVE, false)
+                .putBoolean(PREF_TASKBAR_ACTIVE, false)
+                .apply();
     }
 }

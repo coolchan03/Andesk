@@ -770,6 +770,7 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
             if(keyCode == KeyEvent.KEYCODE_F4 && event.isAltPressed()) {
                 Intent quitIntent = new Intent(ACTION_QUIT);
                 quitIntent.setPackage(getPackageName());
+                quitIntent.putExtra(EXTRA_DESKTOP_SESSION, true);
                 sendBroadcast(quitIntent);
                 return true;
             }
