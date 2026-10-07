@@ -46,7 +46,6 @@ import com.farmerbb.taskbar.R;
 import com.farmerbb.taskbar.fragment.AboutFragment;
 import com.farmerbb.taskbar.fragment.AdvancedFragment;
 import com.farmerbb.taskbar.fragment.AppearanceFragment;
-import com.farmerbb.taskbar.fragment.DesktopModeFragment;
 import com.farmerbb.taskbar.fragment.FreeformModeFragment;
 import com.farmerbb.taskbar.fragment.ManageAppDataFragment;
 import com.farmerbb.taskbar.fragment.SettingsFragment;
@@ -114,21 +113,24 @@ public class MainActivity extends AppCompatActivity {
             editor.putBoolean(PREF_TASKBAR_ACTIVE, false);
         }
 
-        // Ensure that components that should be enabled are enabled properly
-        boolean launcherEnabled = (pref.getBoolean(PREF_LAUNCHER, false) && U.canDrawOverlays(this))
-                || U.isLauncherPermanentlyEnabled(this);
-
-        boolean desktopModeEnabled = U.isDesktopModeSupported(this)
-                && pref.getBoolean(PREF_DESKTOP_MODE, false);
+        // The normal app uses DesktopLauncherActivity as its sole desktop-session owner.
+        // Android-x86 intentionally retains its HOME integration.
+        boolean isLibrary = U.isLibrary(this);
+        boolean isAndroidx86 = getPackageName().equals(BuildConfig.ANDROIDX86_APPLICATION_ID);
+        boolean launcherEnabled = isAndroidx86
+                && ((pref.getBoolean(PREF_LAUNCHER, false) && U.canDrawOverlays(this))
+                || U.isLauncherPermanentlyEnabled(this));
+        boolean desktopModeEnabled = false;
 
         editor.putBoolean(PREF_LAUNCHER, launcherEnabled);
         editor.putBoolean(PREF_DESKTOP_MODE, desktopModeEnabled);
         editor.apply();
 
-        boolean isLibrary = U.isLibrary(this);
         if(!isLibrary) {
-            U.setComponentEnabled(this, HomeActivity.class,
-                    launcherEnabled && !U.isDelegatingHomeActivity(this));
+            if(isAndroidx86) {
+                U.setComponentEnabled(this, HomeActivity.class,
+                        launcherEnabled && !U.isDelegatingHomeActivity(this));
+            }
 
             U.setComponentEnabled(this, KeyboardShortcutActivity.class,
                     pref.getBoolean(PREF_KEYBOARD_SHORTCUT, false));
@@ -137,11 +139,6 @@ public class MainActivity extends AppCompatActivity {
                     U.enableFreeformModeShortcut(this));
 
             U.setComponentEnabled(this, StartTaskbarActivity.class, true);
-
-            if(!getPackageName().equals(BuildConfig.ANDROIDX86_APPLICATION_ID)) {
-                U.setComponentEnabled(this, SecondaryHomeActivity.class, desktopModeEnabled);
-                U.setComponentEnabled(this, HSLActivity.class, desktopModeEnabled);
-            }
 
             if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                 U.setComponentEnabled(this, KeyboardShortcutActivityLockDevice.class,
@@ -444,9 +441,6 @@ public class MainActivity extends AppCompatActivity {
         if(fragment instanceof FreeformModeFragment) {
             helpButton.setVisibility(View.VISIBLE);
             helpButton.setOnClickListener(v -> showHelpDialog(R.string.tb_freeform_help_dialog_message));
-        } else if(fragment instanceof DesktopModeFragment) {
-            helpButton.setVisibility(View.VISIBLE);
-            helpButton.setOnClickListener(v -> showHelpDialog(R.string.tb_desktop_mode_help));
         } else {
             helpButton.setVisibility(View.INVISIBLE);
             helpButton.setOnClickListener(null);

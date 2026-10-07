@@ -58,7 +58,8 @@ public class AdvancedFragment extends SettingsFragment {
         public void onReceive(Context context, Intent intent) {
             SharedPreferences pref = U.getSharedPreferences(getActivity());
             CheckBoxPreference checkBox = (CheckBoxPreference) findPreference(PREF_LAUNCHER);
-            checkBox.setChecked(pref.getBoolean(PREF_LAUNCHER, false));
+            if(checkBox != null)
+                checkBox.setChecked(pref.getBoolean(PREF_LAUNCHER, false));
         }
     };
 
@@ -84,6 +85,13 @@ public class AdvancedFragment extends SettingsFragment {
                 && U.isLauncherPermanentlyEnabled(getActivity()))
                 || pref.getBoolean(PREF_DESKTOP_MODE, false);
 
+        if(!isLibrary && !isAndroidx86) {
+            pref.edit()
+                    .putBoolean(PREF_LAUNCHER, false)
+                    .putBoolean(PREF_DESKTOP_MODE, false)
+                    .apply();
+        }
+
         if(isLibrary) {
             getPreferenceScreen().removePreference(findPreference(PREF_TASKER_ENABLED));
             getPreferenceScreen().removePreference(findPreference(PREF_LAUNCHER));
@@ -93,8 +101,12 @@ public class AdvancedFragment extends SettingsFragment {
 
             findPreference(PREF_CLEAR_PINNED_APPS).setOnPreferenceClickListener(this);
         } else {
-            findPreference(PREF_LAUNCHER).setEnabled(!lockHomeToggle);
-            findPreference(PREF_LAUNCHER).setOnPreferenceClickListener(this);
+            if(isAndroidx86) {
+                findPreference(PREF_LAUNCHER).setEnabled(!lockHomeToggle);
+                findPreference(PREF_LAUNCHER).setOnPreferenceClickListener(this);
+            } else {
+                getPreferenceScreen().removePreference(findPreference(PREF_LAUNCHER));
+            }
             findPreference(PREF_NAVIGATION_BAR_BUTTONS).setOnPreferenceClickListener(this);
             findPreference(PREF_MANAGE_APP_DATA).setOnPreferenceClickListener(this);
 
