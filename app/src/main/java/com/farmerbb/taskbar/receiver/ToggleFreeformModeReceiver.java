@@ -19,8 +19,10 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+
 import com.farmerbb.taskbar.R;
 import com.farmerbb.taskbar.activity.DummyActivity;
+import com.farmerbb.taskbar.helper.LauncherHelper;
 import com.farmerbb.taskbar.service.NotificationService;
 import com.farmerbb.taskbar.util.U;
 
@@ -29,9 +31,22 @@ import static com.farmerbb.taskbar.util.Constants.*;
 public class ToggleFreeformModeReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
+        if(intent == null || !ACTION_TOGGLE_FREEFORM_MODE.equals(intent.getAction()))
+            return;
+
         SharedPreferences pref = U.getSharedPreferences(context);
+        if(!pref.getBoolean(PREF_DESKTOP_SESSION_ACTIVE, false)
+                || !LauncherHelper.getInstance().isDesktopLauncherOpen()) {
+            pref.edit()
+                    .putBoolean(PREF_DESKTOP_SESSION_ACTIVE, false)
+                    .putBoolean(PREF_TASKBAR_ACTIVE, false)
+                    .apply();
+            return;
+        }
+
         if(!pref.getBoolean(PREF_TASKBAR_ACTIVE, false)
-                || pref.getBoolean(PREF_DESKTOP_MODE, false)) return;
+                || pref.getBoolean(PREF_DESKTOP_MODE, false))
+            return;
 
         Intent notificationIntent = new Intent(context, NotificationService.class);
 
@@ -39,7 +54,6 @@ public class ToggleFreeformModeReceiver extends BroadcastReceiver {
             pref.edit().putBoolean(PREF_FREEFORM_HACK, false).apply();
 
             context.stopService(notificationIntent);
-
             U.startForegroundService(context, notificationIntent);
 
             U.stopFreeformHack(context);
@@ -49,15 +63,15 @@ public class ToggleFreeformModeReceiver extends BroadcastReceiver {
 
             context.stopService(notificationIntent);
 
-            Intent intent2 = new Intent(context, DummyActivity.class);
-            intent2.putExtra(EXTRA_START_FREEFORM_HACK, true);
-            intent2.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
-            context.startActivity(intent2);
+            Intent dummyIntent = new Intent(context, DummyActivity.class);
+            dummyIntent.putExtra(EXTRA_START_FREEFORM_HACK, true);
+            dummyIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(dummyIntent);
 
             U.startForegroundService(context, notificationIntent);
             U.sendBroadcast(context, ACTION_UPDATE_FREEFORM_CHECKBOX);
-        } else
+        } else {
             U.showToastLong(context, R.string.tb_no_freeform_support);
+        }
     }
 }

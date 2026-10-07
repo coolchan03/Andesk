@@ -6,9 +6,11 @@ import android.content.Intent
 import android.content.SharedPreferences
 import androidx.test.core.app.ApplicationProvider
 import com.farmerbb.taskbar.Constants.UNSUPPORTED
+import com.farmerbb.taskbar.helper.LauncherHelper
 import com.farmerbb.taskbar.service.NotificationService
 import com.farmerbb.taskbar.util.Constants
 import com.farmerbb.taskbar.util.U
+import org.junit.After
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
@@ -31,7 +33,20 @@ class ShowHideTaskbarReceiverTest {
         application = context as Application
         notificationIntent = Intent(context, NotificationService::class.java)
         prefs = U.getSharedPreferences(context)
+        prefs.edit()
+                .putBoolean(Constants.PREF_DESKTOP_SESSION_ACTIVE, true)
+                .apply()
+        LauncherHelper.getInstance().setDesktopLauncherOpen(true)
         showHideTaskbarReceiver = ShowHideTaskbarReceiver()
+    }
+
+    @After
+    fun tearDown() {
+        LauncherHelper.getInstance().setDesktopLauncherOpen(false)
+        prefs.edit()
+                .remove(Constants.PREF_DESKTOP_SESSION_ACTIVE)
+                .remove(Constants.PREF_TASKBAR_ACTIVE)
+                .apply()
     }
 
     @Test
@@ -55,6 +70,23 @@ class ShowHideTaskbarReceiverTest {
         val startedServiceIntent = Shadows.shadowOf(application).peekNextStartedService()
         Assert.assertNotNull(startedServiceIntent)
         Assert.assertEquals(notificationIntent.component, startedServiceIntent.component)
+    }
+
+    @Test
+    fun testStaleDesktopSessionCannotRestartTaskbar() {
+        val intent = Intent(Constants.ACTION_SHOW_HIDE_TASKBAR)
+        prefs.edit()
+                .putBoolean(Constants.PREF_DESKTOP_SESSION_ACTIVE, true)
+                .putBoolean(Constants.PREF_TASKBAR_ACTIVE, true)
+                .apply()
+        LauncherHelper.getInstance().setDesktopLauncherOpen(false)
+        Shadows.shadowOf(application).clearStartedServices()
+
+        showHideTaskbarReceiver.onReceive(context, intent)
+
+        Assert.assertNull(Shadows.shadowOf(application).peekNextStartedService())
+        Assert.assertFalse(prefs.getBoolean(Constants.PREF_DESKTOP_SESSION_ACTIVE, true))
+        Assert.assertFalse(prefs.getBoolean(Constants.PREF_TASKBAR_ACTIVE, true))
     }
 
     @Test

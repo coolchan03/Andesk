@@ -32,11 +32,12 @@ public class StartTaskbarActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         if(getIntent().hasExtra(EXTRA_IS_LAUNCHING_SHORTCUT)) {
-            Intent intent = new Intent(U.isServiceRunning(this, NotificationService.class)
-                    ? ACTION_QUIT
-                    : ACTION_START);
+            boolean active = U.isServiceRunning(this, NotificationService.class);
+            Intent intent = new Intent(active ? ACTION_QUIT : ACTION_START);
 
             intent.setPackage(getPackageName());
+            if(active)
+                intent.putExtra(EXTRA_DESKTOP_SESSION, true);
             sendBroadcast(intent);
         } else
             setResult(RESULT_OK, ShortcutUtils.getStartStopIntent(this));
