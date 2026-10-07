@@ -26,8 +26,6 @@
         android:protectionLevel="signature" />
 
     <!-- Signature protection level removed for Bliss OS -->
-    <permission android:name="${applicationId}.ENABLE_DISABLE_HOME" />
-
     <permission android:name="${applicationId}.ENABLE_DISABLE_FREEFORM"
         android:protectionLevel="signature" />
 
@@ -144,46 +142,6 @@
             android:launchMode="singleInstance"
             android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|screenLayout|fontScale|uiMode|orientation|screenSize|smallestScreenSize|layoutDirection"
             android:theme="@style/Taskbar.InvisibleActivity"/>
-        <activity
-            android:name=".activity.HomeActivity"
-            android:label="${appName}"
-            android:launchMode="singleTask"
-            android:enabled="false"
-            android:theme="@style/Taskbar.HomeActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-
-                <category android:name="android.intent.category.DEFAULT"/>
-                <category android:name="android.intent.category.HOME"/>
-            </intent-filter>
-        </activity>
-        <activity
-            android:name=".activity.SecondaryHomeActivity"
-            android:label="${appName}"
-            android:enabled="false"
-            android:excludeFromRecents="true"
-            android:configChanges="screenSize|keyboard|keyboardHidden"
-            android:theme="@style/Taskbar.HomeActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-
-                <category android:name="android.intent.category.DEFAULT"/>
-                <category android:name="android.intent.category.SECONDARY_HOME"/>
-            </intent-filter>
-        </activity>
-        <activity
-            android:name=".activity.HomeActivityDelegate"
-            android:label="${appName}"
-            android:launchMode="singleTask"
-            android:permission="${applicationId}.ENABLE_DISABLE_HOME"
-            android:theme="@style/Taskbar.HomeActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-            </intent-filter>
-        </activity>
         <activity
             android:name=".activity.KeyboardShortcutActivity"
             android:label="${appName}"
@@ -385,24 +343,6 @@
             android:name=".activity.BackupRestoreActivity"
             android:theme="@style/Taskbar.Dialog"/>
         <activity
-            android:name=".activity.HSLActivity"
-            android:label="${appName}"
-            android:launchMode="singleTask"
-            android:enabled="false"
-            android:theme="@android:style/Theme.NoDisplay"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.HOME"/>
-            </intent-filter>
-        </activity>
-        <activity
-            android:name=".activity.HSLConfigActivity"
-            android:label="@string/tb_primary_launcher"
-            android:launchMode="singleTask"/>
-        <activity
             android:name=".activity.DimScreenActivity"
             android:theme="@style/Taskbar.DimScreenActivity"
             android:launchMode="singleTask"/>
@@ -597,24 +537,6 @@
             <intent-filter>
                 <action android:name="android.intent.action.PACKAGE_FULLY_REMOVED" />
                 <data android:scheme="package" />
-            </intent-filter>
-        </receiver>
-        <receiver
-            android:name=".receiver.EnableHomeReceiver"
-            android:enabled="true"
-            android:permission="${applicationId}.ENABLE_DISABLE_HOME"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="com.farmerbb.taskbar.ENABLE_HOME"/>
-            </intent-filter>
-        </receiver>
-        <receiver
-            android:name=".receiver.DisableHomeReceiver"
-            android:enabled="true"
-            android:permission="${applicationId}.ENABLE_DISABLE_HOME"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="com.farmerbb.taskbar.DISABLE_HOME"/>
             </intent-filter>
         </receiver>
         <receiver
