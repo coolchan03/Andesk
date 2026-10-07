@@ -22,7 +22,11 @@ import android.os.IBinder;
 import android.view.View;
 import android.view.WindowManager;
 
+import com.farmerbb.taskbar.helper.LauncherHelper;
 import com.farmerbb.taskbar.util.U;
+
+import static com.farmerbb.taskbar.util.Constants.PREF_DESKTOP_SESSION_ACTIVE;
+import static com.farmerbb.taskbar.util.Constants.PREF_TASKBAR_ACTIVE;
 
 public abstract class UIHostService extends Service implements UIHost {
 
@@ -37,15 +41,29 @@ public abstract class UIHostService extends Service implements UIHost {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        return U.getSharedPreferences(this).getBoolean(
-                com.farmerbb.taskbar.util.Constants.PREF_DESKTOP_SESSION_ACTIVE, false)
-                ? START_NOT_STICKY
-                : START_STICKY;
+        if(!isDesktopSessionActive()) {
+            U.getSharedPreferences(this).edit()
+                    .putBoolean(PREF_DESKTOP_SESSION_ACTIVE, false)
+                    .putBoolean(PREF_TASKBAR_ACTIVE, false)
+                    .apply();
+            stopSelf();
+        }
+
+        return START_NOT_STICKY;
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
+
+        if(!isDesktopSessionActive()) {
+            U.getSharedPreferences(this).edit()
+                    .putBoolean(PREF_DESKTOP_SESSION_ACTIVE, false)
+                    .putBoolean(PREF_TASKBAR_ACTIVE, false)
+                    .apply();
+            stopSelf();
+            return;
+        }
 
         windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
         configString = U.getConfigString(this);
@@ -54,8 +72,16 @@ public abstract class UIHostService extends Service implements UIHost {
         controller.onCreateHost(this);
     }
 
+    private boolean isDesktopSessionActive() {
+        return LauncherHelper.getInstance().isDesktopLauncherOpen()
+                && U.getSharedPreferences(this).getBoolean(PREF_DESKTOP_SESSION_ACTIVE, false);
+    }
+
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
+        if(controller == null)
+            return;
+
         String newConfigString = U.getConfigString(this);
         if(newConfigString.equals(configString)) return;
 
@@ -66,17 +92,20 @@ public abstract class UIHostService extends Service implements UIHost {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        controller.onDestroyHost(this);
+        if(controller != null)
+            controller.onDestroyHost(this);
     }
 
     @Override
     public void addView(View view, ViewParams params) {
-        windowManager.addView(view, params.toWindowManagerParams());
+        if(windowManager != null)
+            windowManager.addView(view, params.toWindowManagerParams());
     }
 
     @Override
     public void removeView(View view) {
-        windowManager.removeView(view);
+        if(windowManager != null)
+            windowManager.removeView(view);
     }
 
     @Override
@@ -86,7 +115,8 @@ public abstract class UIHostService extends Service implements UIHost {
 
     @Override
     public void updateViewLayout(View view, ViewParams params) {
-        windowManager.updateViewLayout(view, params.toWindowManagerParams());
+        if(windowManager != null)
+            windowManager.updateViewLayout(view, params.toWindowManagerParams());
     }
 
     public abstract UIController newController();

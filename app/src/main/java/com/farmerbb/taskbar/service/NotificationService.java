@@ -33,6 +33,7 @@ import android.service.quicksettings.TileService;
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 import com.farmerbb.taskbar.activity.MainActivity;
+import com.farmerbb.taskbar.helper.LauncherHelper;
 import com.farmerbb.taskbar.R;
 import com.farmerbb.taskbar.util.DependencyUtils;
 import com.farmerbb.taskbar.util.U;
@@ -50,15 +51,27 @@ public class NotificationService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        if(!isDesktopSessionActive()) {
+            U.getSharedPreferences(this).edit()
+                    .putBoolean(PREF_DESKTOP_SESSION_ACTIVE, false)
+                    .putBoolean(PREF_TASKBAR_ACTIVE, false)
+                    .apply();
+            stopSelf();
+            return START_NOT_STICKY;
+        }
+
         if(intent != null && intent.getBooleanExtra(EXTRA_START_SERVICES, false)) {
             startService(new Intent(this, TaskbarService.class));
             startService(new Intent(this, StartMenuService.class));
             startService(new Intent(this, DashboardService.class));
         }
 
-        return U.getSharedPreferences(this).getBoolean(PREF_DESKTOP_SESSION_ACTIVE, false)
-                ? START_NOT_STICKY
-                : START_STICKY;
+        return START_NOT_STICKY;
+    }
+
+    private boolean isDesktopSessionActive() {
+        return LauncherHelper.getInstance().isDesktopLauncherOpen()
+                && U.getSharedPreferences(this).getBoolean(PREF_DESKTOP_SESSION_ACTIVE, false);
     }
 
     @Override
@@ -76,9 +89,13 @@ public class NotificationService extends Service {
     BroadcastReceiver userForegroundReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            startService(new Intent(context, TaskbarService.class));
-            startService(new Intent(context, StartMenuService.class));
-            startService(new Intent(context, DashboardService.class));
+            if(isDesktopSessionActive()) {
+                startService(new Intent(context, TaskbarService.class));
+                startService(new Intent(context, StartMenuService.class));
+                startService(new Intent(context, DashboardService.class));
+            } else {
+                stopSelf();
+            }
         }
     };
 
@@ -99,6 +116,15 @@ public class NotificationService extends Service {
         super.onCreate();
 
         SharedPreferences pref = U.getSharedPreferences(this);
+        if(!isDesktopSessionActive()) {
+            pref.edit()
+                    .putBoolean(PREF_DESKTOP_SESSION_ACTIVE, false)
+                    .putBoolean(PREF_TASKBAR_ACTIVE, false)
+                    .apply();
+            stopSelf();
+            return;
+        }
+
         if(pref.getBoolean(PREF_TASKBAR_ACTIVE, false)) {
             if(U.canDrawOverlays(this)) {
                 isHidden = U.getSharedPreferences(this).getBoolean(PREF_IS_HIDDEN, false);
@@ -111,6 +137,7 @@ public class NotificationService extends Service {
 
                 Intent receiverIntent2 = new Intent(ACTION_QUIT);
                 receiverIntent2.setPackage(getPackageName());
+                receiverIntent2.putExtra(EXTRA_DESKTOP_SESSION, true);
 
                 PendingIntent contentIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_IMMUTABLE);
                 PendingIntent receiverPendingIntent = PendingIntent.getBroadcast(this, 0, receiverIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
