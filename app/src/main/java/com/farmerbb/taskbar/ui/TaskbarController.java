@@ -336,6 +336,13 @@ public class TaskbarController extends UIController {
                 : R.id.hide_taskbar_button_layout_alt);
         if(buttonLayoutToHide != null) buttonLayoutToHide.setVisibility(View.GONE);
 
+        // The large collapse arrow is a legacy Taskbar control, not desktop navigation.
+        // Desktop sessions have an explicit Exit action and need no collapse button.
+        if(pref.getBoolean(PREF_DESKTOP_SESSION_ACTIVE, false)) {
+            if(buttonLayout != null) buttonLayout.setVisibility(View.GONE);
+            if(button != null) button.setVisibility(View.GONE);
+        }
+
         dashboardButton = layout.findViewById(R.id.dashboard_button);
         navbarButtons = layout.findViewById(R.id.navbar_buttons);
         dashboardEnabled = drawDashboardButton(context, layout, dashboardButton, accentColor);

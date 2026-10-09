@@ -111,6 +111,11 @@ public class DesktopWidgetManager {
         container.setLayoutParams(params);
     }
 
+    /** Keep interactive widget frames above the desktop shortcut grid. */
+    public void bringToFront() {
+        container.bringToFront();
+    }
+
     public void startListening() {
         try {
             appWidgetHost.startListening();
