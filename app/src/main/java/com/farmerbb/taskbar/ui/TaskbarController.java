@@ -545,7 +545,8 @@ public class TaskbarController extends UIController {
                               SharedPreferences pref,
                               int accentColor) {
         boolean navbarButtonsEnabled = false;
-        if(pref.getBoolean(PREF_BUTTON_BACK, false)) {
+        if(!pref.getBoolean(PREF_DESKTOP_SESSION_ACTIVE, false)
+                && pref.getBoolean(PREF_BUTTON_BACK, false)) {
             navbarButtonsEnabled = true;
 
             ImageView backButton = layout.findViewById(R.id.button_back);
