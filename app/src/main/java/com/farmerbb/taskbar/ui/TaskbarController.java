@@ -521,7 +521,8 @@ public class TaskbarController extends UIController {
                                 LinearLayout layout,
                                 FrameLayout dashboardButton,
                                 int accentColor) {
-        boolean dashboardEnabled = U.getBooleanPrefWithDefault(context, PREF_DASHBOARD);
+        boolean dashboardEnabled = !U.getSharedPreferences(context).getBoolean(PREF_DESKTOP_SESSION_ACTIVE, false)
+                && U.getBooleanPrefWithDefault(context, PREF_DASHBOARD);
         if(dashboardEnabled) {
             layout.findViewById(R.id.square1).setBackgroundColor(accentColor);
             layout.findViewById(R.id.square2).setBackgroundColor(accentColor);
@@ -544,7 +545,8 @@ public class TaskbarController extends UIController {
                               SharedPreferences pref,
                               int accentColor) {
         boolean navbarButtonsEnabled = false;
-        if(pref.getBoolean(PREF_BUTTON_BACK, false)) {
+        if(!pref.getBoolean(PREF_DESKTOP_SESSION_ACTIVE, false)
+                && pref.getBoolean(PREF_BUTTON_BACK, false)) {
             navbarButtonsEnabled = true;
 
             ImageView backButton = layout.findViewById(R.id.button_back);

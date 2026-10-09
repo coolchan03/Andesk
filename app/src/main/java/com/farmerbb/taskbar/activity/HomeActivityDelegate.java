@@ -486,15 +486,21 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
     private void showDesktopMenu() {
         CharSequence[] items = {
                 getString(R.string.tb_add_widget),
-                getString(R.string.tb_set_wallpaper)
+                getString(R.string.tb_set_wallpaper),
+                "Customize taskbar"
         };
 
         new AlertDialog.Builder(this)
                 .setItems(items, (dialog, which) -> {
                     if(which == 0)
                         desktopWidgets.startAddWidget();
-                    else
+                    else if(which == 1)
                         setWallpaper();
+                    else {
+                        Intent appearance = new Intent(this, MainActivity.class);
+                        appearance.putExtra("theme_change", true);
+                        startActivity(appearance);
+                    }
                 })
                 .show();
     }
@@ -636,7 +642,8 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
             try {
                 startService(new Intent(this, TaskbarService.class));
                 startService(new Intent(this, StartMenuService.class));
-                startService(new Intent(this, DashboardService.class));
+                if(!isDesktopLauncher)
+                    startService(new Intent(this, DashboardService.class));
 
                 if(isDesktopLauncher)
                     startService(new Intent(this, NotificationService.class));
@@ -674,7 +681,7 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
 
         SharedPreferences pref = U.getSharedPreferences(this);
         if(!canBootToFreeform()) {
-            if(U.shouldCollapse(this, false)) {
+            if(isDesktopLauncher || U.shouldCollapse(this, false)) {
                 U.sendBroadcast(this, ACTION_TEMP_HIDE_TASKBAR);
             }
 
@@ -692,8 +699,15 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
                     startService(new Intent(this, DashboardService.class));
                 }
             } else {
+                // A desktop session persists in Recents, but overlay services must never
+                // draw above unrelated foreground applications.
+                if(isDesktopLauncher) {
+                    stopService(new Intent(this, TaskbarService.class));
+                    stopService(new Intent(this, StartMenuService.class));
+                    stopService(new Intent(this, DashboardService.class));
+                }
                 // Stop the Taskbar and Start Menu services if they should normally not be active
-                if(!pref.getBoolean(PREF_TASKBAR_ACTIVE, false) || pref.getBoolean(PREF_IS_HIDDEN, false)) {
+                if(!isDesktopLauncher && (!pref.getBoolean(PREF_TASKBAR_ACTIVE, false) || pref.getBoolean(PREF_IS_HIDDEN, false))) {
                     stopService(new Intent(this, TaskbarService.class));
                     stopService(new Intent(this, StartMenuService.class));
 
