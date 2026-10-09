@@ -485,20 +485,42 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
 
     private void showDesktopMenu() {
         CharSequence[] items = {
+                "Add app shortcut",
                 getString(R.string.tb_add_widget),
-                getString(R.string.tb_set_wallpaper),
-                "Customize taskbar"
+                "Taskbar appearance",
+                "All settings",
+                getString(R.string.tb_set_wallpaper)
         };
 
         new AlertDialog.Builder(this)
                 .setItems(items, (dialog, which) -> {
-                    if(which == 0)
+                    if(which == 0) {
+                        if(desktopIcons != null) {
+                            for(int i = 0; i < desktopIcons.getChildCount(); i++) {
+                                DesktopIconInfo info = getDesktopIconInfo(i);
+                                try {
+                                    org.json.JSONArray icons = new org.json.JSONArray(U.getSharedPreferences(this).getString(PREF_DESKTOP_ICONS, "[]"));
+                                    boolean occupied = false;
+                                    for(int j = 0; j < icons.length(); j++) {
+                                        org.json.JSONObject icon = icons.getJSONObject(j);
+                                        if(icon.optInt("column", -1) == info.column && icon.optInt("row", -1) == info.row) occupied = true;
+                                    }
+                                    if(!occupied) {
+                                        Intent picker = U.getThemedIntent(this, DesktopIconSelectAppActivity.class);
+                                        picker.putExtra("desktop_icon", info);
+                                        startActivity(picker);
+                                        break;
+                                    }
+                                } catch(org.json.JSONException ignored) {}
+                            }
+                        }
+                    } else if(which == 1)
                         desktopWidgets.startAddWidget();
-                    else if(which == 1)
+                    else if(which == 4)
                         setWallpaper();
                     else {
                         Intent appearance = new Intent(this, MainActivity.class);
-                        appearance.putExtra("theme_change", true);
+                        appearance.putExtra("theme_change", which == 2);
                         startActivity(appearance);
                     }
                 })
@@ -998,6 +1020,10 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
                 view.getLocationOnScreen(location);
 
                 DesktopIconInfo info = icons.get(index);
+                if(isDesktopLauncher && (info == null || info.entry == null)) {
+                    showDesktopMenu();
+                    return true;
+                }
                 if(info == null) info = getDesktopIconInfo(index);
 
                 openContextMenu(info, location);
