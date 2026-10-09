@@ -496,10 +496,10 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
                 .setItems(items, (dialog, which) -> {
                     if(which == 0) {
                         if(desktopIcons != null) {
-                            for(int i = 0; i < desktopIcons.getChildCount(); i++) {
-                                DesktopIconInfo info = getDesktopIconInfo(i);
-                                try {
-                                    org.json.JSONArray icons = new org.json.JSONArray(U.getSharedPreferences(this).getString(PREF_DESKTOP_ICONS, "[]"));
+                            try {
+                                org.json.JSONArray icons = new org.json.JSONArray(U.getSharedPreferences(this).getString(PREF_DESKTOP_ICONS, "[]"));
+                                for(int i = 0; i < desktopIcons.getChildCount(); i++) {
+                                    DesktopIconInfo info = getDesktopIconInfo(i);
                                     boolean occupied = false;
                                     for(int j = 0; j < icons.length(); j++) {
                                         org.json.JSONObject icon = icons.getJSONObject(j);
@@ -511,7 +511,9 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
                                         startActivity(picker);
                                         break;
                                     }
-                                } catch(org.json.JSONException ignored) {}
+                                }
+                            } catch(org.json.JSONException e) {
+                                android.util.Log.w("Andesk", "Unable to read desktop shortcuts", e);
                             }
                         }
                     } else if(which == 1)
@@ -936,6 +938,7 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
 
         layout.addView(desktopIcons);
         layout.addView(fab.view);
+        if(desktopWidgets != null) desktopWidgets.bringToFront();
     }
 
     private void refreshDesktopIcons() {
