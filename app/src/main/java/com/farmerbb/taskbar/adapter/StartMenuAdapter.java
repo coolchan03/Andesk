@@ -108,6 +108,18 @@ public class StartMenuAdapter extends ArrayAdapter<AppEntry> implements SectionI
         });
 
         layout.setOnLongClickListener(view -> {
+            if(U.getSharedPreferences(getContext()).getBoolean(PREF_DESKTOP_SESSION_ACTIVE, false)) {
+                try {
+                    com.farmerbb.taskbar.util.DesktopIconInfo shortcut = new com.farmerbb.taskbar.util.DesktopIconInfo(0, 0, entry);
+                    android.content.ClipData data = android.content.ClipData.newPlainText(
+                            "andesk-app", "andesk-app:" + shortcut.toJson(getContext()).toString());
+                    int flags = Build.VERSION.SDK_INT >= Build.VERSION_CODES.N ? View.DRAG_FLAG_GLOBAL : 0;
+                    view.startDragAndDrop(data, new View.DragShadowBuilder(view), null, flags);
+                    return true;
+                } catch(RuntimeException ignored) {
+                    // The regular app context menu remains available as a fallback.
+                }
+            }
             int[] location = new int[2];
             view.getLocationOnScreen(location);
             openContextMenu(entry, location);
