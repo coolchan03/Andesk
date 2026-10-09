@@ -259,6 +259,10 @@ public class TaskbarController extends UIController {
         // Determine where to show the taskbar on screen
         String taskbarPosition = TaskbarPosition.getTaskbarPosition(context);
         params.gravity = getTaskbarGravity(taskbarPosition);
+        // Full-width desktop taskbars must size the overlay and its content together.
+        if(!TaskbarPosition.isVertical(taskbarPosition)
+                && U.getSharedPreferences(context).getBoolean(PREF_DESKTOP_SESSION_ACTIVE, false))
+            params.width = WindowManager.LayoutParams.MATCH_PARENT;
         int layoutId = getTaskbarLayoutId(taskbarPosition);
         positionIsVertical = TaskbarPosition.isVertical(taskbarPosition);
 
@@ -418,9 +422,10 @@ public class TaskbarController extends UIController {
                         ? params.updateHeight(WindowManager.LayoutParams.MATCH_PARENT)
                         : params.updateHeight(WindowManager.LayoutParams.WRAP_CONTENT);
             } else {
-                newParams = matchParent
+                newParams = U.getSharedPreferences(context).getBoolean(PREF_DESKTOP_SESSION_ACTIVE, false)
                         ? params.updateWidth(WindowManager.LayoutParams.MATCH_PARENT)
-                        : params.updateWidth(WindowManager.LayoutParams.WRAP_CONTENT);
+                        : (matchParent ? params.updateWidth(WindowManager.LayoutParams.MATCH_PARENT)
+                        : params.updateWidth(WindowManager.LayoutParams.WRAP_CONTENT));
             }
 
             try {

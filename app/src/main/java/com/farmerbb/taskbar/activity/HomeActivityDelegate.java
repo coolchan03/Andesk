@@ -501,6 +501,8 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
     private void showDesktopMenu() {
         CharSequence[] items = {
                 "Add app shortcut",
+                "Add file shortcut",
+                "Add folder shortcut",
                 getString(R.string.tb_add_widget),
                 "Taskbar appearance",
                 "All settings",
@@ -531,13 +533,22 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
                                 android.util.Log.w("Andesk", "Unable to read desktop shortcuts", e);
                             }
                         }
-                    } else if(which == 1)
+                    } else if(which == 1 || which == 2) {
+                        Intent picker = new Intent(which == 1 ? Intent.ACTION_OPEN_DOCUMENT : Intent.ACTION_OPEN_DOCUMENT_TREE);
+                        if(which == 1) {
+                            picker.setType("*/*");
+                            picker.addCategory(Intent.CATEGORY_OPENABLE);
+                        }
+                        picker.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
+                        try { startActivityForResult(picker, which == 1 ? 9101 : 9102); }
+                        catch(ActivityNotFoundException ignored) {}
+                    } else if(which == 3)
                         desktopWidgets.startAddWidget();
-                    else if(which == 4)
+                    else if(which == 6)
                         setWallpaper();
                     else {
                         Intent appearance = new Intent(this, MainActivity.class);
-                        appearance.putExtra("theme_change", which == 2);
+                        appearance.putExtra("theme_change", which == 4);
                         startActivity(appearance);
                     }
                 })
@@ -1003,6 +1014,9 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
             }
         } catch (JSONException ignored) {}
 
+        JSONArray documents = new JSONArray();
+        try { documents = new JSONArray(U.getSharedPreferences(this).getString("andesk_documents", "[]")); }
+        catch(org.json.JSONException ignored) {}
         for(int i = 0; i < columns * rows; i++) {
             GridLayout.LayoutParams params = new GridLayout.LayoutParams(
                     GridLayout.spec(GridLayout.UNDEFINED, GridLayout.FILL, 1f),
@@ -1079,6 +1093,21 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
             if(info != null && info.entry != null && info.column < columns && info.row < rows)
                 iconContainer.addView(inflateDesktopIcon(iconContainer, info.entry));
 
+            if(info == null) {
+                for(int j = 0; j < documents.length(); j++) {
+                    org.json.JSONObject document = documents.optJSONObject(j);
+                    if(document == null) continue;
+                    DesktopIconInfo slot = getDesktopIconInfo(index);
+                    if(document.optInt("column", -1) == slot.column && document.optInt("row", -1) == slot.row) {
+                        TextView shortcutView = new TextView(this);
+                        shortcutView.setText((document.optBoolean("folder") ? "📁 " : "📄 ") + document.optString("title", "Shortcut"));
+                        shortcutView.setTextColor(Color.WHITE);
+                        shortcutView.setOnClickListener(v -> openDocumentShortcut(document));
+                        iconContainer.addView(shortcutView);
+                        break;
+                    }
+                }
+            }
             desktopIcons.addView(iconContainer);
         }
     }
@@ -1290,6 +1319,7 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
         public boolean onDrag(View v, DragEvent event) {
             switch(event.getAction()) {
                 case DragEvent.ACTION_DRAG_STARTED:
+                    return isDesktopAppDrag(event) || event.getLocalState() instanceof View;
                 default:
                     // do nothing
                     break;
@@ -1302,7 +1332,7 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
                     }
                     break;
                 case DragEvent.ACTION_DRAG_ENDED:
-                    View view = (View) event.getLocalState();
+                    View view = event.getLocalState() instanceof View ? (View) event.getLocalState() : null;
                     if(view != null) view.setVisibility(View.VISIBLE);
                     // fall through
                 case DragEvent.ACTION_DRAG_EXITED:
@@ -1310,6 +1340,11 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
                     v.setAlpha(1);
                     break;
                 case DragEvent.ACTION_DROP:
+                    if(isDesktopAppDrag(event)) {
+                        addDroppedApp(event, desktopIcons.indexOfChild(v));
+                        return true;
+                    }
+                    if(!(event.getLocalState() instanceof View)) return false;
                     FrameLayout container2 = (FrameLayout) v;
                     if(container2.getChildCount() == 0) {
                         // Dropped, reassign View to ViewGroup
@@ -1327,6 +1362,94 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
         }
     }
 
+    private boolean isDesktopAppDrag(DragEvent event) {
+        return event.getClipDescription() != null
+                && event.getClipDescription().hasMimeType("text/plain")
+                && "andesk-app".contentEquals(event.getClipDescription().getLabel());
+    }
+
+    private void addDroppedApp(DragEvent event, int index) {
+        if(index < 0 || !isDesktopAppDrag(event) || event.getClipData() == null) return;
+        try {
+            String payload = event.getClipData().getItemAt(0).coerceToText(this).toString();
+            if(!payload.startsWith("andesk-app:")) return;
+            DesktopIconInfo app = DesktopIconInfo.fromJson(new org.json.JSONObject(payload.substring(11)));
+            if(app == null) return;
+            DesktopIconInfo slot = getDesktopIconInfo(index);
+            app.column = slot.column;
+            app.row = slot.row;
+            SharedPreferences pref = U.getSharedPreferences(this);
+            JSONArray entries = new JSONArray(pref.getString(PREF_DESKTOP_ICONS, "[]"));
+            for(int i = 0; i < entries.length(); i++) {
+                org.json.JSONObject old = entries.getJSONObject(i);
+                if(old.optInt("column", -1) == slot.column && old.optInt("row", -1) == slot.row) return;
+            }
+            entries.put(app.toJson(this));
+            pref.edit().putString(PREF_DESKTOP_ICONS, entries.toString()).apply();
+            refreshDesktopIcons();
+        } catch(Exception error) {
+            android.util.Log.w("Andesk", "Could not add dropped app", error);
+        }
+    }
+
+    private void saveDocumentShortcut(android.net.Uri uri, boolean folder, int resultFlags) {
+        try {
+            getContentResolver().takePersistableUriPermission(uri,
+                    resultFlags & Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        } catch(SecurityException ignored) {}
+        if(desktopIcons == null) return;
+        try {
+            SharedPreferences pref = U.getSharedPreferences(this);
+            JSONArray apps = new JSONArray(pref.getString(PREF_DESKTOP_ICONS, "[]"));
+            JSONArray documents = new JSONArray(pref.getString("andesk_documents", "[]"));
+            for(int index = 0; index < desktopIcons.getChildCount(); index++) {
+                DesktopIconInfo slot = getDesktopIconInfo(index);
+                if(isOccupied(apps, slot) || isOccupied(documents, slot)) continue;
+                String title = uri.getLastPathSegment();
+                if(!folder) {
+                    try(android.database.Cursor cursor = getContentResolver().query(uri, null, null, null, null)) {
+                        if(cursor != null && cursor.moveToFirst()) {
+                            int nameIndex = cursor.getColumnIndex(android.provider.OpenableColumns.DISPLAY_NAME);
+                            if(nameIndex >= 0) title = cursor.getString(nameIndex);
+                        }
+                    }
+                }
+                org.json.JSONObject document = new org.json.JSONObject();
+                document.put("column", slot.column);
+                document.put("row", slot.row);
+                document.put("uri", uri.toString());
+                document.put("folder", folder);
+                document.put("title", title == null ? "Shortcut" : title);
+                documents.put(document);
+                pref.edit().putString("andesk_documents", documents.toString()).apply();
+                refreshDesktopIcons();
+                return;
+            }
+        } catch(Exception error) { android.util.Log.w("Andesk", "Cannot save document shortcut", error); }
+    }
+
+    private boolean isOccupied(JSONArray list, DesktopIconInfo slot) throws org.json.JSONException {
+        for(int i = 0; i < list.length(); i++) {
+            org.json.JSONObject item = list.getJSONObject(i);
+            if(item.optInt("column", -1) == slot.column && item.optInt("row", -1) == slot.row)
+                return true;
+        }
+        return false;
+    }
+
+    private void openDocumentShortcut(org.json.JSONObject shortcut) {
+        android.net.Uri uri = android.net.Uri.parse(shortcut.optString("uri"));
+        boolean folder = shortcut.optBoolean("folder", false);
+        Intent intent = new Intent(folder ? Intent.ACTION_OPEN_DOCUMENT_TREE : Intent.ACTION_VIEW);
+        intent.setData(uri);
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        if(folder && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+            intent.putExtra(android.provider.DocumentsContract.EXTRA_INITIAL_URI, uri);
+        try { startActivity(intent); }
+        catch(ActivityNotFoundException error) {
+            android.widget.Toast.makeText(this, "No app can open this shortcut", android.widget.Toast.LENGTH_SHORT).show();
+        }
+    }
     private void setOnHomeScreen(boolean value) {
         LauncherHelper helper = LauncherHelper.getInstance();
 
@@ -1371,6 +1494,10 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
 
         if(resultCode != RESULT_OK)
             return;
+        if(requestCode == 9101 || requestCode == 9102) {
+            if(data != null && data.getData() != null) saveDocumentShortcut(data.getData(), requestCode == 9102, data.getFlags());
+            return;
+        }
 
         if(requestCode == U.IMAGE_REQUEST_CODE) {
             if(data.getData() == null)
