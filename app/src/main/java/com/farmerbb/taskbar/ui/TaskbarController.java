@@ -349,7 +349,13 @@ public class TaskbarController extends UIController {
             drawSysTray(context, layoutId, layout);
         }
 
-        layout.setBackgroundColor(backgroundTint);
+        if(PREF_TASKBAR_STYLE_WINDOWS_7.equals(U.getTaskbarStyle(context))) {
+            android.graphics.drawable.GradientDrawable aero = new android.graphics.drawable.GradientDrawable(
+                    android.graphics.drawable.GradientDrawable.Orientation.TOP_BOTTOM,
+                    new int[] {androidx.core.graphics.ColorUtils.blendARGB(backgroundTint, android.graphics.Color.WHITE, 0.22f), backgroundTint});
+            layout.setBackground(aero);
+        } else
+            layout.setBackgroundColor(backgroundTint);
         layout.findViewById(R.id.divider).setBackgroundColor(
                 windowsStyle || pref.getBoolean(PREF_CENTERED_ICONS, false) ? 0 : accentColor
         );
