@@ -50,6 +50,7 @@
 
     <string-array name="tb_pref_taskbar_style_values">
         <item>classic</item>
+        <item>windows7</item>
         <item>windows10</item>
         <item>windows11</item>
     </string-array>

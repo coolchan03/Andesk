@@ -1868,7 +1868,8 @@ public class U {
     }
 
     public static boolean isWindowsTaskbarStyle(Context context) {
-        return isWindows10TaskbarStyle(context) || isWindows11TaskbarStyle(context);
+        return PREF_TASKBAR_STYLE_WINDOWS_7.equals(getTaskbarStyle(context))
+                || isWindows10TaskbarStyle(context) || isWindows11TaskbarStyle(context);
     }
 
     public static boolean isTaskbarFullLength(Context context) {
@@ -1886,6 +1887,11 @@ public class U {
     }
 
     public static int getTaskbarBackgroundColor(Context context) {
+        // Explicit theme colors (including alpha) always win over a style preset.
+        if(getSharedPreferences(context).contains(PREF_BACKGROUND_TINT))
+            return getBackgroundTint(context);
+        if(PREF_TASKBAR_STYLE_WINDOWS_7.equals(getTaskbarStyle(context)))
+            return Color.argb(180, 45, 91, 143);
         if(isWindows10TaskbarStyle(context))
             return Color.rgb(32, 32, 32);
         if(isWindows11TaskbarStyle(context))

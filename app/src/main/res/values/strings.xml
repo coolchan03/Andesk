@@ -81,6 +81,7 @@
     <string name="tb_pref_summary_taskbar_style">Choose a preset, or use Classic to customize the colors and layout below</string>
     <string-array name="tb_pref_taskbar_style">
         <item>Classic / customizable</item>
+        <item>Windows 7 Aero-like</item>
         <item>Windows 10-like</item>
         <item>Windows 11-like</item>
     </string-array>
