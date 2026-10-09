@@ -1447,7 +1447,7 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
             intent.putExtra(android.provider.DocumentsContract.EXTRA_INITIAL_URI, uri);
         try { startActivity(intent); }
         catch(ActivityNotFoundException error) {
-            U.showToast(this, R.string.tb_error);
+            android.widget.Toast.makeText(this, "No app can open this shortcut", android.widget.Toast.LENGTH_SHORT).show();
         }
     }
     private void setOnHomeScreen(boolean value) {
