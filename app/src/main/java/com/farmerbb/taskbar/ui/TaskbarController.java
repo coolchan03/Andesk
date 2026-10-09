@@ -720,7 +720,7 @@ public class TaskbarController extends UIController {
             View batteryView = sysTrayLayout.findViewById(R.id.battery);
             batteryView.setOnClickListener(v -> openBatterySettings());
 
-            time.setOnClickListener(v -> openClock());
+            time.setOnClickListener(v -> openControlCenter());
             time.setOnLongClickListener(v -> {
                 openCalendar();
                 return true;
