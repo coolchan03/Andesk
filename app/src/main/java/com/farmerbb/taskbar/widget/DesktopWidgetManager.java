@@ -349,9 +349,16 @@ public class DesktopWidgetManager {
             detector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
                 @Override
                 public void onLongPress(MotionEvent e) {
-                    showMenu(entry);
+                    enterEditMode(entry);
                 }
             });
+        }
+
+        @Override
+        public boolean dispatchTouchEvent(MotionEvent ev) {
+            if(editingId != entry.id)
+                detector.onTouchEvent(ev);
+            return super.dispatchTouchEvent(ev);
         }
 
         @Override
@@ -366,7 +373,6 @@ public class DesktopWidgetManager {
                 return !isInside(entry.handle, ev) && !isInside(entry.done, ev);
             }
 
-            detector.onTouchEvent(ev);
             return false;
         }
 
