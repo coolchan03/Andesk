@@ -114,6 +114,7 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
     private boolean isSecondaryHome;
     private boolean isDesktopLauncher;
     private DesktopWidgetManager desktopWidgets;
+    private TextView desktopAddButton;
     private boolean waitingForPermission;
     private boolean isWallpaperEnabled;
     private boolean isTaskVirtualDisplay;
@@ -432,6 +433,20 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
             if(isDesktopLauncher) {
                 desktopWidgets = new DesktopWidgetManager(this, layout);
                 updateMargins();
+                TextView addDesktopItem = new TextView(this);
+                addDesktopItem.setText("+ Add to desktop");
+                addDesktopItem.setTextColor(Color.WHITE);
+                addDesktopItem.setTextSize(15);
+                addDesktopItem.setBackgroundColor(Color.argb(200, 30, 45, 65));
+                int padding = Math.round(12 * getResources().getDisplayMetrics().density);
+                addDesktopItem.setPadding(padding, padding, padding, padding);
+                addDesktopItem.setOnClickListener(v -> showDesktopMenu());
+                desktopAddButton = addDesktopItem;
+                FrameLayout.LayoutParams addParams = new FrameLayout.LayoutParams(
+                        FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
+                addParams.gravity = Gravity.TOP | Gravity.END;
+                addParams.setMargins(padding, padding, padding, 0);
+                layout.addView(addDesktopItem, addParams);
                 layout.setOnLongClickListener(v -> {
                     showDesktopMenu();
                     return true;
@@ -939,6 +954,7 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
         layout.addView(desktopIcons);
         layout.addView(fab.view);
         if(desktopWidgets != null) desktopWidgets.bringToFront();
+        if(desktopAddButton != null) desktopAddButton.bringToFront();
     }
 
     private void refreshDesktopIcons() {

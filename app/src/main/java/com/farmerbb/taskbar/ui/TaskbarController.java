@@ -293,7 +293,10 @@ public class TaskbarController extends UIController {
             layout.findViewById(R.id.space_alt).setVisibility(View.GONE);
         }
 
-        space.setOnClickListener(v -> toggleTaskbar(true));
+        space.setOnClickListener(v -> {
+            if(!U.getSharedPreferences(context).getBoolean(PREF_DESKTOP_SESSION_ACTIVE, false))
+                toggleTaskbar(true);
+        });
 
         startButton = layout.findViewById(R.id.start_button);
         drawStartButton(context, startButton, pref);
@@ -324,12 +327,18 @@ public class TaskbarController extends UIController {
         } catch (RuntimeException ignored) {}
 
         updateButton(false);
-        button.setOnClickListener(v -> toggleTaskbar(true));
+        button.setOnClickListener(v -> {
+            if(!U.getSharedPreferences(context).getBoolean(PREF_DESKTOP_SESSION_ACTIVE, false))
+                toggleTaskbar(true);
+        });
 
         LinearLayout buttonLayout = layout.findViewById(altButtonConfig
                 ? R.id.hide_taskbar_button_layout_alt
                 : R.id.hide_taskbar_button_layout);
-        if(buttonLayout != null) buttonLayout.setOnClickListener(v -> toggleTaskbar(true));
+        if(buttonLayout != null) buttonLayout.setOnClickListener(v -> {
+            if(!U.getSharedPreferences(context).getBoolean(PREF_DESKTOP_SESSION_ACTIVE, false))
+                toggleTaskbar(true);
+        });
 
         LinearLayout buttonLayoutToHide = layout.findViewById(altButtonConfig
                 ? R.id.hide_taskbar_button_layout
@@ -339,6 +348,8 @@ public class TaskbarController extends UIController {
         // The large collapse arrow is a legacy Taskbar control, not desktop navigation.
         // Desktop sessions have an explicit Exit action and need no collapse button.
         if(pref.getBoolean(PREF_DESKTOP_SESSION_ACTIVE, false)) {
+            layout.findViewById(R.id.hide_taskbar_button_layout).setVisibility(View.GONE);
+            layout.findViewById(R.id.hide_taskbar_button_layout_alt).setVisibility(View.GONE);
             if(buttonLayout != null) buttonLayout.setVisibility(View.GONE);
             if(button != null) button.setVisibility(View.GONE);
         }
@@ -1426,6 +1437,7 @@ public class TaskbarController extends UIController {
     }
 
     private void toggleTaskbar(boolean userInitiated) {
+        if(U.getSharedPreferences(context).getBoolean(PREF_DESKTOP_SESSION_ACTIVE, false)) return;
         if(userInitiated && Build.BRAND.equalsIgnoreCase("essential")) {
             SharedPreferences pref = U.getSharedPreferences(context);
             LauncherHelper helper = LauncherHelper.getInstance();
@@ -1478,6 +1490,7 @@ public class TaskbarController extends UIController {
     }
 
     private void hideTaskbar(boolean clearVariables) {
+        if(U.getSharedPreferences(context).getBoolean(PREF_DESKTOP_SESSION_ACTIVE, false)) return;
         if(clearVariables) {
             taskbarShownTemporarily = false;
             taskbarHiddenTemporarily = false;
