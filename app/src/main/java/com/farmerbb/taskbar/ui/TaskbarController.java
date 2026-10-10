@@ -374,7 +374,12 @@ public class TaskbarController extends UIController {
         if(PREF_TASKBAR_STYLE_WINDOWS_7.equals(U.getTaskbarStyle(context))) {
             android.graphics.drawable.GradientDrawable aero = new android.graphics.drawable.GradientDrawable(
                     android.graphics.drawable.GradientDrawable.Orientation.TOP_BOTTOM,
-                    new int[] {androidx.core.graphics.ColorUtils.blendARGB(backgroundTint, android.graphics.Color.WHITE, 0.22f), backgroundTint});
+                    new int[] {
+                            androidx.core.graphics.ColorUtils.blendARGB(backgroundTint, android.graphics.Color.WHITE, 0.36f),
+                            androidx.core.graphics.ColorUtils.blendARGB(backgroundTint, android.graphics.Color.WHITE, 0.14f),
+                            backgroundTint});
+            aero.setStroke(Math.max(1, Math.round(context.getResources().getDisplayMetrics().density)),
+                    androidx.core.graphics.ColorUtils.setAlphaComponent(android.graphics.Color.WHITE, 95));
             layout.setBackground(aero);
         } else
             layout.setBackgroundColor(backgroundTint);

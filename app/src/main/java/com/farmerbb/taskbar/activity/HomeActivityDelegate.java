@@ -585,6 +585,10 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
         super.onResume();
 
         updateDesktopNavigationBar();
+        if(isDesktopLauncher) {
+            waitingForPermission = false;
+            init();
+        }
 
         if(canBootToFreeform()) {
             if(U.launcherIsDefault(this))
@@ -611,7 +615,9 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
 
         U.sendBroadcast(this, ACTION_HIDE_START_MENU);
         if(desktopWidgets != null) desktopWidgets.startListening();
-        init();
+        // Permission screens can resume this Activity before overlay access is settled.
+        // Only start desktop services once the Activity is actually foregrounded.
+        if(!isDesktopLauncher) init();
     }
 
     private void init() {
@@ -697,7 +703,13 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
 
                 if(isDesktopLauncher)
                     startService(new Intent(this, NotificationService.class));
-            } catch (IllegalStateException ignored) {}
+            } catch (RuntimeException error) {
+                android.util.Log.e("Andesk", "Desktop overlay services failed to start", error);
+                if(isDesktopLauncher) {
+                    pref.edit().putBoolean(PREF_TASKBAR_ACTIVE, false).apply();
+                    android.widget.Toast.makeText(this, "Desktop service startup failed; reopen Andesk or check overlay permission", android.widget.Toast.LENGTH_LONG).show();
+                }
+            }
         }
 
         if(pref.getBoolean(PREF_TASKBAR_ACTIVE, false) && !U.isServiceRunning(this, NotificationService.class))
@@ -1478,7 +1490,7 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
     private void performOnResumeLogic() {
         if(waitingForPermission) {
             waitingForPermission = false;
-            init();
+            if(!isDesktopLauncher) init();
         }
 
         overridePendingTransition(0, R.anim.close_anim);
