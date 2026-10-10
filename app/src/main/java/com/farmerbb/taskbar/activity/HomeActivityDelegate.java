@@ -451,6 +451,14 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
                     showDesktopMenu();
                     return true;
                 });
+                layout.setOnGenericMotionListener((v, motion) -> {
+                    if(motion.getAction() == MotionEvent.ACTION_BUTTON_PRESS
+                            && (motion.getButtonState() & MotionEvent.BUTTON_SECONDARY) != 0) {
+                        showDesktopMenu();
+                        return true;
+                    }
+                    return false;
+                });
             }
 
             // The desktop launcher doesn't register as a system home screen,
@@ -807,7 +815,8 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
         if(isDesktopLauncher) {
             U.unregisterReceiver(this, exitDesktopReceiver);
 
-            if(isFinishing())
+            // A finished activity is a closed session; do not stop on rotation.
+            if(isFinishing() && !isChangingConfigurations())
                 stopDesktopSession();
         }
 
@@ -860,6 +869,14 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
                 return true;
             }
 
+            if(keyCode == KeyEvent.KEYCODE_S && event.isCtrlPressed() && event.isAltPressed()) {
+                startActivity(new Intent(this, MainActivity.class));
+                return true;
+            }
+            if(keyCode == KeyEvent.KEYCODE_ESCAPE && MenuHelper.getInstance().isStartMenuOpen()) {
+                U.sendBroadcast(this, ACTION_HIDE_START_MENU);
+                return true;
+            }
             // Alt+F4 exits the desktop
             if(keyCode == KeyEvent.KEYCODE_F4 && event.isAltPressed()) {
                 Intent quitIntent = new Intent(ACTION_QUIT);
@@ -1133,6 +1150,18 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
                         shortcutView.setText((document.optBoolean("folder") ? "📁 " : "📄 ") + document.optString("title", "Shortcut"));
                         shortcutView.setTextColor(Color.WHITE);
                         shortcutView.setOnClickListener(v -> openDocumentShortcut(document));
+                        shortcutView.setOnLongClickListener(v -> {
+                            showDocumentShortcutMenu(document);
+                            return true;
+                        });
+                        shortcutView.setOnGenericMotionListener((v, motion) -> {
+                            if(motion.getAction() == MotionEvent.ACTION_BUTTON_PRESS
+                                    && (motion.getButtonState() & MotionEvent.BUTTON_SECONDARY) != 0) {
+                                showDocumentShortcutMenu(document);
+                                return true;
+                            }
+                            return false;
+                        });
                         iconContainer.addView(shortcutView);
                         break;
                     }
@@ -1465,6 +1494,44 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
                 return true;
         }
         return false;
+    }
+
+    private void showDocumentShortcutMenu(org.json.JSONObject shortcut) {
+        new AlertDialog.Builder(this).setTitle(shortcut.optString("title", "Shortcut"))
+                .setItems(new String[] {"Open", "Rename shortcut", "Remove shortcut"}, (dialog, selected) -> {
+                    if(selected == 0) openDocumentShortcut(shortcut);
+                    if(selected == 1) {
+                        android.widget.EditText name = new android.widget.EditText(this);
+                        name.setSingleLine(true);
+                        name.setText(shortcut.optString("title", "Shortcut"));
+                        new AlertDialog.Builder(this).setTitle("Rename shortcut").setView(name)
+                                .setPositiveButton("Save", (d, w) -> modifyDocumentShortcut(shortcut, name.getText().toString(), false))
+                                .setNegativeButton("Cancel", null).show();
+                    }
+                    if(selected == 2) modifyDocumentShortcut(shortcut, null, true);
+                }).show();
+    }
+
+    private void modifyDocumentShortcut(org.json.JSONObject shortcut, String title, boolean remove) {
+        try {
+            SharedPreferences pref = U.getSharedPreferences(this);
+            JSONArray current = new JSONArray(pref.getString("andesk_documents", "[]"));
+            JSONArray updated = new JSONArray();
+            for(int i = 0; i < current.length(); i++) {
+                org.json.JSONObject item = current.getJSONObject(i);
+                if(item.optString("uri").equals(shortcut.optString("uri"))
+                        && item.optInt("column") == shortcut.optInt("column")
+                        && item.optInt("row") == shortcut.optInt("row")) {
+                    if(remove) continue;
+                    item.put("title", title);
+                }
+                updated.put(item);
+            }
+            pref.edit().putString("andesk_documents", updated.toString()).apply();
+            refreshDesktopIcons();
+        } catch(org.json.JSONException error) {
+            android.util.Log.e("Andesk", "Unable to update desktop shortcut", error);
+        }
     }
 
     private void openDocumentShortcut(org.json.JSONObject shortcut) {
