@@ -1511,9 +1511,12 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
 
     private void showDocumentShortcutMenu(org.json.JSONObject shortcut) {
         new AlertDialog.Builder(this).setTitle(shortcut.optString("title", "Shortcut"))
-                .setItems(new String[] {"Open", "Rename shortcut", "Remove shortcut"}, (dialog, selected) -> {
+                .setItems(new String[] {"Open", "Open with", "Share file", "Details", "Rename shortcut", "Remove shortcut"}, (dialog, selected) -> {
                     if(selected == 0) openDocumentShortcut(shortcut);
-                    if(selected == 1) {
+                    if(selected == 1) openDocumentWithChooser(shortcut);
+                    if(selected == 2) shareDocumentShortcut(shortcut);
+                    if(selected == 3) showDocumentDetails(shortcut);
+                    if(selected == 4) {
                         android.widget.EditText name = new android.widget.EditText(this);
                         name.setSingleLine(true);
                         name.setText(shortcut.optString("title", "Shortcut"));
@@ -1521,8 +1524,43 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
                                 .setPositiveButton("Save", (d, w) -> modifyDocumentShortcut(shortcut, name.getText().toString(), false))
                                 .setNegativeButton("Cancel", null).show();
                     }
-                    if(selected == 2) modifyDocumentShortcut(shortcut, null, true);
+                    if(selected == 5) modifyDocumentShortcut(shortcut, null, true);
                 }).show();
+    }
+
+    private void openDocumentWithChooser(org.json.JSONObject shortcut) {
+        android.net.Uri uri = android.net.Uri.parse(shortcut.optString("uri"));
+        if(shortcut.optBoolean("folder", false)) {
+            openDocumentShortcut(shortcut);
+            return;
+        }
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        String mime = getContentResolver().getType(uri);
+        intent.setDataAndType(uri, mime == null ? "*/*" : mime);
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        try { startActivity(Intent.createChooser(intent, "Open with")); }
+        catch(RuntimeException error) { android.util.Log.w("Andesk", "No file viewer available", error); }
+    }
+
+    private void shareDocumentShortcut(org.json.JSONObject shortcut) {
+        if(shortcut.optBoolean("folder", false)) return;
+        android.net.Uri uri = android.net.Uri.parse(shortcut.optString("uri"));
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        String mime = getContentResolver().getType(uri);
+        intent.setType(mime == null ? "application/octet-stream" : mime);
+        intent.putExtra(Intent.EXTRA_STREAM, uri);
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        try { startActivity(Intent.createChooser(intent, "Share file")); }
+        catch(RuntimeException error) { android.util.Log.w("Andesk", "Cannot share shortcut", error); }
+    }
+
+    private void showDocumentDetails(org.json.JSONObject shortcut) {
+        android.net.Uri uri = android.net.Uri.parse(shortcut.optString("uri"));
+        String details = "Type: " + (shortcut.optBoolean("folder", false) ? "Folder" : "File")
+                + "\\nName: " + shortcut.optString("title", "Shortcut")
+                + "\\nLocation: " + uri;
+        new AlertDialog.Builder(this).setTitle("Shortcut details").setMessage(details)
+                .setPositiveButton("Close", null).show();
     }
 
     private void modifyDocumentShortcut(org.json.JSONObject shortcut, String title, boolean remove) {
