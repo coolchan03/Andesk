@@ -1135,6 +1135,10 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
                     view.getLocationOnScreen(location);
 
                     DesktopIconInfo info = icons.get(index);
+                    if(isDesktopLauncher && (info == null || info.entry == null)) {
+                        showDesktopMenu();
+                        return true;
+                    }
                     if(info == null) info = getDesktopIconInfo(index);
 
                     openContextMenu(info, location);
