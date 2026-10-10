@@ -441,6 +441,10 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
                 int padding = Math.round(12 * getResources().getDisplayMetrics().density);
                 addDesktopItem.setPadding(padding, padding, padding, padding);
                 addDesktopItem.setOnClickListener(v -> showDesktopMenu());
+                addDesktopItem.setOnLongClickListener(v -> {
+                    startActivity(new Intent(this, MainActivity.class));
+                    return true;
+                });
                 desktopAddButton = addDesktopItem;
                 FrameLayout.LayoutParams addParams = new FrameLayout.LayoutParams(
                         FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
@@ -871,6 +875,14 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
 
             if(keyCode == KeyEvent.KEYCODE_S && event.isCtrlPressed() && event.isAltPressed()) {
                 startActivity(new Intent(this, MainActivity.class));
+                return true;
+            }
+            if(keyCode == KeyEvent.KEYCODE_F10 && event.isShiftPressed()) {
+                showDesktopMenu();
+                return true;
+            }
+            if(keyCode == KeyEvent.KEYCODE_F && event.isCtrlPressed() && event.isShiftPressed()) {
+                openDesktopDocumentPicker(false);
                 return true;
             }
             if(keyCode == KeyEvent.KEYCODE_ESCAPE && MenuHelper.getInstance().isStartMenuOpen()) {
@@ -1317,13 +1329,13 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
     }
 
     private DesktopIconInfo getDesktopIconInfo(int index) {
-        int row = index % desktopIcons.getRowCount();
+        int row = index % Math.max(1, desktopIcons.getRowCount());
 
         int pos = index;
         int column = -1;
 
         while(pos >= 0) {
-            pos -= desktopIcons.getRowCount();
+            pos -= Math.max(1, desktopIcons.getRowCount());
             column++;
         }
 
