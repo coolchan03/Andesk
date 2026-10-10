@@ -15,6 +15,7 @@
 
 package com.farmerbb.taskbar.activity;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
@@ -27,6 +28,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.LauncherApps;
+import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Build;
@@ -58,6 +60,7 @@ import com.farmerbb.taskbar.R;
 import com.farmerbb.taskbar.helper.DisplayHelper;
 import com.farmerbb.taskbar.helper.GlobalHelper;
 import com.farmerbb.taskbar.util.Callbacks;
+import com.farmerbb.taskbar.util.CompatUtils;
 import com.farmerbb.taskbar.util.TaskbarPosition;
 import com.farmerbb.taskbar.service.DashboardService;
 import com.farmerbb.taskbar.service.NotificationService;
@@ -461,7 +464,7 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
                 addParams.setMargins(padding, padding, padding, 0);
                 layout.addView(addDesktopItem, addParams);
                 addDesktopItem.postDelayed(
-                        () -> addDesktopItem.setVisibility(View.GONE), 3500);
+                        () -> addDesktopItem.setVisibility(View.GONE), 2000);
                 layout.setOnLongClickListener(v -> {
                     showDesktopMenu();
                     return true;
@@ -649,6 +652,18 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
 
     private void init() {
         if(U.canDrawOverlays(this)) {
+            SharedPreferences pref = U.getSharedPreferences(this);
+            if(isDesktopLauncher
+                    && pref.getBoolean(PREF_FIRST_RUN, true)
+                    && !pref.getBoolean("andesk_notification_permission_requested", false)
+                    && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
+                    && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS)
+                    != PackageManager.PERMISSION_GRANTED) {
+                pref.edit().putBoolean("andesk_notification_permission_requested", true).apply();
+                CompatUtils.grantNotificationPermissionIfNeeded(this);
+                return;
+            }
+
             if(!canBootToFreeform()) {
                 setOnHomeScreen(true);
 
@@ -685,10 +700,10 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
         }
 
         SharedPreferences pref = U.getSharedPreferences(this);
-        if(!isDesktopLauncher && pref.getBoolean(PREF_FIRST_RUN, true)) {
+        if(pref.getBoolean(PREF_FIRST_RUN, true)) {
             SharedPreferences.Editor editor = pref.edit();
             editor.putBoolean(PREF_FIRST_RUN, false);
-            editor.putBoolean(PREF_COLLAPSED, true);
+            editor.putBoolean(PREF_COLLAPSED, !isDesktopLauncher);
             editor.apply();
 
             dialog = U.showRecentAppsDialog(U.wrapContext(this), new Callbacks(
@@ -716,6 +731,7 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
                 DesktopSessionState.foreground(this);
                 SharedPreferences.Editor editor = pref.edit()
                         .putBoolean(PREF_IS_HIDDEN, false)
+                        .putBoolean(PREF_COLLAPSED, false)
                         .putLong(PREF_TIME_OF_SERVICE_START, System.currentTimeMillis());
 
                 // Large-screen Android uses a centered system taskbar/dock. We cannot
@@ -1092,6 +1108,9 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
         JSONArray documents = new JSONArray();
         try { documents = new JSONArray(U.getSharedPreferences(this).getString("andesk_documents", "[]")); }
         catch(org.json.JSONException ignored) {}
+
+        if(desktopAddButton != null && (icons.size() > 0 || documents.length() > 0))
+            desktopAddButton.setVisibility(View.GONE);
         for(int i = 0; i < columns * rows; i++) {
             GridLayout.LayoutParams params = new GridLayout.LayoutParams(
                     GridLayout.spec(GridLayout.UNDEFINED, GridLayout.FILL, 1f),
@@ -1257,26 +1276,42 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
         try {
             SharedPreferences pref = U.getSharedPreferences(this);
             JSONArray jsonIcons = new JSONArray(pref.getString(PREF_DESKTOP_ICONS, "[]"));
-            int iconToRemove = -1;
+            JSONArray documents = new JSONArray(pref.getString("andesk_documents", "[]"));
+            DesktopIconInfo oldSlot = getDesktopIconInfo(startDragIndex);
+            DesktopIconInfo newSlot = getDesktopIconInfo(endDragIndex);
 
-            DesktopIconInfo oldInfo = getDesktopIconInfo(startDragIndex);
-            DesktopIconInfo newInfo = getDesktopIconInfo(endDragIndex);
+            if(isOccupied(documents, newSlot)) return;
+
+            int sourceIndex = -1;
+            int targetIndex = -1;
+            DesktopIconInfo source = null;
+            DesktopIconInfo target = null;
 
             for(int i = 0; i < jsonIcons.length(); i++) {
                 DesktopIconInfo info = DesktopIconInfo.fromJson(jsonIcons.getJSONObject(i));
-                if(info != null && info.column == oldInfo.column && info.row == oldInfo.row) {
-                    newInfo.entry = info.entry;
-                    iconToRemove = i;
-                    break;
+                if(info == null) continue;
+                if(info.column == oldSlot.column && info.row == oldSlot.row) {
+                    sourceIndex = i;
+                    source = info;
+                } else if(info.column == newSlot.column && info.row == newSlot.row) {
+                    targetIndex = i;
+                    target = info;
                 }
             }
 
-            if(iconToRemove > -1) {
-                jsonIcons.remove(iconToRemove);
-                jsonIcons.put(newInfo.toJson(this));
+            if(sourceIndex < 0 || source == null) return;
 
-                pref.edit().putString(PREF_DESKTOP_ICONS, jsonIcons.toString()).apply();
+            source.column = newSlot.column;
+            source.row = newSlot.row;
+            jsonIcons.put(sourceIndex, source.toJson(this));
+
+            if(targetIndex >= 0 && target != null) {
+                target.column = oldSlot.column;
+                target.row = oldSlot.row;
+                jsonIcons.put(targetIndex, target.toJson(this));
             }
+
+            pref.edit().putString(PREF_DESKTOP_ICONS, jsonIcons.toString()).apply();
         } catch (JSONException ignored) {}
     }
 
@@ -1447,18 +1482,12 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
                         return true;
                     }
                     if(!(event.getLocalState() instanceof View)) return false;
-                    FrameLayout container2 = (FrameLayout) v;
-                    if(container2.getChildCount() == 0) {
-                        // Dropped, reassign View to ViewGroup
-                        View view2 = (View) event.getLocalState();
-                        ViewGroup owner = (ViewGroup) view2.getParent();
-                        owner.removeView(view2);
-                        container2.addView(view2);
-
-                        endDragIndex = desktopIcons.indexOfChild(container2);
+                    endDragIndex = desktopIcons.indexOfChild(v);
+                    if(endDragIndex >= 0 && endDragIndex != startDragIndex) {
                         reassignDroppedIcon();
+                        refreshDesktopIcons();
                     }
-                    break;
+                    return true;
             }
             return true;
         }
@@ -1673,6 +1702,13 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
 
         overridePendingTransition(0, R.anim.close_anim);
         U.sendBroadcast(this, ACTION_TEMP_SHOW_TASKBAR);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if(isDesktopLauncher && requestCode == 42)
+            init();
     }
 
     @Override
