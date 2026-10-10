@@ -695,8 +695,8 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
             dashboardController.onCreateHost(this);
         } else {
             if(isDesktopLauncher) {
-                // Opening the desktop starts a Taskbar session that stays active
-                // (even while other apps are in front) until the desktop is closed
+                // The desktop task is retained in Recents while overlays are only
+                // active when the launcher itself is foregrounded.
                 SharedPreferences.Editor editor = pref.edit()
                         .putBoolean(PREF_IS_HIDDEN, false)
                         .putBoolean(PREF_DESKTOP_SESSION_ACTIVE, true)
@@ -783,6 +783,9 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
                 // A desktop session persists in Recents, but overlay services must never
                 // draw above unrelated foreground applications.
                 if(isDesktopLauncher) {
+                    // Keep the desktop task resumable, but mark overlays inactive
+                    // before tearing services down; other receivers must not restart them.
+                    pref.edit().putBoolean(PREF_TASKBAR_ACTIVE, false).apply();
                     stopService(new Intent(this, TaskbarService.class));
                     stopService(new Intent(this, StartMenuService.class));
                     stopService(new Intent(this, DashboardService.class));
