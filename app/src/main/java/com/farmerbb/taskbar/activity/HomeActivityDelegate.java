@@ -1557,8 +1557,8 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
     private void showDocumentDetails(org.json.JSONObject shortcut) {
         android.net.Uri uri = android.net.Uri.parse(shortcut.optString("uri"));
         String details = "Type: " + (shortcut.optBoolean("folder", false) ? "Folder" : "File")
-                + "\\nName: " + shortcut.optString("title", "Shortcut")
-                + "\\nLocation: " + uri;
+                + "\nName: " + shortcut.optString("title", "Shortcut")
+                + "\nLocation: " + uri;
         new AlertDialog.Builder(this).setTitle("Shortcut details").setMessage(details)
                 .setPositiveButton("Close", null).show();
     }
@@ -1599,7 +1599,8 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
         if(folder && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
             intent.putExtra(android.provider.DocumentsContract.EXTRA_INITIAL_URI, uri);
         try { startActivity(intent); }
-        catch(ActivityNotFoundException error) {
+        catch(RuntimeException error) {
+            android.util.Log.w("Andesk", "Unable to open document shortcut", error);
             android.widget.Toast.makeText(this, "No app can open this shortcut", android.widget.Toast.LENGTH_SHORT).show();
         }
     }
