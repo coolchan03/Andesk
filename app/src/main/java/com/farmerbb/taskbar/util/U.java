@@ -1032,6 +1032,9 @@ public class U {
     }
 
     private static Bundle getActivityOptionsBundle(Context context, ApplicationType type, String windowSize, View view) {
+        if(getSharedPreferences(context).getBoolean(PREF_DESKTOP_SESSION_ACTIVE, false))
+            view = null;
+
         if(!canEnableFreeform(context) || !isFreeformModeEnabled(context))
             return getActivityOptions(view).toBundle();
 
@@ -1068,7 +1071,36 @@ public class U {
         if(Build.VERSION.SDK_INT < Build.VERSION_CODES.N)
             return options.toBundle();
 
-        return options.setLaunchBounds(new Rect(left, top, right, bottom)).toBundle();
+        Rect bounds = new Rect(left, top, right, bottom);
+        if(context != null && getSharedPreferences(context).getBoolean(PREF_DESKTOP_SESSION_ACTIVE, false))
+            bounds = clampDesktopLaunchBounds(context, bounds);
+
+        return options.setLaunchBounds(bounds).toBundle();
+    }
+
+    private static Rect clampDesktopLaunchBounds(Context context, Rect requested) {
+        DisplayInfo display = getDisplayInfo(context);
+        int minTop = Math.max(0, getStatusBarHeight(context));
+        int maxRight = Math.max(1, display.width);
+        int maxBottom = Math.max(minTop + 1, display.height);
+
+        String position = TaskbarPosition.getTaskbarPosition(context);
+        int taskbarSize = getTaskbarIconSize(context);
+        int minLeft = TaskbarPosition.isVerticalLeft(position) ? taskbarSize : 0;
+        if(TaskbarPosition.isVerticalRight(position)) maxRight -= taskbarSize;
+        if(TaskbarPosition.isBottom(position)) maxBottom -= taskbarSize;
+        if(!TaskbarPosition.isVertical(position) && !TaskbarPosition.isBottom(position))
+            minTop += taskbarSize;
+
+        maxRight = Math.max(minLeft + 1, maxRight);
+        maxBottom = Math.max(minTop + 1, maxBottom);
+
+        int width = Math.min(requested.width(), Math.max(1, maxRight - minLeft));
+        int height = Math.min(requested.height(), Math.max(1, maxBottom - minTop));
+        int left = Math.max(minLeft, Math.min(requested.left, maxRight - width));
+        int top = Math.max(minTop, Math.min(requested.top, maxBottom - height));
+
+        return new Rect(left, top, left + width, top + height);
     }
 
     @SuppressLint("SwitchIntDef")
