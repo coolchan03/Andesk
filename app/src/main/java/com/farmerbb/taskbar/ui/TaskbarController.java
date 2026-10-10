@@ -1758,6 +1758,10 @@ public class TaskbarController extends UIController {
         }
 
         FrameLayout layout = convertView.findViewById(R.id.entry);
+        // Use native platform tooltips rather than an overlay preview window.
+        layout.setContentDescription(entry.getLabel());
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+            layout.setTooltipText(entry.getLabel());
         layout.setOnClickListener(view -> U.launchApp(
                 context,
                 entry,

@@ -71,6 +71,7 @@ import com.farmerbb.taskbar.ui.StartMenuController;
 import com.farmerbb.taskbar.ui.TaskbarController;
 import com.farmerbb.taskbar.util.AppEntry;
 import com.farmerbb.taskbar.util.DesktopIconInfo;
+import com.farmerbb.taskbar.util.DesktopSessionState;
 import com.farmerbb.taskbar.util.DisplayInfo;
 import com.farmerbb.taskbar.util.FABWrapper;
 import com.farmerbb.taskbar.helper.FreeformHackHelper;
@@ -695,12 +696,11 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
             dashboardController.onCreateHost(this);
         } else {
             if(isDesktopLauncher) {
-                // Opening the desktop starts a Taskbar session that stays active
-                // (even while other apps are in front) until the desktop is closed
+                // The desktop task is retained in Recents while overlays are only
+                // active when the launcher itself is foregrounded.
+                DesktopSessionState.foreground(this);
                 SharedPreferences.Editor editor = pref.edit()
                         .putBoolean(PREF_IS_HIDDEN, false)
-                        .putBoolean(PREF_DESKTOP_SESSION_ACTIVE, true)
-                        .putBoolean(PREF_TASKBAR_ACTIVE, true)
                         .putLong(PREF_TIME_OF_SERVICE_START, System.currentTimeMillis());
 
                 // Large-screen Android uses a centered system taskbar/dock. We cannot
@@ -783,6 +783,9 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
                 // A desktop session persists in Recents, but overlay services must never
                 // draw above unrelated foreground applications.
                 if(isDesktopLauncher) {
+                    // Keep the desktop task resumable, but mark overlays inactive
+                    // before tearing services down; other receivers must not restart them.
+                    DesktopSessionState.background(this);
                     stopService(new Intent(this, TaskbarService.class));
                     stopService(new Intent(this, StartMenuService.class));
                     stopService(new Intent(this, DashboardService.class));
@@ -956,11 +959,7 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
     private void stopDesktopSession() {
         LauncherHelper.getInstance().setDesktopLauncherOpen(false);
 
-        SharedPreferences pref = U.getSharedPreferences(this);
-        pref.edit()
-                .putBoolean(PREF_DESKTOP_SESSION_ACTIVE, false)
-                .putBoolean(PREF_TASKBAR_ACTIVE, false)
-                .apply();
+        DesktopSessionState.close(this);
 
         setOnHomeScreen(false);
 
@@ -1132,6 +1131,10 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
                     view.getLocationOnScreen(location);
 
                     DesktopIconInfo info = icons.get(index);
+                    if(isDesktopLauncher && (info == null || info.entry == null)) {
+                        showDesktopMenu();
+                        return true;
+                    }
                     if(info == null) info = getDesktopIconInfo(index);
 
                     openContextMenu(info, location);
