@@ -498,6 +498,20 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
         U.initPrefs(this);
     }
 
+    private void openDesktopDocumentPicker(boolean folder) {
+        Intent picker = new Intent(folder ? Intent.ACTION_OPEN_DOCUMENT_TREE : Intent.ACTION_OPEN_DOCUMENT);
+        if(!folder) {
+            picker.setType("*/*");
+            picker.addCategory(Intent.CATEGORY_OPENABLE);
+        }
+        picker.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
+        try {
+            startActivityForResult(picker, folder ? 9102 : 9101);
+        } catch(ActivityNotFoundException error) {
+            android.util.Log.w("Andesk", "No Android document picker available", error);
+        }
+    }
+
     private void showDesktopMenu() {
         CharSequence[] items = {
                 "Add app shortcut",
@@ -534,14 +548,7 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
                             }
                         }
                     } else if(which == 1 || which == 2) {
-                        Intent picker = new Intent(which == 1 ? Intent.ACTION_OPEN_DOCUMENT : Intent.ACTION_OPEN_DOCUMENT_TREE);
-                        if(which == 1) {
-                            picker.setType("*/*");
-                            picker.addCategory(Intent.CATEGORY_OPENABLE);
-                        }
-                        picker.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
-                        try { startActivityForResult(picker, which == 1 ? 9101 : 9102); }
-                        catch(ActivityNotFoundException ignored) {}
+                        openDesktopDocumentPicker(which == 2);
                     } else if(which == 3)
                         desktopWidgets.startAddWidget();
                     else if(which == 6)
@@ -767,6 +774,7 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
                     stopService(new Intent(this, TaskbarService.class));
                     stopService(new Intent(this, StartMenuService.class));
                     stopService(new Intent(this, DashboardService.class));
+                    stopService(new Intent(this, NotificationService.class));
                 }
                 // Stop the Taskbar and Start Menu services if they should normally not be active
                 if(!isDesktopLauncher && (!pref.getBoolean(PREF_TASKBAR_ACTIVE, false) || pref.getBoolean(PREF_IS_HIDDEN, false))) {
@@ -839,6 +847,16 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
             if((keyCode == KeyEvent.KEYCODE_META_LEFT || keyCode == KeyEvent.KEYCODE_META_RIGHT)
                     && !event.isAltPressed() && !event.isCtrlPressed()) {
                 U.sendBroadcast(this, ACTION_TOGGLE_START_MENU);
+                return true;
+            }
+
+            // Desktop shortcuts remain available from a physical keyboard.
+            if(keyCode == KeyEvent.KEYCODE_N && event.isCtrlPressed() && event.isShiftPressed()) {
+                openDesktopDocumentPicker(true);
+                return true;
+            }
+            if(keyCode == KeyEvent.KEYCODE_A && event.isCtrlPressed() && event.isAltPressed()) {
+                showDesktopMenu();
                 return true;
             }
 
@@ -1453,7 +1471,12 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
         android.net.Uri uri = android.net.Uri.parse(shortcut.optString("uri"));
         boolean folder = shortcut.optBoolean("folder", false);
         Intent intent = new Intent(folder ? Intent.ACTION_OPEN_DOCUMENT_TREE : Intent.ACTION_VIEW);
-        intent.setData(uri);
+        if(folder)
+            intent.setData(uri);
+        else {
+            String mimeType = getContentResolver().getType(uri);
+            intent.setDataAndType(uri, mimeType == null ? "*/*" : mimeType);
+        }
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         if(folder && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
             intent.putExtra(android.provider.DocumentsContract.EXTRA_INITIAL_URI, uri);
