@@ -1022,8 +1022,8 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
         int iconSize = U.getTaskbarIconSize(this);
         int desktopIconSize = getResources().getDimensionPixelSize(R.dimen.tb_start_menu_grid_width);
 
-        int columns = (layout.getWidth() - (taskbarIsVertical ? iconSize : 0)) / desktopIconSize;
-        int rows = (layout.getHeight() - (!taskbarIsVertical ? iconSize : 0)) / desktopIconSize;
+        int columns = Math.max(1, (layout.getWidth() - (taskbarIsVertical ? iconSize : 0)) / desktopIconSize);
+        int rows = Math.max(1, (layout.getHeight() - (!taskbarIsVertical ? iconSize : 0)) / desktopIconSize);
 
         desktopIcons.removeAllViews();
         desktopIcons.setOrientation(GridLayout.VERTICAL);
@@ -1053,8 +1053,9 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
             }
 
             if(!iconsToRemove.isEmpty()) {
-                for(int i : iconsToRemove) {
-                    jsonIcons.remove(i);
+                // Remove from the end: removing ascending JSON indices skips items.
+                for(int i = iconsToRemove.size() - 1; i >= 0; i--) {
+                    jsonIcons.remove(iconsToRemove.get(i));
                 }
 
                 pref.edit().putString(PREF_DESKTOP_ICONS, jsonIcons.toString()).apply();
