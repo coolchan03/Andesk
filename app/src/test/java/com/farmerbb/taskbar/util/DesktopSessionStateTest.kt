@@ -24,19 +24,20 @@ class DesktopSessionStateTest {
 
     @Test
     fun resumeBackgroundAndCloseKeepOverlayStateConsistent() {
+        val prefs = U.getSharedPreferences(context)
         DesktopSessionState.foreground(context)
-        assertTrue(U.getSharedPreferences(context).getBoolean(Constants.PREF_DESKTOP_SESSION_ACTIVE, false))
-        assertTrue(U.getSharedPreferences(context).getBoolean(Constants.PREF_TASKBAR_ACTIVE, false))
+        assertTrue(prefs.getBoolean(Constants.PREF_DESKTOP_SESSION_ACTIVE, false))
+        assertTrue(prefs.getBoolean(Constants.PREF_TASKBAR_ACTIVE, false))
         DesktopSessionState.background(context)
-        assertTrue(U.getSharedPreferences(context).getBoolean(Constants.PREF_DESKTOP_SESSION_ACTIVE, false))
-        assertFalse(U.getSharedPreferences(context).getBoolean(Constants.PREF_TASKBAR_ACTIVE, true))
+        assertTrue(prefs.getBoolean(Constants.PREF_DESKTOP_SESSION_ACTIVE, false))
+        assertFalse(prefs.getBoolean(Constants.PREF_TASKBAR_ACTIVE, true))
 
         DesktopSessionState.foreground(context)
-        assertTrue(U.getSharedPreferences(context).getBoolean(Constants.PREF_TASKBAR_ACTIVE, false))
+        assertTrue(prefs.getBoolean(Constants.PREF_TASKBAR_ACTIVE, false))
 
         DesktopSessionState.close(context)
-        assertFalse(U.getSharedPreferences(context).getBoolean(Constants.PREF_DESKTOP_SESSION_ACTIVE, true))
-        assertFalse(U.getSharedPreferences(context).getBoolean(Constants.PREF_TASKBAR_ACTIVE, true))
+        assertFalse(prefs.getBoolean(Constants.PREF_DESKTOP_SESSION_ACTIVE, true))
+        assertFalse(prefs.getBoolean(Constants.PREF_TASKBAR_ACTIVE, true))
     }
 
     @Test
