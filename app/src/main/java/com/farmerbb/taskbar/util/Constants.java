@@ -282,7 +282,6 @@ public class Constants {
     public static final String EXTRA_DESKTOP_SESSION = "desktop_session";
     public static final String EXTRA_IS_LAUNCHING_SHORTCUT = "is_launching_shortcut";
     public static final String EXTRA_PACKAGE_NAME = "package_name";
-    public static final String EXTRA_START_SERVICES = "start_services";
     public static final String EXTRA_USER_ID = "user_id";
     public static final String EXTRA_WINDOW_SIZE = "window_size";
     public static final String EXTRA_START_FREEFORM_HACK = "start_freeform_hack";

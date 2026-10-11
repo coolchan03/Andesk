@@ -15,14 +15,9 @@
 
 package com.farmerbb.taskbar.fragment;
 
-import android.content.ActivityNotFoundException;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.Bundle;
 import android.preference.Preference;
 import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.farmerbb.taskbar.BuildConfig;
@@ -30,17 +25,12 @@ import com.farmerbb.taskbar.R;
 import com.farmerbb.taskbar.activity.MainActivity;
 import com.farmerbb.taskbar.util.U;
 
-import java.text.NumberFormat;
 import java.util.Calendar;
-import java.util.Currency;
-import java.util.Locale;
 import java.util.TimeZone;
 
 import static com.farmerbb.taskbar.util.Constants.*;
 
 public class AboutFragment extends SettingsFragment {
-
-    private int noThanksCount = 0;
 
     @Override
     protected void loadPrefs() {
@@ -49,17 +39,8 @@ public class AboutFragment extends SettingsFragment {
         addPreferencesFromResource(R.xml.tb_pref_about);
 
         boolean isLibrary = U.isLibrary(getActivity());
-        if(!isLibrary) {
-            SharedPreferences pref = U.getSharedPreferences(getActivity());
-            if(getActivity().getPackageName().equals(BuildConfig.BASE_APPLICATION_ID)
-                    && U.isPlayStoreInstalled(getActivity())
-                    && U.isPlayStoreRelease(getActivity())
-                    && !U.isSystemApp(getActivity())
-                    && !pref.getBoolean(PREF_HIDE_DONATE, false)) {
-                findPreference(PREF_DONATE).setOnPreferenceClickListener(this);
-            } else
-                getPreferenceScreen().removePreference(findPreference("donate_category"));
-        }
+        if(!isLibrary)
+            getPreferenceScreen().removePreference(findPreference("donate_category"));
 
         // Set OnClickListeners for certain preferences
         if(U.canEnableFreeform(getActivity()))
@@ -104,39 +85,9 @@ public class AboutFragment extends SettingsFragment {
 
     @Override
     public boolean onPreferenceClick(final Preference p) {
-        final SharedPreferences pref = U.getSharedPreferences(getActivity());
-
         switch(p.getKey()) {
             case PREF_ABOUT:
                 U.checkForUpdates(getActivity());
-                break;
-            case PREF_DONATE:
-                NumberFormat format = NumberFormat.getCurrencyInstance();
-                format.setCurrency(Currency.getInstance(Locale.US));
-
-                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                builder.setTitle(R.string.tb_pref_title_donate)
-                        .setMessage(getString(R.string.tb_dialog_donate_message, format.format(1.99)))
-                        .setPositiveButton(R.string.tb_action_ok, (dialog, which) -> {
-                            Intent intent2 = new Intent(Intent.ACTION_VIEW);
-                            intent2.setData(Uri.parse("https://play.google.com/store/apps/details?id=" + BuildConfig.PAID_APPLICATION_ID));
-                            intent2.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
-                            try {
-                                startActivity(intent2);
-                            } catch (ActivityNotFoundException ignored) {}
-                        })
-                        .setNegativeButton(noThanksCount == 2 ? R.string.tb_action_dont_show_again : R.string.tb_action_no_thanks, (dialog, which) -> {
-                            noThanksCount++;
-
-                            if(noThanksCount == 3) {
-                                pref.edit().putBoolean(PREF_HIDE_DONATE, true).apply();
-                                getPreferenceScreen().removePreference(findPreference("donate_category"));
-                            }
-                        });
-
-                AlertDialog dialog = builder.create();
-                dialog.show();
                 break;
             case PREF_PREF_SCREEN_GENERAL:
                 navigateTo(new GeneralFragment());

@@ -22,8 +22,8 @@ import android.content.SharedPreferences;
 
 import com.farmerbb.taskbar.R;
 import com.farmerbb.taskbar.activity.DummyActivity;
-import com.farmerbb.taskbar.helper.LauncherHelper;
 import com.farmerbb.taskbar.service.NotificationService;
+import com.farmerbb.taskbar.util.DesktopSessionState;
 import com.farmerbb.taskbar.util.U;
 
 import static com.farmerbb.taskbar.util.Constants.*;
@@ -35,8 +35,7 @@ public class ToggleFreeformModeReceiver extends BroadcastReceiver {
             return;
 
         SharedPreferences pref = U.getSharedPreferences(context);
-        if(!pref.getBoolean(PREF_DESKTOP_SESSION_ACTIVE, false)
-                || !LauncherHelper.getInstance().isDesktopLauncherOpen()) {
+        if(!DesktopSessionState.isActive(context)) {
             pref.edit()
                     .putBoolean(PREF_DESKTOP_SESSION_ACTIVE, false)
                     .putBoolean(PREF_TASKBAR_ACTIVE, false)

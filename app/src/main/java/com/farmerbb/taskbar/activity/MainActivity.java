@@ -49,15 +49,11 @@ import com.farmerbb.taskbar.fragment.AppearanceFragment;
 import com.farmerbb.taskbar.fragment.FreeformModeFragment;
 import com.farmerbb.taskbar.fragment.ManageAppDataFragment;
 import com.farmerbb.taskbar.fragment.SettingsFragment;
-import com.farmerbb.taskbar.service.DashboardService;
-import com.farmerbb.taskbar.service.NotificationService;
-import com.farmerbb.taskbar.service.StartMenuService;
-import com.farmerbb.taskbar.service.TaskbarService;
 import com.farmerbb.taskbar.helper.GlobalHelper;
 import com.farmerbb.taskbar.helper.FreeformHackHelper;
 import com.farmerbb.taskbar.util.CompatUtils;
 import com.farmerbb.taskbar.util.DependencyUtils;
-import com.farmerbb.taskbar.helper.LauncherHelper;
+import com.farmerbb.taskbar.util.DesktopSessionState;
 import com.farmerbb.taskbar.util.U;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -105,11 +101,8 @@ public class MainActivity extends AppCompatActivity {
                 setTheme(theme);
         }
 
-        if(!LauncherHelper.getInstance().isDesktopLauncherOpen()) {
+        if(!DesktopSessionState.isActive(this)) {
             editor.putBoolean(PREF_DESKTOP_SESSION_ACTIVE, false);
-            editor.putBoolean(PREF_TASKBAR_ACTIVE, false);
-        } else if(pref.getBoolean(PREF_TASKBAR_ACTIVE, false)
-                && !U.isServiceRunning(this, NotificationService.class)) {
             editor.putBoolean(PREF_TASKBAR_ACTIVE, false);
         }
 
@@ -203,7 +196,7 @@ public class MainActivity extends AppCompatActivity {
 
         if(theSwitch != null) {
             final SharedPreferences pref = U.getSharedPreferences(this);
-            theSwitch.setChecked(pref.getBoolean(PREF_TASKBAR_ACTIVE, false));
+            theSwitch.setChecked(DesktopSessionState.isActive(this));
 
             theSwitch.setOnCheckedChangeListener((compoundButton, b) -> {
                 if(b) {
@@ -331,7 +324,7 @@ public class MainActivity extends AppCompatActivity {
             snackbar.setAction(R.string.tb_action_view, v -> {
                 pref.edit().putInt("show_changelog", latestChangelogVersion).apply();
 
-                Uri uri = Uri.parse("https://github.com/farmerbb/Taskbar/blob/" + BuildConfig.VERSION_CODE + "/CHANGELOG.md");
+                Uri uri = Uri.parse("https://github.com/coolchan03/Andesk/blob/master/CHANGELOG.md");
                 try {
                     DependencyUtils.openChromeCustomTab(this, uri);
                 } catch (ActivityNotFoundException | IllegalArgumentException ignored) {}
@@ -395,7 +388,7 @@ public class MainActivity extends AppCompatActivity {
     private void updateSwitch() {
         if(theSwitch != null) {
             SharedPreferences pref = U.getSharedPreferences(this);
-            theSwitch.setChecked(pref.getBoolean(PREF_TASKBAR_ACTIVE, false));
+            theSwitch.setChecked(DesktopSessionState.isActive(this));
         }
     }
 

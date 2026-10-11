@@ -3,12 +3,19 @@ package com.farmerbb.taskbar.util;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.farmerbb.taskbar.helper.LauncherHelper;
+
 import static com.farmerbb.taskbar.util.Constants.PREF_DESKTOP_SESSION_ACTIVE;
 import static com.farmerbb.taskbar.util.Constants.PREF_TASKBAR_ACTIVE;
 
 /** Owns the persistent desktop-session and overlay-visibility flags. */
 public final class DesktopSessionState {
     private DesktopSessionState() {}
+
+    public static boolean isActive(Context context) {
+        return LauncherHelper.getInstance().isDesktopLauncherOpen()
+                && U.getSharedPreferences(context).getBoolean(PREF_DESKTOP_SESSION_ACTIVE, false);
+    }
 
     public static void foreground(Context context) {
         U.getSharedPreferences(context).edit()

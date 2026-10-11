@@ -21,7 +21,7 @@
     <string name="tb_move_resize_widget">Move / resize</string>
     <string name="tb_app_name_debug">Andesk (Debug)</string>
 
-    <string name="tb_taskbar_is_active">Taskbar is active</string>
+    <string name="tb_taskbar_is_active">Andesk desktop is active</string>
     <string name="tb_click_to_open_settings">Click to open settings</string>
     <string name="tb_action_show">Show Taskbar</string>
     <string name="tb_action_hide">Hide Taskbar</string>
@@ -34,7 +34,7 @@
     <string name="tb_permission_dialog_title">Permission needed</string>
     <string name="tb_permission_dialog_message">%s requires permission to draw over other apps before it can start.\n\n</string>
     <string name="tb_permission_dialog_instructions_phone">Please press \"Grant Permission\" and ensure that \"Permit drawing over other apps\" is enabled.</string>
-    <string name="tb_permission_dialog_instructions_tv">Please press \"Open Settings\" to open the Android TV app settings menu. Select \"Special app access\", then select \"Display over other apps\" and ensure that Taskbar is enabled.</string>
+    <string name="tb_permission_dialog_instructions_tv">Please press \"Open Settings\" to open the Android TV app settings menu. Select \"Special app access\", then select \"Display over other apps\" and ensure that Andesk is enabled.</string>
 
     <string name="tb_pref_header_general">General settings</string>
     <string name="tb_pref_title_start_menu_layout">Start menu layout</string>
@@ -96,11 +96,11 @@
     <string name="tb_pref_header_advanced">Advanced features</string>
 
     <string name="tb_pref_title_freeform_hack">Freeform window support</string>
-    <string name="tb_pref_description_freeform_hack">Allows Taskbar to launch apps in freeform window mode, for a more desktop-like experience.\n\nThis feature is experimental, and may cause issues with standard split-screen multitasking.</string>
+    <string name="tb_pref_description_freeform_hack">Allows Andesk to launch apps in freeform window mode, for a more desktop-like experience.\n\nThis feature is experimental, and may cause issues with standard split-screen multitasking.</string>
 
-    <string name="tb_pref_header_about">About Taskbar</string>
-    <string name="tb_pref_about_description">Taskbar: PC-style productivity for Android\n\n&#169; %1$d Braden Farmer\nApp logo by Mark Morilla\n\nClick here to check for updates or leave a rating! %2$s</string>
-    <string name="tb_pref_about_description_alt">Taskbar: PC-style productivity for Android\n\n&#169; %1$d Braden Farmer\nApp logo by Mark Morilla</string>
+    <string name="tb_pref_header_about">About Andesk</string>
+    <string name="tb_pref_about_description">Andesk: desktop-style productivity for Android\n\nForked from Taskbar by Braden Farmer\nOriginal Taskbar &#169; %1$d Braden Farmer\n\nClick here to check for Andesk updates! %2$s</string>
+    <string name="tb_pref_about_description_alt">Andesk: desktop-style productivity for Android\n\nForked from Taskbar by Braden Farmer\nOriginal Taskbar &#169; %1$d Braden Farmer</string>
 
     <string name="tb_pref_title_hide_taskbar">Collapse Taskbar when selecting items</string>
 
@@ -129,8 +129,8 @@
     <string name="tb_quit_taskbar">Quit</string>
 
     <string name="tb_pref_title_keyboard_shortcut">Enable keyboard shortcuts</string>
-    <string name="tb_pref_description_keyboard_shortcut">Start/stop Taskbar: &#160; {fou_social-windows} + M &#160; {fou_magnifying-glass} + M\n\nShow start menu: &#160; {fou_social-windows} &#160; {fou_magnifying-glass}\n(requires Taskbar to be set as the assist app in Settings)</string>
-    <string name="tb_pref_description_keyboard_shortcut_alt">Start/stop Taskbar\n&#8226; WinKey+M / Search+M\n\nShow start menu\n&#8226; WinKey / Search\n(requires Taskbar to be set as the assist app in Settings)</string>
+    <string name="tb_pref_description_keyboard_shortcut">Start/stop Andesk: &#160; {fou_social-windows} + M &#160; {fou_magnifying-glass} + M\n\nShow start menu: &#160; {fou_social-windows} &#160; {fou_magnifying-glass}\n(requires Andesk to be set as the assist app in Settings)</string>
+    <string name="tb_pref_description_keyboard_shortcut_alt">Start/stop Andesk\n&#8226; WinKey+M / Search+M\n\nShow start menu\n&#8226; WinKey / Search\n(requires Andesk to be set as the assist app in Settings)</string>
     <string name="tb_loading_apps">Loading apps&#8230;</string>
     <string name="tb_press_enter">No apps found\n\nPress Enter to search using Google</string>
     <string name="tb_nothing_to_see_here">Nothing to see here, move along&#8230;</string>
@@ -226,7 +226,7 @@
     <string name="tb_pref_title_use_mask">Use masks for unthemed icons</string>
     <string name="tb_pref_description_use_mask">May reduce performance when an icon pack is set</string>
 
-    <string name="tb_pref_title_app_drawer_icon">Taskbar logo</string>
+    <string name="tb_pref_title_app_drawer_icon">Andesk logo</string>
     <string name="tb_pref_title_app_drawer_icon_ag">%s logo</string>
 
     <string name="tb_already_blacklisted">%1$s can\'t be selected because it is on the hidden apps list</string>
@@ -239,11 +239,11 @@
     <string name="tb_add_shortcut">Add shortcut to home screen</string>
     <string name="tb_shortcut_created">Freeform mode shortcut created</string>
 
-    <string name="tb_start_taskbar">Start/stop Taskbar</string>
-    <string name="tb_no_freeform_support">Freeform mode is not enabled on your device &#8211; open Taskbar and enable it first</string>
+    <string name="tb_start_taskbar">Start/stop Andesk</string>
+    <string name="tb_no_freeform_support">Freeform mode is not enabled on your device &#8211; open Andesk settings and enable it first</string>
     <string name="tb_enable_recent_apps">%1$s can optionally show icons for your most recently used apps along the edge of your screen.  To do this, %1$s requires usage access permissions.\n\n</string>
     <string name="tb_enable_recent_apps_instructions_phone">Enable support for recent apps?</string>
-    <string name="tb_enable_recent_apps_instructions_tv">To enable support for recent apps, press \"Open Settings\" to open the Android TV app settings menu. Select \"Special app access\", then select \"Usage access\" and ensure that Taskbar is enabled.</string>
+    <string name="tb_enable_recent_apps_instructions_tv">To enable support for recent apps, press \"Open Settings\" to open the Android TV app settings menu. Select \"Special app access\", then select \"Usage access\" and ensure that Andesk is enabled.</string>
 
     <string name="tb_disable_scrolling_list">Disable scrolling list</string>
 
@@ -277,8 +277,8 @@
     <string name="tb_tools">Tools</string>
 
     <string name="tb_enable_accessibility">@string/tb_accessibility_service_description</string>
-    <string name="tb_accessibility_service_summary">Allows Taskbar to perform button press actions</string>
-    <string name="tb_accessibility_service_description">Taskbar needs to be activated as an accessibility service in order to perform button press actions such as back, home, recents, and power, as well as displaying the notification tray.\n\nThis permission is used only to perform button press actions, and for no other purpose.</string>
+    <string name="tb_accessibility_service_summary">Allows Andesk to perform button press actions</string>
+    <string name="tb_accessibility_service_description">Andesk needs to be activated as an accessibility service in order to perform button press actions such as back, home, recents, and power, as well as displaying the notification tray.\n\nThis permission is used only to perform button press actions, and for no other purpose.</string>
     
     <string name="tb_pref_title_force_new_window">Always open apps in new windows</string>
     <string name="tb_pref_description_force_new_window">Forces an app to open a new window every time it is selected from the start menu or recent apps (if an app allows multiple windows)</string>
@@ -337,7 +337,7 @@
     <string name="tb_restore_widget">Restore widget</string>
 
     <string name="tb_samsung_freeform_title">Note</string>
-    <string name="tb_samsung_freeform_message">Taskbar may have issues with opening apps in freeform mode on some Samsung devices, due to system changes made to multi-window mode.\n\nIf this is the case, you may need to flash a custom ROM in order to use freeform mode on this device.</string>
+    <string name="tb_samsung_freeform_message">Andesk may have issues with opening apps in freeform mode on some Samsung devices, due to system changes made to multi-window mode.\n\nIf this is the case, freeform mode may not be available on this device.</string>
 
     <string name="tb_widget_restore_toast">Select \"%1$s\" to restore this widget</string>
 
@@ -374,8 +374,8 @@
 
     <string name="tb_tasker_action_title">Select action</string>
     <string name="tb_tasker_condition_title">Select condition</string>
-    <string name="tb_tasker_on">Taskbar On</string>
-    <string name="tb_tasker_off">Taskbar Off</string>
+    <string name="tb_tasker_on">Andesk On</string>
+    <string name="tb_tasker_off">Andesk Off</string>
     <string name="tb_on">On</string>
     <string name="tb_off">Off</string>
 
@@ -413,7 +413,7 @@
     <string name="tb_pref_description_sys_tray">Only visible when Taskbar is horizontal</string>
 
     <string name="tb_settings">Settings</string>
-    <string name="tb_powered_by_taskbar">Powered by Taskbar</string>
+    <string name="tb_powered_by_taskbar">Powered by Andesk</string>
 
     <string name="tb_manage_app_data">Manage app data</string>
     <string name="tb_manage_app_data_description">Backup and restore settings, or reset per-app preferences</string>
@@ -492,7 +492,7 @@
     <string name="tb_desktop_mode_dialog_title">Enable desktop mode support</string>
     <string name="tb_desktop_mode_dialog_message">To configure your device for desktop mode, please follow these steps:\n\n&#8226; Go to Developer Options\n\n&#8226; Scroll to the bottom and turn on \"Enable freeform windows\" and \"Force desktop mode\"\n\n&#8226; Set Taskbar as your default home app\n\n&#8226; Reboot your device\n\nFor more information and troubleshooting steps, click the (?) icon in the upper-right hand corner of the screen.</string>
     <string name="tb_reboot_required_alt">Reboot your device to complete desktop mode setup</string>
-    <string name="tb_enable_additional_settings_message_1">Taskbar can optionally use elevated permissions to improve your desktop mode experience. These permissions are granted by running an adb shell command.\n\nIf you wish to continue, connect your device to a computer with the Android SDK installed, and run the following command (one line):</string>
+    <string name="tb_enable_additional_settings_message_1">Andesk can optionally use elevated permissions to improve your desktop experience. These permissions are granted by running an adb shell command.\n\nIf you wish to continue, connect your device to a computer with the Android SDK installed, and run the following command (one line):</string>
     <string name="tb_enable_additional_settings_message_2">Once granted, the additional settings will be enabled when a display is connected.</string>
     <string name="tb_desktop_mode_pref_description">Use Taskbar to launch windowed apps on an external display, similar to Samsung DeX and other solutions.\n\nRequires either a USB-to-HDMI adapter, or a lapdock, and a device that supports video output.</string>
     <string name="tb_enable_additional_settings_pref_description">Click here for info on how to enable</string>

@@ -20,12 +20,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 
-import com.farmerbb.taskbar.activity.DummyActivity;
-import com.farmerbb.taskbar.helper.LauncherHelper;
-import com.farmerbb.taskbar.service.DashboardService;
-import com.farmerbb.taskbar.service.NotificationService;
 import com.farmerbb.taskbar.service.StartMenuService;
 import com.farmerbb.taskbar.service.TaskbarService;
+import com.farmerbb.taskbar.util.DesktopSessionState;
 import com.farmerbb.taskbar.util.U;
 
 import static com.farmerbb.taskbar.util.Constants.*;
@@ -37,8 +34,7 @@ public class ShowHideTaskbarReceiver extends BroadcastReceiver {
             return;
 
         SharedPreferences pref = U.getSharedPreferences(context);
-        if(!pref.getBoolean(PREF_DESKTOP_SESSION_ACTIVE, false)
-                || !LauncherHelper.getInstance().isDesktopLauncherOpen()) {
+        if(!DesktopSessionState.isActive(context)) {
             pref.edit()
                     .putBoolean(PREF_DESKTOP_SESSION_ACTIVE, false)
                     .putBoolean(PREF_TASKBAR_ACTIVE, false)
@@ -49,39 +45,15 @@ public class ShowHideTaskbarReceiver extends BroadcastReceiver {
         if(!pref.getBoolean(PREF_TASKBAR_ACTIVE, false))
             return;
 
-        Intent taskbarIntent = new Intent(context, TaskbarService.class);
-        Intent startMenuIntent = new Intent(context, StartMenuService.class);
-        Intent dashboardIntent = new Intent(context, DashboardService.class);
-        Intent notificationIntent = new Intent(context, NotificationService.class);
+        // Andesk has no background-hidden taskbar mode. Keep this legacy action
+        // as an "ensure visible" compatibility entry point for old shortcuts/tools.
+        pref.edit()
+                .putBoolean(PREF_IS_HIDDEN, false)
+                .putBoolean(PREF_COLLAPSED, false)
+                .apply();
 
-        if(pref.getBoolean(PREF_IS_HIDDEN, false)) {
-            pref.edit().putBoolean(PREF_IS_HIDDEN, false).apply();
-
-            context.stopService(notificationIntent);
-
-            if(U.hasFreeformSupport(context) && U.isFreeformModeEnabled(context)) {
-                Intent dummyActivityIntent = new Intent(context, DummyActivity.class);
-                dummyActivityIntent.putExtra(EXTRA_START_FREEFORM_HACK, true);
-                dummyActivityIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                context.startActivity(dummyActivityIntent);
-            }
-
-            notificationIntent.putExtra(EXTRA_START_SERVICES, true);
-        } else {
-            pref.edit().putBoolean(PREF_IS_HIDDEN, true).apply();
-
-            context.stopService(notificationIntent);
-
-            if(!LauncherHelper.getInstance().isOnHomeScreen(context)) {
-                context.stopService(taskbarIntent);
-                context.stopService(startMenuIntent);
-                context.stopService(dashboardIntent);
-
-                U.clearCaches(context);
-                U.sendBroadcast(context, ACTION_START_MENU_DISAPPEARING);
-            }
-        }
-
-        U.startForegroundService(context, notificationIntent);
+        context.startService(new Intent(context, TaskbarService.class));
+        context.startService(new Intent(context, StartMenuService.class));
+        U.sendBroadcast(context, ACTION_TEMP_SHOW_TASKBAR);
     }
 }
