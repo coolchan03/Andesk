@@ -43,6 +43,20 @@ class StartReceiverTest {
     }
 
     @Test
+    fun testStartWithoutOverlayPermissionStillLaunchesDesktopOwner() {
+        ShadowSettings.setCanDrawOverlays(false)
+
+        receiver.onReceive(context, Intent(Constants.ACTION_START))
+
+        val activityIntent = Shadows.shadowOf(application).peekNextStartedActivity()
+        Assert.assertNotNull(activityIntent)
+        Assert.assertEquals(
+                DesktopLauncherActivity::class.java.name,
+                activityIntent.component?.className)
+        Assert.assertNull(Shadows.shadowOf(application).peekNextStartedService())
+    }
+
+    @Test
     fun testOtherActionsAreIgnored() {
         ShadowSettings.setCanDrawOverlays(true)
 

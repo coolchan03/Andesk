@@ -18,11 +18,8 @@ package com.farmerbb.taskbar.receiver;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 
-import com.farmerbb.taskbar.activity.DummyActivity;
-import com.farmerbb.taskbar.service.NotificationService;
-import com.farmerbb.taskbar.util.U;
+import com.farmerbb.taskbar.activity.DesktopLauncherActivity;
 
 import static com.farmerbb.taskbar.util.Constants.*;
 
@@ -32,20 +29,10 @@ public class StartReceiver extends BroadcastReceiver {
         if(intent == null || !ACTION_START.equals(intent.getAction()))
             return;
 
-        if(!U.canDrawOverlays(context)) {
-            U.newHandler().postDelayed(() -> {
-                Intent permissionIntent = new Intent(context, DummyActivity.class);
-                permissionIntent.putExtra(EXTRA_SHOW_PERMISSION_DIALOG, true);
-                permissionIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                context.startActivity(permissionIntent);
-            }, 250);
-            return;
-        }
-
-        // This fork is session-scoped: every user-facing "start Taskbar"
-        // entry point launches the desktop owner activity instead of creating
-        // a background-only persistent taskbar.
-        Intent desktopIntent = new Intent(context, com.farmerbb.taskbar.activity.DesktopLauncherActivity.class);
+        // Every user-facing start path launches the desktop owner first. The
+        // desktop Activity itself owns overlay-permission onboarding so Android
+        // can return directly to Andesk after the user grants permission.
+        Intent desktopIntent = new Intent(context, DesktopLauncherActivity.class);
         desktopIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
                 | Intent.FLAG_ACTIVITY_CLEAR_TOP
                 | Intent.FLAG_ACTIVITY_SINGLE_TOP);
