@@ -7,7 +7,7 @@ import android.content.SharedPreferences
 import androidx.test.core.app.ApplicationProvider
 import com.farmerbb.taskbar.Constants.UNSUPPORTED
 import com.farmerbb.taskbar.helper.LauncherHelper
-import com.farmerbb.taskbar.service.NotificationService
+import com.farmerbb.taskbar.service.TaskbarService
 import com.farmerbb.taskbar.util.Constants
 import com.farmerbb.taskbar.util.U
 import org.junit.After
@@ -25,13 +25,13 @@ class ShowHideTaskbarReceiverTest {
     private lateinit var application: Application
     private lateinit var context: Context
     private lateinit var prefs: SharedPreferences
-    private lateinit var notificationIntent: Intent
+    private lateinit var taskbarIntent: Intent
 
     @Before
     fun setUp() {
         context = ApplicationProvider.getApplicationContext()
         application = context as Application
-        notificationIntent = Intent(context, NotificationService::class.java)
+        taskbarIntent = Intent(context, TaskbarService::class.java)
         prefs = U.getSharedPreferences(context)
         prefs.edit()
                 .putBoolean(Constants.PREF_DESKTOP_SESSION_ACTIVE, true)
@@ -69,7 +69,7 @@ class ShowHideTaskbarReceiverTest {
         showHideTaskbarReceiver.onReceive(context, intent)
         val startedServiceIntent = Shadows.shadowOf(application).peekNextStartedService()
         Assert.assertNotNull(startedServiceIntent)
-        Assert.assertEquals(notificationIntent.component, startedServiceIntent.component)
+        Assert.assertEquals(taskbarIntent.component, startedServiceIntent.component)
     }
 
     @Test
@@ -90,25 +90,22 @@ class ShowHideTaskbarReceiverTest {
     }
 
     @Test
-    fun testShowHideTaskbar() {
+    fun testShowHideCompatibilityActionKeepsDesktopVisible() {
         val intent = Intent(Constants.ACTION_SHOW_HIDE_TASKBAR)
         ShadowSettings.setCanDrawOverlays(true)
-        prefs.edit().putBoolean(Constants.PREF_TASKBAR_ACTIVE, true).apply()
+        prefs.edit()
+                .putBoolean(Constants.PREF_TASKBAR_ACTIVE, true)
+                .putBoolean(Constants.PREF_IS_HIDDEN, true)
+                .putBoolean(Constants.PREF_COLLAPSED, true)
+                .apply()
         Shadows.shadowOf(application).clearStartedServices()
-        prefs.edit().putBoolean(Constants.PREF_IS_HIDDEN, true).apply()
+
         showHideTaskbarReceiver.onReceive(context, intent)
-        var startedServiceIntent = Shadows.shadowOf(application).peekNextStartedService()
+
+        val startedServiceIntent = Shadows.shadowOf(application).peekNextStartedService()
         Assert.assertNotNull(startedServiceIntent)
-        Assert.assertEquals(notificationIntent.component, startedServiceIntent.component)
-        Assert.assertTrue(startedServiceIntent.getBooleanExtra(
-                Constants.EXTRA_START_SERVICES, false))
-        Shadows.shadowOf(application).clearStartedServices()
-        prefs.edit().putBoolean(Constants.PREF_IS_HIDDEN, false).apply()
-        showHideTaskbarReceiver.onReceive(context, intent)
-        startedServiceIntent = Shadows.shadowOf(application).peekNextStartedService()
-        Assert.assertNotNull(startedServiceIntent)
-        Assert.assertEquals(notificationIntent.component, startedServiceIntent.component)
-        Assert.assertNull(startedServiceIntent.extras)
-        Assert.assertTrue(prefs.getBoolean(Constants.PREF_IS_HIDDEN, false))
+        Assert.assertEquals(taskbarIntent.component, startedServiceIntent.component)
+        Assert.assertFalse(prefs.getBoolean(Constants.PREF_IS_HIDDEN, true))
+        Assert.assertFalse(prefs.getBoolean(Constants.PREF_COLLAPSED, true))
     }
 }

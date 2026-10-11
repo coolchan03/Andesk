@@ -2,6 +2,8 @@ package com.farmerbb.taskbar.util
 
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
+import com.farmerbb.taskbar.helper.LauncherHelper
+import org.junit.After
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -20,6 +22,12 @@ class DesktopSessionStateTest {
                 .remove(Constants.PREF_DESKTOP_SESSION_ACTIVE)
                 .remove(Constants.PREF_TASKBAR_ACTIVE)
                 .commit()
+        LauncherHelper.getInstance().setDesktopLauncherOpen(false)
+    }
+
+    @After
+    fun tearDown() {
+        LauncherHelper.getInstance().setDesktopLauncherOpen(false)
     }
 
     @Test
@@ -38,6 +46,19 @@ class DesktopSessionStateTest {
         DesktopSessionState.close(context)
         assertFalse(prefs.getBoolean(Constants.PREF_DESKTOP_SESSION_ACTIVE, true))
         assertFalse(prefs.getBoolean(Constants.PREF_TASKBAR_ACTIVE, true))
+    }
+
+    @Test
+    fun activeRequiresLauncherAndSessionFlag() {
+        val prefs = U.getSharedPreferences(context)
+        prefs.edit().putBoolean(Constants.PREF_DESKTOP_SESSION_ACTIVE, true).commit()
+        assertFalse(DesktopSessionState.isActive(context))
+
+        LauncherHelper.getInstance().setDesktopLauncherOpen(true)
+        assertTrue(DesktopSessionState.isActive(context))
+
+        prefs.edit().putBoolean(Constants.PREF_DESKTOP_SESSION_ACTIVE, false).commit()
+        assertFalse(DesktopSessionState.isActive(context))
     }
 
     @Test

@@ -23,7 +23,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 
-import com.farmerbb.taskbar.helper.LauncherHelper;
+import com.farmerbb.taskbar.util.DesktopSessionState;
 import com.farmerbb.taskbar.util.U;
 
 import static com.farmerbb.taskbar.util.Constants.PREF_DESKTOP_SESSION_ACTIVE;
@@ -42,7 +42,7 @@ public abstract class UIHostService extends Service implements UIHost {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if(!isDesktopSessionActive()) {
+        if(!DesktopSessionState.isActive(this)) {
             U.getSharedPreferences(this).edit()
                     .putBoolean(PREF_DESKTOP_SESSION_ACTIVE, false)
                     .putBoolean(PREF_TASKBAR_ACTIVE, false)
@@ -57,7 +57,7 @@ public abstract class UIHostService extends Service implements UIHost {
     public void onCreate() {
         super.onCreate();
 
-        if(!isDesktopSessionActive()) {
+        if(!DesktopSessionState.isActive(this)) {
             U.getSharedPreferences(this).edit()
                     .putBoolean(PREF_DESKTOP_SESSION_ACTIVE, false)
                     .putBoolean(PREF_TASKBAR_ACTIVE, false)
@@ -76,11 +76,6 @@ public abstract class UIHostService extends Service implements UIHost {
             Log.e("Andesk", "Failed to initialize desktop overlay", error);
             stopSelf();
         }
-    }
-
-    private boolean isDesktopSessionActive() {
-        return LauncherHelper.getInstance().isDesktopLauncherOpen()
-                && U.getSharedPreferences(this).getBoolean(PREF_DESKTOP_SESSION_ACTIVE, false);
     }
 
     @Override

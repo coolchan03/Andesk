@@ -33,16 +33,16 @@ import android.service.quicksettings.TileService;
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 import com.farmerbb.taskbar.activity.MainActivity;
-import com.farmerbb.taskbar.helper.LauncherHelper;
 import com.farmerbb.taskbar.R;
 import com.farmerbb.taskbar.util.DependencyUtils;
+import com.farmerbb.taskbar.util.DesktopSessionState;
 import com.farmerbb.taskbar.util.U;
 
 import static com.farmerbb.taskbar.util.Constants.*;
 
 public class NotificationService extends Service {
 
-    private boolean isHidden = true;
+    private boolean receiversRegistered;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -51,7 +51,7 @@ public class NotificationService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if(!isDesktopSessionActive()) {
+        if(!DesktopSessionState.isActive(this)) {
             U.getSharedPreferences(this).edit()
                     .putBoolean(PREF_DESKTOP_SESSION_ACTIVE, false)
                     .putBoolean(PREF_TASKBAR_ACTIVE, false)
@@ -60,18 +60,7 @@ public class NotificationService extends Service {
             return START_NOT_STICKY;
         }
 
-        if(intent != null && intent.getBooleanExtra(EXTRA_START_SERVICES, false)) {
-            startService(new Intent(this, TaskbarService.class));
-            startService(new Intent(this, StartMenuService.class));
-            startService(new Intent(this, DashboardService.class));
-        }
-
         return START_NOT_STICKY;
-    }
-
-    private boolean isDesktopSessionActive() {
-        return LauncherHelper.getInstance().isDesktopLauncherOpen()
-                && U.getSharedPreferences(this).getBoolean(PREF_DESKTOP_SESSION_ACTIVE, false);
     }
 
     @Override
@@ -89,10 +78,9 @@ public class NotificationService extends Service {
     BroadcastReceiver userForegroundReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if(isDesktopSessionActive()) {
+            if(DesktopSessionState.isActive(context)) {
                 startService(new Intent(context, TaskbarService.class));
                 startService(new Intent(context, StartMenuService.class));
-                startService(new Intent(context, DashboardService.class));
             } else {
                 stopSelf();
             }
@@ -104,7 +92,6 @@ public class NotificationService extends Service {
         public void onReceive(Context context, Intent intent) {
             stopService(new Intent(context, TaskbarService.class));
             stopService(new Intent(context, StartMenuService.class));
-            stopService(new Intent(context, DashboardService.class));
 
             U.clearCaches(context);
         }
@@ -116,7 +103,7 @@ public class NotificationService extends Service {
         super.onCreate();
 
         SharedPreferences pref = U.getSharedPreferences(this);
-        if(!isDesktopSessionActive()) {
+        if(!DesktopSessionState.isActive(this)) {
             pref.edit()
                     .putBoolean(PREF_DESKTOP_SESSION_ACTIVE, false)
                     .putBoolean(PREF_TASKBAR_ACTIVE, false)
@@ -127,20 +114,14 @@ public class NotificationService extends Service {
 
         if(pref.getBoolean(PREF_TASKBAR_ACTIVE, false)) {
             if(U.canDrawOverlays(this)) {
-                isHidden = U.getSharedPreferences(this).getBoolean(PREF_IS_HIDDEN, false);
-
                 Intent intent = new Intent(this, MainActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-
-                Intent receiverIntent = new Intent(ACTION_SHOW_HIDE_TASKBAR);
-                receiverIntent.setPackage(getPackageName());
 
                 Intent receiverIntent2 = new Intent(ACTION_QUIT);
                 receiverIntent2.setPackage(getPackageName());
                 receiverIntent2.putExtra(EXTRA_DESKTOP_SESSION, true);
 
                 PendingIntent contentIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-                PendingIntent receiverPendingIntent = PendingIntent.getBroadcast(this, 0, receiverIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
                 PendingIntent receiverPendingIntent2 = PendingIntent.getBroadcast(this, 0, receiverIntent2, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
                 String id = "taskbar_notification_channel";
@@ -167,8 +148,6 @@ public class NotificationService extends Service {
                         .setShowWhen(false)
                         .setOngoing(true);
 
-                String showHideLabel;
-
                 if(U.canEnableFreeform(this) && !U.isChromeOs(this) && !pref.getBoolean(PREF_DESKTOP_MODE, false)) {
                     String freeformLabel = getString(pref.getBoolean(PREF_FREEFORM_HACK, false) ? R.string.tb_freeform_off : R.string.tb_freeform_on);
 
@@ -179,12 +158,9 @@ public class NotificationService extends Service {
 
                     mBuilder.addAction(0, freeformLabel, freeformPendingIntent);
 
-                    showHideLabel = getString(isHidden ? R.string.tb_action_show_alt : R.string.tb_action_hide_alt);
-                } else
-                    showHideLabel = getString(isHidden ? R.string.tb_action_show : R.string.tb_action_hide);
+                }
 
-                mBuilder.addAction(0, showHideLabel, receiverPendingIntent)
-                        .addAction(0, getString(R.string.tb_action_quit), receiverPendingIntent2);
+                mBuilder.addAction(0, getString(R.string.tb_action_quit), receiverPendingIntent2);
 
                 startForeground(8675309, mBuilder.build());
 
@@ -195,10 +171,9 @@ public class NotificationService extends Service {
 
                 DependencyUtils.requestTaskerQuery(this);
 
-                if(!isHidden) {
-                    registerReceiver(userForegroundReceiver, new IntentFilter(Intent.ACTION_USER_FOREGROUND));
-                    registerReceiver(userBackgroundReceiver, new IntentFilter(Intent.ACTION_USER_BACKGROUND));
-                }
+                registerReceiver(userForegroundReceiver, new IntentFilter(Intent.ACTION_USER_FOREGROUND));
+                registerReceiver(userBackgroundReceiver, new IntentFilter(Intent.ACTION_USER_BACKGROUND));
+                receiversRegistered = true;
             } else {
                 pref.edit().putBoolean(PREF_TASKBAR_ACTIVE, false).apply();
 
@@ -226,7 +201,7 @@ public class NotificationService extends Service {
 
         super.onDestroy();
 
-        if(!isHidden) {
+        if(receiversRegistered) {
             unregisterReceiver(userForegroundReceiver);
             unregisterReceiver(userBackgroundReceiver);
         }

@@ -19,7 +19,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 
-import com.farmerbb.taskbar.service.NotificationService;
+import com.farmerbb.taskbar.util.DesktopSessionState;
 import com.farmerbb.taskbar.util.ShortcutUtils;
 import com.farmerbb.taskbar.util.U;
 
@@ -32,7 +32,7 @@ public class StartTaskbarActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         if(getIntent().hasExtra(EXTRA_IS_LAUNCHING_SHORTCUT)) {
-            boolean active = U.isServiceRunning(this, NotificationService.class);
+            boolean active = DesktopSessionState.isActive(this);
             Intent intent = new Intent(active ? ACTION_QUIT : ACTION_START);
 
             intent.setPackage(getPackageName());

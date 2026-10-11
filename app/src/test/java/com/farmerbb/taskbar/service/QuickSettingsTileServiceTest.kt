@@ -4,9 +4,11 @@ import android.content.SharedPreferences
 import android.service.quicksettings.Tile
 import com.farmerbb.taskbar.Constants.UNSUPPORTED
 import com.farmerbb.taskbar.R
+import com.farmerbb.taskbar.helper.LauncherHelper
 import com.farmerbb.taskbar.mockito.BooleanAnswer
 import com.farmerbb.taskbar.util.Constants
 import com.farmerbb.taskbar.util.U
+import org.junit.After
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Rule
@@ -33,6 +35,14 @@ class QuickSettingsTileServiceTest {
     fun setUp() {
         tileService = Robolectric.setupService(QuickSettingsTileService::class.java)
         prefs = U.getSharedPreferences(tileService)
+        prefs.edit().remove(Constants.PREF_DESKTOP_SESSION_ACTIVE).apply()
+        LauncherHelper.getInstance().setDesktopLauncherOpen(false)
+    }
+
+    @After
+    fun tearDown() {
+        LauncherHelper.getInstance().setDesktopLauncherOpen(false)
+        prefs.edit().remove(Constants.PREF_DESKTOP_SESSION_ACTIVE).apply()
     }
 
     @Test
@@ -53,23 +63,18 @@ class QuickSettingsTileServiceTest {
         PowerMockito.spy(U::class.java)
         val canDrawOverlaysAnswer = BooleanAnswer()
         PowerMockito.`when`(U.canDrawOverlays(tileService)).thenAnswer(canDrawOverlaysAnswer)
-        val isServiceRunningAnswer = BooleanAnswer()
-        PowerMockito.`when`(U.isServiceRunning(tileService, NotificationService::class.java))
-                .thenAnswer(isServiceRunningAnswer)
         canDrawOverlaysAnswer.answer = true
-        isServiceRunningAnswer.answer = true
+        LauncherHelper.getInstance().setDesktopLauncherOpen(true)
+        prefs.edit().putBoolean(Constants.PREF_DESKTOP_SESSION_ACTIVE, true).apply()
         tileService.updateState()
         Assert.assertEquals(Tile.STATE_ACTIVE.toLong(), tileService.qsTile.state.toLong())
-        canDrawOverlaysAnswer.answer = true
-        isServiceRunningAnswer.answer = false
+
+        LauncherHelper.getInstance().setDesktopLauncherOpen(false)
         tileService.updateState()
         Assert.assertEquals(Tile.STATE_INACTIVE.toLong(), tileService.qsTile.state.toLong())
+
         canDrawOverlaysAnswer.answer = false
-        isServiceRunningAnswer.answer = true
-        tileService.updateState()
-        Assert.assertEquals(Tile.STATE_UNAVAILABLE.toLong(), tileService.qsTile.state.toLong())
-        canDrawOverlaysAnswer.answer = false
-        isServiceRunningAnswer.answer = false
+        LauncherHelper.getInstance().setDesktopLauncherOpen(true)
         tileService.updateState()
         Assert.assertEquals(Tile.STATE_UNAVAILABLE.toLong(), tileService.qsTile.state.toLong())
     }

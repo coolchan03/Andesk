@@ -25,8 +25,8 @@ import android.service.quicksettings.TileService;
 
 import androidx.annotation.VisibleForTesting;
 
-import com.farmerbb.taskbar.BuildConfig;
 import com.farmerbb.taskbar.R;
+import com.farmerbb.taskbar.util.DesktopSessionState;
 import com.farmerbb.taskbar.util.U;
 
 import static com.farmerbb.taskbar.util.Constants.*;
@@ -43,7 +43,7 @@ public class QuickSettingsTileService extends TileService {
     public void onClick() {
         super.onClick();
 
-        boolean active = U.isServiceRunning(this, NotificationService.class);
+        boolean active = DesktopSessionState.isActive(this);
         Intent intent = new Intent(active ? ACTION_QUIT : ACTION_START);
         intent.setPackage(getPackageName());
         if(active)
@@ -68,7 +68,7 @@ public class QuickSettingsTileService extends TileService {
 
             if(U.canDrawOverlays(this)) {
                 tile.setState(
-                        U.isServiceRunning(this, NotificationService.class)
+                        DesktopSessionState.isActive(this)
                                 ? Tile.STATE_ACTIVE
                                 : Tile.STATE_INACTIVE
                 );

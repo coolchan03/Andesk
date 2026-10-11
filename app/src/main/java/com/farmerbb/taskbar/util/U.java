@@ -694,7 +694,10 @@ public class U {
 
     public static void checkForUpdates(Context context) {
         String url;
-        if(isPlayStoreRelease(context)) {
+        if(!context.getPackageName().equals(BuildConfig.ANDROIDX86_APPLICATION_ID)
+                && !isLibrary(context))
+            url = "https://github.com/coolchan03/Andesk/releases";
+        else if(isPlayStoreRelease(context)) {
             if(context.getPackageName().equals(BuildConfig.BASE_APPLICATION_ID)
                     && !isPlayStoreInstalled(context))
                 url = "https://github.com/farmerbb/Taskbar/releases";
@@ -1274,22 +1277,23 @@ public class U {
         return baseTaskbarSize;
     }
 
-    private static void startTaskbarService(Context context, boolean fullRestart) {
+    private static void startTaskbarService(Context context, boolean fullRestart, boolean desktopSession) {
         context.startService(new Intent(context, TaskbarService.class));
         context.startService(new Intent(context, StartMenuService.class));
-        context.startService(new Intent(context, DashboardService.class));
+        if(!desktopSession) context.startService(new Intent(context, DashboardService.class));
         if(fullRestart) context.startService(new Intent(context, NotificationService.class));
     }
 
-    private static void stopTaskbarService(Context context, boolean fullRestart) {
+    private static void stopTaskbarService(Context context, boolean fullRestart, boolean desktopSession) {
         context.stopService(new Intent(context, TaskbarService.class));
         context.stopService(new Intent(context, StartMenuService.class));
-        context.stopService(new Intent(context, DashboardService.class));
+        if(!desktopSession) context.stopService(new Intent(context, DashboardService.class));
         if(fullRestart) context.stopService(new Intent(context, NotificationService.class));
     }
 
     public static void restartTaskbar(Context context) {
         SharedPreferences pref = getSharedPreferences(context);
+        boolean desktopSession = DesktopSessionState.isActive(context);
         if(pref.getBoolean(PREF_TASKBAR_ACTIVE, false)
                 && !pref.getBoolean(PREF_IS_HIDDEN, false)) {
             pref.edit()
@@ -1297,13 +1301,13 @@ public class U {
                     .putBoolean(PREF_SKIP_AUTO_HIDE_NAVBAR, true)
                     .apply();
 
-            stopTaskbarService(context, true);
-            startTaskbarService(context, true);
+            stopTaskbarService(context, true, desktopSession);
+            startTaskbarService(context, true, desktopSession);
         } else if(isServiceRunning(context, StartMenuService.class)) {
             pref.edit().putBoolean(PREF_SKIP_AUTO_HIDE_NAVBAR, true).apply();
 
-            stopTaskbarService(context, false);
-            startTaskbarService(context, false);
+            stopTaskbarService(context, false, desktopSession);
+            startTaskbarService(context, false, desktopSession);
         }
 
         sendBroadcast(context, ACTION_RESTART);

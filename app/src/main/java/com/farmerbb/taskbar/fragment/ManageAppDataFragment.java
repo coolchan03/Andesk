@@ -70,7 +70,7 @@ public class ManageAppDataFragment extends SettingsFragment {
                 Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
                 intent.addCategory(Intent.CATEGORY_OPENABLE);
                 intent.setType("*/*");
-                intent.putExtra(Intent.EXTRA_TITLE, "Taskbar-" + dateFormat.format(new Date()) + ".bak");
+                intent.putExtra(Intent.EXTRA_TITLE, "Andesk-" + dateFormat.format(new Date()) + ".bak");
 
                 try {
                     startActivityForResult(intent, U.EXPORT);
