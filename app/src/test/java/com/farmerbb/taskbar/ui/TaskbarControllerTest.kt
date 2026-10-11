@@ -312,8 +312,10 @@ class TaskbarControllerTest {
                 .apply()
         LauncherHelper.getInstance().setDesktopLauncherOpen(true)
 
-        Assert.assertFalse(uiController.drawDashboardButton(context, layout, dashboardButton, Color.RED))
-        Assert.assertFalse(uiController.drawNavbarButtons(context, layout, prefs, Color.RED))
+        Assert.assertFalse(uiController.drawDashboardButton(
+                context, layout, dashboardButton, Color.RED))
+        Assert.assertFalse(uiController.drawNavbarButtons(
+                context, layout, prefs, Color.RED))
     }
 
     @Test
