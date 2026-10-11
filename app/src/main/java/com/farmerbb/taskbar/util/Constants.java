@@ -286,6 +286,5 @@ public class Constants {
     public static final String EXTRA_WINDOW_SIZE = "window_size";
     public static final String EXTRA_START_FREEFORM_HACK = "start_freeform_hack";
     public static final String EXTRA_SECONDSCREEN = "secondscreen";
-    public static final String EXTRA_SHOW_PERMISSION_DIALOG = "show_permission_dialog";
     public static final String EXTRA_SHOW_RECENT_APPS_DIALOG = "show_recent_apps_dialog";
 }
