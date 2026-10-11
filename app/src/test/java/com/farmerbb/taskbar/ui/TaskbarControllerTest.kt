@@ -30,6 +30,7 @@ import com.farmerbb.taskbar.activity.HomeActivityDelegate
 import com.farmerbb.taskbar.activity.InvisibleActivityFreeform
 import com.farmerbb.taskbar.activity.MainActivity
 import com.farmerbb.taskbar.activity.SecondaryHomeActivity
+import com.farmerbb.taskbar.helper.LauncherHelper
 import com.farmerbb.taskbar.mockito.BooleanAnswer
 import com.farmerbb.taskbar.mockito.StringAnswer
 import com.farmerbb.taskbar.shadow.TaskbarShadowScrollView
@@ -46,6 +47,7 @@ import com.farmerbb.taskbar.util.Constants.PREF_BUTTON_BACK
 import com.farmerbb.taskbar.util.Constants.PREF_BUTTON_HOME
 import com.farmerbb.taskbar.util.Constants.PREF_BUTTON_RECENTS
 import com.farmerbb.taskbar.util.Constants.PREF_DASHBOARD
+import com.farmerbb.taskbar.util.Constants.PREF_DESKTOP_SESSION_ACTIVE
 import com.farmerbb.taskbar.util.Constants.PREF_HIDE_FOREGROUND
 import com.farmerbb.taskbar.util.Constants.PREF_RECENTS_AMOUNT
 import com.farmerbb.taskbar.util.Constants.PREF_RECENTS_AMOUNT_APP_START
@@ -96,7 +98,9 @@ class TaskbarControllerTest {
         prefs.edit()
                 .remove(PREF_TASKBAR_SIZE)
                 .remove(PREF_TASKBAR_STYLE)
+                .remove(PREF_DESKTOP_SESSION_ACTIVE)
                 .apply()
+        LauncherHelper.getInstance().setDesktopLauncherOpen(false)
         uiController.onCreateHost(host)
     }
 
@@ -106,7 +110,9 @@ class TaskbarControllerTest {
                 .remove(PREF_START_BUTTON_IMAGE)
                 .remove(PREF_TASKBAR_SIZE)
                 .remove(PREF_TASKBAR_STYLE)
+                .remove(PREF_DESKTOP_SESSION_ACTIVE)
                 .apply()
+        LauncherHelper.getInstance().setDesktopLauncherOpen(false)
         uiController.onDestroyHost(host)
     }
 
@@ -291,6 +297,25 @@ class TaskbarControllerTest {
         Assert.assertEquals(View.VISIBLE.toLong(), layout.findViewById<View>(R.id.button_recents)
                 .visibility.toLong())
         prefs.edit().remove(PREF_BUTTON_RECENTS).apply()
+    }
+
+    @Test
+    fun testDesktopSessionSuppressesLegacyDashboardAndNavbarButtons() {
+        val layoutId = uiController.getTaskbarLayoutId(POSITION_BOTTOM_LEFT)
+        val layout = LayoutInflater.from(context).inflate(layoutId, null) as LinearLayout
+        val dashboardButton = layout.findViewById<FrameLayout>(R.id.dashboard_button)
+
+        prefs.edit()
+                .putBoolean(PREF_DESKTOP_SESSION_ACTIVE, true)
+                .putBoolean(PREF_DASHBOARD, true)
+                .putBoolean(PREF_BUTTON_BACK, true)
+                .apply()
+        LauncherHelper.getInstance().setDesktopLauncherOpen(true)
+
+        Assert.assertFalse(uiController.drawDashboardButton(
+                context, layout, dashboardButton, Color.RED))
+        Assert.assertFalse(uiController.drawNavbarButtons(
+                context, layout, prefs, Color.RED))
     }
 
     @Test

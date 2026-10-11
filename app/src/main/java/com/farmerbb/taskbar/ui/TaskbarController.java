@@ -101,6 +101,7 @@ import com.farmerbb.taskbar.activity.SecondaryHomeActivity;
 import com.farmerbb.taskbar.util.TaskbarPosition;
 import com.farmerbb.taskbar.util.AppEntry;
 import com.farmerbb.taskbar.util.DisplayInfo;
+import com.farmerbb.taskbar.util.DesktopSessionState;
 import com.farmerbb.taskbar.helper.FreeformHackHelper;
 import com.farmerbb.taskbar.util.IconCache;
 import com.farmerbb.taskbar.helper.LauncherHelper;
@@ -259,9 +260,9 @@ public class TaskbarController extends UIController {
         // Determine where to show the taskbar on screen
         String taskbarPosition = TaskbarPosition.getTaskbarPosition(context);
         params.gravity = getTaskbarGravity(taskbarPosition);
-        // Full-width desktop taskbars must size the overlay and its content together.
-        if(!TaskbarPosition.isVertical(taskbarPosition)
-                && U.getSharedPreferences(context).getBoolean(PREF_DESKTOP_SESSION_ACTIVE, false))
+        boolean desktopSession = DesktopSessionState.isActive(context);
+        // Andesk desktop taskbars always occupy the full horizontal edge.
+        if(!TaskbarPosition.isVertical(taskbarPosition) && desktopSession)
             params.width = WindowManager.LayoutParams.MATCH_PARENT;
         int layoutId = getTaskbarLayoutId(taskbarPosition);
         positionIsVertical = TaskbarPosition.isVertical(taskbarPosition);
@@ -298,7 +299,7 @@ public class TaskbarController extends UIController {
         }
 
         space.setOnClickListener(v -> {
-            if(!U.getSharedPreferences(context).getBoolean(PREF_DESKTOP_SESSION_ACTIVE, false))
+            if(!DesktopSessionState.isActive(context))
                 toggleTaskbar(true);
         });
 
@@ -332,7 +333,7 @@ public class TaskbarController extends UIController {
 
         updateButton(false);
         button.setOnClickListener(v -> {
-            if(!U.getSharedPreferences(context).getBoolean(PREF_DESKTOP_SESSION_ACTIVE, false))
+            if(!DesktopSessionState.isActive(context))
                 toggleTaskbar(true);
         });
 
@@ -340,7 +341,7 @@ public class TaskbarController extends UIController {
                 ? R.id.hide_taskbar_button_layout_alt
                 : R.id.hide_taskbar_button_layout);
         if(buttonLayout != null) buttonLayout.setOnClickListener(v -> {
-            if(!U.getSharedPreferences(context).getBoolean(PREF_DESKTOP_SESSION_ACTIVE, false))
+            if(!DesktopSessionState.isActive(context))
                 toggleTaskbar(true);
         });
 
@@ -351,7 +352,7 @@ public class TaskbarController extends UIController {
 
         // The large collapse arrow is a legacy Taskbar control, not desktop navigation.
         // Desktop sessions have an explicit Exit action and need no collapse button.
-        if(pref.getBoolean(PREF_DESKTOP_SESSION_ACTIVE, false)) {
+        if(desktopSession) {
             layout.findViewById(R.id.hide_taskbar_button_layout).setVisibility(View.GONE);
             layout.findViewById(R.id.hide_taskbar_button_layout_alt).setVisibility(View.GONE);
             if(buttonLayout != null) buttonLayout.setVisibility(View.GONE);
@@ -427,7 +428,7 @@ public class TaskbarController extends UIController {
                         ? params.updateHeight(WindowManager.LayoutParams.MATCH_PARENT)
                         : params.updateHeight(WindowManager.LayoutParams.WRAP_CONTENT);
             } else {
-                newParams = U.getSharedPreferences(context).getBoolean(PREF_DESKTOP_SESSION_ACTIVE, false)
+                newParams = DesktopSessionState.isActive(context)
                         ? params.updateWidth(WindowManager.LayoutParams.MATCH_PARENT)
                         : (matchParent ? params.updateWidth(WindowManager.LayoutParams.MATCH_PARENT)
                         : params.updateWidth(WindowManager.LayoutParams.WRAP_CONTENT));
@@ -555,7 +556,7 @@ public class TaskbarController extends UIController {
                                 LinearLayout layout,
                                 FrameLayout dashboardButton,
                                 int accentColor) {
-        boolean dashboardEnabled = !U.getSharedPreferences(context).getBoolean(PREF_DESKTOP_SESSION_ACTIVE, false)
+        boolean dashboardEnabled = !DesktopSessionState.isActive(context)
                 && U.getBooleanPrefWithDefault(context, PREF_DASHBOARD);
         if(dashboardEnabled) {
             layout.findViewById(R.id.square1).setBackgroundColor(accentColor);
@@ -579,7 +580,7 @@ public class TaskbarController extends UIController {
                               SharedPreferences pref,
                               int accentColor) {
         boolean navbarButtonsEnabled = false;
-        if(!pref.getBoolean(PREF_DESKTOP_SESSION_ACTIVE, false)
+        if(!DesktopSessionState.isActive(context)
                 && pref.getBoolean(PREF_BUTTON_BACK, false)) {
             navbarButtonsEnabled = true;
 
@@ -926,7 +927,7 @@ public class TaskbarController extends UIController {
         final List<AppEntry> entries = new ArrayList<>();
         List<LauncherActivityInfo> launcherAppCache = new ArrayList<>();
         int maxNumOfEntries = firstRefresh ? 0 : U.getMaxNumOfEntries(context);
-        boolean fullLength = U.isTaskbarFullLength(context);
+        boolean fullLength = DesktopSessionState.isActive(context) || U.isTaskbarFullLength(context);
 
         PinnedBlockedApps pba = PinnedBlockedApps.getInstance(context);
         List<AppEntry> pinnedApps = pba.getPinnedApps();
@@ -1227,9 +1228,10 @@ public class TaskbarController extends UIController {
             }
         }
 
-        boolean realMatchParent = maxRecentsSize >= maxScreenSize
+        boolean realMatchParent = DesktopSessionState.isActive(context)
+                || (maxRecentsSize >= maxScreenSize
                 && pref.getBoolean(PREF_COLLAPSED, false)
-                && !(TaskbarPosition.isVertical(context) && U.isChromeOs(context));
+                && !(TaskbarPosition.isVertical(context) && U.isChromeOs(context)));
 
         if(realMatchParent != matchParent) {
             matchParent = realMatchParent;
@@ -1447,7 +1449,7 @@ public class TaskbarController extends UIController {
     }
 
     private void toggleTaskbar(boolean userInitiated) {
-        if(U.getSharedPreferences(context).getBoolean(PREF_DESKTOP_SESSION_ACTIVE, false)) return;
+        if(DesktopSessionState.isActive(context)) return;
         if(userInitiated && Build.BRAND.equalsIgnoreCase("essential")) {
             SharedPreferences pref = U.getSharedPreferences(context);
             LauncherHelper helper = LauncherHelper.getInstance();
@@ -1500,7 +1502,7 @@ public class TaskbarController extends UIController {
     }
 
     private void hideTaskbar(boolean clearVariables) {
-        if(U.getSharedPreferences(context).getBoolean(PREF_DESKTOP_SESSION_ACTIVE, false)) return;
+        if(DesktopSessionState.isActive(context)) return;
         if(clearVariables) {
             taskbarShownTemporarily = false;
             taskbarHiddenTemporarily = false;
