@@ -12,6 +12,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.graphics.Color
+import android.graphics.Rect
 import android.provider.Settings
 import android.view.WindowManager
 import android.widget.Toast
@@ -20,6 +21,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.test.core.app.ApplicationProvider
 import com.farmerbb.taskbar.R
 import com.farmerbb.taskbar.helper.FreeformHackHelper
+import com.farmerbb.taskbar.helper.LauncherHelper
 import com.farmerbb.taskbar.mockito.BooleanAnswer
 import com.farmerbb.taskbar.mockito.IntAnswer
 import com.farmerbb.taskbar.service.PowerMenuService
@@ -57,6 +59,10 @@ class UTest {
     fun setUp() {
         context = ApplicationProvider.getApplicationContext()
         Assert.assertNotNull(context)
+        U.getSharedPreferences(context).edit()
+                .remove(Constants.PREF_DESKTOP_SESSION_ACTIVE)
+                .apply()
+        LauncherHelper.getInstance().setDesktopLauncherOpen(false)
     }
 
     @Test
@@ -408,6 +414,51 @@ class UTest {
         prefs.edit().putBoolean(Constants.PREF_LAUNCH_GAMES_FULLSCREEN, true).apply()
         Assert.assertFalse(U.isGame(context, context.packageName))
         Assert.assertFalse(U.isGame(context, context.packageName + "un-exist-package"))
+    }
+
+    @Test
+    fun testDesktopLaunchBoundsClampNormalApps() {
+        val prefs = U.getSharedPreferences(context)
+        prefs.edit().putBoolean(Constants.PREF_DESKTOP_SESSION_ACTIVE, true).apply()
+        LauncherHelper.getInstance().setDesktopLauncherOpen(true)
+
+        val display = U.getDisplayInfo(context)
+        val requested = Rect(-100, -100, display.width + 100, display.height + 100)
+        val result = U.getDesktopLaunchBounds(context, ApplicationType.APP_PORTRAIT, requested)
+
+        Assert.assertTrue(result.left >= 0)
+        Assert.assertTrue(result.top >= 0)
+        Assert.assertTrue(result.right <= display.width)
+        Assert.assertTrue(result.bottom <= display.height)
+    }
+
+    @Test
+    fun testDesktopLaunchBoundsPreserveFreeformHack() {
+        val prefs = U.getSharedPreferences(context)
+        prefs.edit().putBoolean(Constants.PREF_DESKTOP_SESSION_ACTIVE, true).apply()
+        LauncherHelper.getInstance().setDesktopLauncherOpen(true)
+
+        val display = U.getDisplayInfo(context)
+        val requested = Rect(
+                display.width,
+                display.height,
+                display.width + 1,
+                display.height + 1)
+        val result = U.getDesktopLaunchBounds(context, ApplicationType.FREEFORM_HACK, requested)
+
+        Assert.assertEquals(requested, result)
+    }
+
+    @Test
+    fun testDesktopLaunchBoundsIgnoreStalePreference() {
+        val prefs = U.getSharedPreferences(context)
+        prefs.edit().putBoolean(Constants.PREF_DESKTOP_SESSION_ACTIVE, true).apply()
+        LauncherHelper.getInstance().setDesktopLauncherOpen(false)
+
+        val requested = Rect(-100, -100, 10000, 10000)
+        val result = U.getDesktopLaunchBounds(context, ApplicationType.APP_PORTRAIT, requested)
+
+        Assert.assertEquals(requested, result)
     }
 
     @Test
