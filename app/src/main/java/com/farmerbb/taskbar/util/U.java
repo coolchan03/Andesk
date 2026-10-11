@@ -1035,7 +1035,7 @@ public class U {
     }
 
     private static Bundle getActivityOptionsBundle(Context context, ApplicationType type, String windowSize, View view) {
-        if(getSharedPreferences(context).getBoolean(PREF_DESKTOP_SESSION_ACTIVE, false))
+        if(DesktopSessionState.isActive(context))
             view = null;
 
         if(!canEnableFreeform(context) || !isFreeformModeEnabled(context))
@@ -1074,11 +1074,22 @@ public class U {
         if(Build.VERSION.SDK_INT < Build.VERSION_CODES.N)
             return options.toBundle();
 
-        Rect bounds = new Rect(left, top, right, bottom);
-        if(context != null && getSharedPreferences(context).getBoolean(PREF_DESKTOP_SESSION_ACTIVE, false))
-            bounds = clampDesktopLaunchBounds(context, bounds);
+        Rect bounds = getDesktopLaunchBounds(
+                context, applicationType, new Rect(left, top, right, bottom));
 
         return options.setLaunchBounds(bounds).toBundle();
+    }
+
+    @VisibleForTesting
+    static Rect getDesktopLaunchBounds(Context context,
+                                       ApplicationType applicationType,
+                                       Rect requested) {
+        if(context == null
+                || applicationType == ApplicationType.FREEFORM_HACK
+                || !DesktopSessionState.isActive(context))
+            return requested;
+
+        return clampDesktopLaunchBounds(context, requested);
     }
 
     private static Rect clampDesktopLaunchBounds(Context context, Rect requested) {
