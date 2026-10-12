@@ -72,6 +72,7 @@
         android:theme="@style/Taskbar"
         tools:ignore="GoogleAppIndexingWarning">
 
+        <!-- Launcher entry point opened explicitly by the user. -->
         <activity
             android:name=".activity.MainActivity"
             android:exported="true"
@@ -92,6 +93,7 @@
                 android:name="WindowManagerPreference:SuppressWindowControlNavigationButton"
                 android:value="true" />
         </activity-alias>
+        <!-- Desktop launcher entry point for explicit user sessions. -->
         <activity
             android:name=".activity.DesktopLauncherActivity"
             android:label="${appName}"
@@ -136,6 +138,7 @@
             android:launchMode="singleInstance"
             android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|screenLayout|fontScale|uiMode|orientation|screenSize|smallestScreenSize|layoutDirection"
             android:theme="@style/Taskbar.InvisibleActivity"/>
+        <!-- Android launcher shortcut entry point. -->
         <activity
             android:name=".activity.KeyboardShortcutActivity"
             android:label="${appName}"
@@ -153,6 +156,7 @@
                 <category android:name="android.intent.category.APP_MAPS" />
             </intent-filter>
         </activity>
+        <!-- Android launcher shortcut entry point. -->
         <activity
             android:name=".activity.KeyboardShortcutActivityLockDevice"
             android:label="${appName}"
@@ -202,6 +206,7 @@
         <activity
             android:name=".activity.dark.IconPackActivityDark"
             android:theme="@style/Taskbar.Dialog.Blacklist.Dark"/>
+        <!-- Android shortcut creation entry point. -->
         <activity
             android:name=".activity.ShortcutActivity"
             android:icon="@mipmap/tb_freeform_mode"
@@ -218,6 +223,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+        <!-- Android app shortcut entry point. -->
         <activity
             android:name=".activity.StartTaskbarActivity"
             android:label="@string/tb_start_taskbar"
@@ -264,6 +270,7 @@
             android:launchMode="singleTask"
             android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|screenLayout|fontScale|uiMode|orientation|screenSize|smallestScreenSize|layoutDirection"
             android:theme="@style/Taskbar.Incognito"/>
+        <!-- Android shortcut creation entry point. -->
         <activity
             android:name=".activity.PersistentShortcutSelectAppActivity"
             android:label="@string/tb_new_shortcut"
@@ -284,6 +291,7 @@
             android:excludeFromRecents="true"
             android:launchMode="singleInstance"
             android:theme="@style/Taskbar.Dialog.Blacklist.Dark"/>
+        <!-- Android shortcut launch entry point. -->
         <activity
             android:name=".activity.PersistentShortcutLaunchActivity"
             android:launchMode="singleInstance"
