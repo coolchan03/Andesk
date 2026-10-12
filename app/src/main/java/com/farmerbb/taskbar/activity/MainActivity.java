@@ -254,6 +254,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
+        SharedPreferences pref = U.getSharedPreferences(this);
         if(pref.getInt("show_changelog", 0) < latestChangelogVersion
                 && U.isConsumerBuild(this)) {
             Snackbar snackbar = Snackbar.make(
