@@ -31,8 +31,3 @@ public class DependencyUtils {
     static ToastInterface createToast(Context context, String message, int length) {
         return new ToastFrameworkImpl(context, message, length);
     }
-
-    public static void requestTaskerQuery(Context context) {}
-
-    public static void openChromeCustomTab(Context context, Uri uri) {}
-}

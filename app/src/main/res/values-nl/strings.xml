@@ -353,15 +353,9 @@
 
     <string name="tb_action_continue">Doorgaan</string>
 
-    <string name="tb_tasker_action_title">Actie kiezen</string>
-    <string name="tb_tasker_condition_title">Omstandigheid kiezen</string>
-    <string name="tb_tasker_on">Taakbalk aan</string>
-    <string name="tb_tasker_off">Taakbalk uit</string>
     <string name="tb_on">Aan</string>
     <string name="tb_off">Uit</string>
 
-    <string name="tb_pref_title_tasker_enabled">Externe app-integratie toestaan</string>
-    <string name="tb_pref_summary_tasker_enabled">Schakel dit uit voor verhoogde veiligheid</string>
 
     <string name="tb_essential_phone_grip_rejection">Op de Essential Phone moet je grip rejection uitschakelen (in de Ontwikkelaarsopties) om Taakbalk te kunnen openen/sluiten</string>
 

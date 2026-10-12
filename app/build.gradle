@@ -185,7 +185,6 @@ dependencies {
     implementation "dev.rikka.shizuku:api:$SHIZUKU_VERSION"
     implementation "dev.rikka.shizuku:provider:$SHIZUKU_VERSION"
     implementation 'moe.banana:toast-compat:1.0.5'
-    implementation group:'com.twofortyfouram', name:'android-plugin-api-for-locale', version:'[1.0.2,2.0['
     implementation "org.lsposed.hiddenapibypass:hiddenapibypass:$HIDDEN_API_BYPASS_VERSION"
 
     testImplementation "com.google.truth:truth:1.1.3"

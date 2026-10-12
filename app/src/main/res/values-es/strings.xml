@@ -353,15 +353,9 @@
 
     <string name="tb_action_continue">Continuar</string>
 
-    <string name="tb_tasker_action_title">Seleccionar acción</string>
-    <string name="tb_tasker_condition_title">Seleccionar condición</string>
-    <string name="tb_tasker_on">Taskbar Activado</string>
-    <string name="tb_tasker_off">Taskbar Desactivado</string>
     <string name="tb_on">Activado</string>
     <string name="tb_off">Desactivado</string>
 
-    <string name="tb_pref_title_tasker_enabled">Permitir la integración de aplicaciones de terceros</string>
-    <string name="tb_pref_summary_tasker_enabled">Desactivar para mejorar la seguridad</string>
 
     <string name="tb_essential_phone_grip_rejection">En el Teléfono Essential, desactiva el rechazo de agarre (en las opciones de desarrollo) para ayudar a abrir/cerrar Taskbar</string>
 

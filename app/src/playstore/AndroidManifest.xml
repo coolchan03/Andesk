@@ -21,10 +21,6 @@
 
     <permission android:name="${applicationId}.START_STOP_TASKBAR"
         android:protectionLevel="signature" />
-
-    <permission android:name="${applicationId}.SEND_RECEIVE_SETTINGS"
-        android:protectionLevel="signature" />
-
     <!-- Signature protection level removed for Bliss OS -->
     <permission android:name="${applicationId}.ENABLE_DISABLE_FREEFORM"
         android:protectionLevel="signature" />
@@ -33,8 +29,6 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="${applicationId}.START_STOP_TASKBAR" />
-    <uses-permission android:name="${applicationId}.SEND_RECEIVE_SETTINGS" />
-
     <uses-permission-sdk-23 android:name="com.android.launcher.permission.INSTALL_SHORTCUT" />
     <uses-permission-sdk-23 android:name="android.permission.GET_TASKS" />
     <uses-permission-sdk-23 android:name="android.permission.WRITE_SETTINGS" />
@@ -78,6 +72,7 @@
         android:theme="@style/Taskbar"
         tools:ignore="GoogleAppIndexingWarning">
 
+        <!-- Launcher entry point opened explicitly by the user. -->
         <activity
             android:name=".activity.MainActivity"
             android:exported="true"
@@ -98,6 +93,7 @@
                 android:name="WindowManagerPreference:SuppressWindowControlNavigationButton"
                 android:value="true" />
         </activity-alias>
+        <!-- Desktop launcher entry point for explicit user sessions. -->
         <activity
             android:name=".activity.DesktopLauncherActivity"
             android:label="${appName}"
@@ -142,6 +138,7 @@
             android:launchMode="singleInstance"
             android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|screenLayout|fontScale|uiMode|orientation|screenSize|smallestScreenSize|layoutDirection"
             android:theme="@style/Taskbar.InvisibleActivity"/>
+        <!-- Android launcher shortcut entry point. -->
         <activity
             android:name=".activity.KeyboardShortcutActivity"
             android:label="${appName}"
@@ -159,6 +156,7 @@
                 <category android:name="android.intent.category.APP_MAPS" />
             </intent-filter>
         </activity>
+        <!-- Android launcher shortcut entry point. -->
         <activity
             android:name=".activity.KeyboardShortcutActivityLockDevice"
             android:label="${appName}"
@@ -203,26 +201,12 @@
             android:excludeFromRecents="true"
             android:theme="@style/Taskbar.Incognito"/>
         <activity
-            android:name=".activity.ImportSettingsActivity"
-            android:theme="@style/Taskbar.Dialog"/>
-        <activity
             android:name=".activity.IconPackActivity"
             android:theme="@style/Taskbar.Dialog.Blacklist"/>
         <activity
             android:name=".activity.dark.IconPackActivityDark"
             android:theme="@style/Taskbar.Dialog.Blacklist.Dark"/>
-        <activity
-            android:name=".activity.IconPackApplyActivity"
-            android:launchMode="singleTask"
-            android:theme="@style/Taskbar.Dialog"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <action android:name="com.farmerbb.taskbar.APPLY_ICON_PACK"/>
-
-                <category android:name="android.intent.category.DEFAULT"/>
-            </intent-filter>
-        </activity>
+        <!-- Android shortcut creation entry point. -->
         <activity
             android:name=".activity.ShortcutActivity"
             android:icon="@mipmap/tb_freeform_mode"
@@ -239,6 +223,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+        <!-- Android app shortcut entry point. -->
         <activity
             android:name=".activity.StartTaskbarActivity"
             android:label="@string/tb_start_taskbar"
@@ -279,34 +264,13 @@
             android:name=".activity.dark.NavigationBarButtonsActivityDark"
             android:theme="@style/Taskbar.Dialog.Preference.Dark"/>
         <activity
-            android:name=".activity.TaskerActionActivity"
-            android:documentLaunchMode="always"
-            android:excludeFromRecents="true"
-            android:label="@string/tb_app_name"
-            android:theme="@android:style/Theme.Material.Light.Dialog"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="com.twofortyfouram.locale.intent.action.EDIT_SETTING" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name=".activity.TaskerConditionActivity"
-            android:documentLaunchMode="always"
-            android:excludeFromRecents="true"
-            android:label="@string/tb_app_name"
-            android:theme="@android:style/Theme.Material.Light.Dialog"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="com.twofortyfouram.locale.intent.action.EDIT_CONDITION" />
-            </intent-filter>
-        </activity>
-        <activity
             android:name=".activity.TouchAbsorberActivity"
             android:documentLaunchMode="always"
             android:excludeFromRecents="true"
             android:launchMode="singleTask"
             android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|screenLayout|fontScale|uiMode|orientation|screenSize|smallestScreenSize|layoutDirection"
             android:theme="@style/Taskbar.Incognito"/>
+        <!-- Android shortcut creation entry point. -->
         <activity
             android:name=".activity.PersistentShortcutSelectAppActivity"
             android:label="@string/tb_new_shortcut"
@@ -327,6 +291,7 @@
             android:excludeFromRecents="true"
             android:launchMode="singleInstance"
             android:theme="@style/Taskbar.Dialog.Blacklist.Dark"/>
+        <!-- Android shortcut launch entry point. -->
         <activity
             android:name=".activity.PersistentShortcutLaunchActivity"
             android:launchMode="singleInstance"
@@ -499,7 +464,7 @@
         <receiver
             android:name=".receiver.BootReceiver"
             android:enabled="true"
-            android:exported="true">
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
             </intent-filter>
@@ -507,33 +472,15 @@
         <receiver
             android:name=".receiver.PackageUpgradeReceiver"
             android:enabled="true"
-            android:exported="true">
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED"/>
             </intent-filter>
         </receiver>
         <receiver
-            android:name=".receiver.SendSettingsReceiver"
-            android:enabled="true"
-            android:permission="com.farmerbb.taskbar.paid.SEND_RECEIVE_SETTINGS"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="com.farmerbb.taskbar.RECEIVE_SETTINGS"/>
-            </intent-filter>
-        </receiver>
-        <receiver
-            android:name=".receiver.ReceiveSettingsReceiver"
-            android:enabled="true"
-            android:permission="com.farmerbb.taskbar.SEND_RECEIVE_SETTINGS"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="com.farmerbb.taskbar.SEND_SETTINGS"/>
-            </intent-filter>
-        </receiver>
-        <receiver
             android:name=".receiver.UninstallReceiver"
             android:enabled="true"
-            android:exported="true">
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.PACKAGE_FULLY_REMOVED" />
                 <data android:scheme="package" />
@@ -565,27 +512,7 @@
                 <action android:name="com.farmerbb.taskbar.DISABLE_FREEFORM_MODE"/>
             </intent-filter>
         </receiver>
-        <receiver
-            android:name=".receiver.TaskerActionReceiver"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="com.twofortyfouram.locale.intent.action.FIRE_SETTING" />
-            </intent-filter>
-        </receiver>
-        <receiver
-            android:name=".receiver.TaskerConditionReceiver"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="com.twofortyfouram.locale.intent.action.QUERY_CONDITION" />
-            </intent-filter>
-        </receiver>
 
-        <provider
-            android:name=".provider.Kustom5SecsProvider"
-            android:authorities="${applicationId}.kustom5secsprovider"
-            android:grantUriPermissions="true"
-            android:exported="true"
-            android:enabled="true"/>
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"

@@ -169,8 +169,6 @@ public class NotificationService extends Service {
                 if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
                     TileService.requestListeningState(this, new ComponentName(getPackageName(), QuickSettingsTileService.class.getName()));
 
-                DependencyUtils.requestTaskerQuery(this);
-
                 registerReceiver(userForegroundReceiver, new IntentFilter(Intent.ACTION_USER_FOREGROUND));
                 registerReceiver(userBackgroundReceiver, new IntentFilter(Intent.ACTION_USER_BACKGROUND));
                 receiversRegistered = true;
@@ -192,8 +190,6 @@ public class NotificationService extends Service {
 
             if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
                 TileService.requestListeningState(this, new ComponentName(getPackageName(), QuickSettingsTileService.class.getName()));
-
-            DependencyUtils.requestTaskerQuery(this);
 
             if(!U.launcherIsDefault(this) || U.isChromeOs(this))
                 U.stopFreeformHack(this);

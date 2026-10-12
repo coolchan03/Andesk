@@ -93,7 +93,6 @@ public class AdvancedFragment extends SettingsFragment {
         }
 
         if(isLibrary) {
-            getPreferenceScreen().removePreference(findPreference(PREF_TASKER_ENABLED));
             getPreferenceScreen().removePreference(findPreference(PREF_LAUNCHER));
             getPreferenceScreen().removePreference(findPreference(PREF_KEYBOARD_SHORTCUT));
             getPreferenceScreen().removePreference(findPreference(PREF_NAVIGATION_BAR_BUTTONS));
