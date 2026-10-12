@@ -353,15 +353,9 @@
 
     <string name="tb_action_continue">Weiter</string>
 
-    <string name="tb_tasker_action_title">Aktion auswählen</string>
-    <string name="tb_tasker_condition_title">Bedingung auswählen</string>
-    <string name="tb_tasker_on">Taskbar an</string>
-    <string name="tb_tasker_off">Taskbar aus</string>
     <string name="tb_on">An</string>
     <string name="tb_off">Aus</string>
 
-    <string name="tb_pref_title_tasker_enabled">Integration von Drittanbieter-Apps zulassen</string>
-    <string name="tb_pref_summary_tasker_enabled">(Deaktivierung erhöht die Sicherheit)</string>
 
     <string name="tb_essential_phone_grip_rejection">Deaktivieren Sie beim Essential Phone zur Unterstützung beim Öffnen/Schließen von Taskbar die Griffabweisung (in den Entwickleroptionen)</string>
 

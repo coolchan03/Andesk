@@ -191,9 +191,6 @@
             android:excludeFromRecents="true"
             android:theme="@style/Taskbar.Incognito"/>
         <activity
-            android:name=".activity.ImportSettingsActivity"
-            android:theme="@style/Taskbar.Dialog"/>
-        <activity
             android:name=".activity.IconPackActivity"
             android:theme="@style/Taskbar.Dialog.Blacklist"/>
         <activity
@@ -453,12 +450,6 @@
             </intent-filter>
         </receiver>
 
-        <provider
-            android:name=".provider.Kustom5SecsProvider"
-            android:authorities="com.farmerbb.taskbar.androidx86.kustom5secsprovider"
-            android:grantUriPermissions="true"
-            android:exported="true"
-            android:enabled="true"/>
 
     </application>
 

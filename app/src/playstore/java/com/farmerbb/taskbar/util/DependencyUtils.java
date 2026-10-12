@@ -24,7 +24,6 @@ import androidx.browser.customtabs.CustomTabsIntent;
 import androidx.core.content.ContextCompat;
 
 import com.farmerbb.taskbar.R;
-import com.farmerbb.taskbar.activity.TaskerConditionActivity;
 import com.mikepenz.foundation_icons_typeface_library.FoundationIcons;
 import com.mikepenz.iconics.Iconics;
 
@@ -49,12 +48,6 @@ public class DependencyUtils {
             return new ToastFrameworkImpl(context, message, length);
         else
             return new ToastCompatImpl(context, message, length);
-    }
-
-    public static void requestTaskerQuery(Context context) {
-        Intent query = new Intent(com.twofortyfouram.locale.api.Intent.ACTION_REQUEST_QUERY);
-        query.putExtra(com.twofortyfouram.locale.api.Intent.EXTRA_STRING_ACTIVITY_CLASS_NAME, TaskerConditionActivity.class.getName());
-        context.sendBroadcast(query);
     }
 
     public static void openChromeCustomTab(Context context, Uri uri) {

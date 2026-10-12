@@ -1743,13 +1743,6 @@ public class U {
         return false;
     }
 
-    public static boolean isExternalAccessDisabled(Context context) {
-        if(isLibrary(context)) return true;
-
-        SharedPreferences pref = getSharedPreferences(context);
-        return !pref.getBoolean(PREF_TASKER_ENABLED, true);
-    }
-
     public static boolean enableFreeformModeShortcut(Context context) {
         return canEnableFreeform(context)
                 && !isOverridingFreeformHack(context, false)

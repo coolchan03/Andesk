@@ -39,13 +39,11 @@ public class Constants {
     public static final String ACTION_HIDE_START_MENU_NO_RESET = "com.farmerbb.taskbar.HIDE_START_MENU_NO_RESET";
     public static final String ACTION_HIDE_START_MENU_SPACE = "com.farmerbb.taskbar.HIDE_START_MENU_SPACE";
     public static final String ACTION_HIDE_TASKBAR = "com.farmerbb.taskbar.HIDE_TASKBAR";
-    public static final String ACTION_IMPORT_FINISHED = "com.farmerbb.taskbar.IMPORT_FINISHED";
     public static final String ACTION_EXIT_DESKTOP_LAUNCHER = "com.farmerbb.taskbar.EXIT_DESKTOP_LAUNCHER";
     public static final String ACTION_KILL_HOME_ACTIVITY = "com.farmerbb.taskbar.KILL_HOME_ACTIVITY";
     public static final String ACTION_LAUNCHER_PREF_CHANGED = "com.farmerbb.taskbar.LAUNCHER_PREF_CHANGED";
     public static final String ACTION_NOTIFICATION_COUNT_CHANGED = "com.farmerbb.taskbar.NOTIFICATION_COUNT_CHANGED";
     public static final String ACTION_QUIT = "com.farmerbb.taskbar.QUIT";
-    public static final String ACTION_RECEIVE_SETTINGS = "com.farmerbb.taskbar.RECEIVE_SETTINGS";
     public static final String ACTION_REFRESH_DESKTOP_ICONS = "com.farmerbb.taskbar.REFRESH_DESKTOP_ICONS";
     public static final String ACTION_REMOVE_DESKTOP_WALLPAPER = "com.farmerbb.taskbar.REMOVE_DESKTOP_WALLPAPER";
     public static final String ACTION_REMOVE_WIDGET_COMPLETED = "com.farmerbb.taskbar.REMOVE_WIDGET_COMPLETED";
@@ -53,7 +51,6 @@ public class Constants {
     public static final String ACTION_REQUEST_NOTIFICATION_COUNT = "com.farmerbb.taskbar.REQUEST_NOTIFICATION_COUNT";
     public static final String ACTION_RESET_START_MENU = "com.farmerbb.taskbar.RESET_START_MENU";
     public static final String ACTION_RESTART = "com.farmerbb.taskbar.RESTART";
-    public static final String ACTION_SEND_SETTINGS = "com.farmerbb.taskbar.SEND_SETTINGS";
     public static final String ACTION_SHOW_HIDE_TASKBAR = "com.farmerbb.taskbar.SHOW_HIDE_TASKBAR";
     public static final String ACTION_SHOW_START_MENU_SPACE = "com.farmerbb.taskbar.SHOW_START_MENU_SPACE";
     public static final String ACTION_SHOW_TASKBAR = "com.farmerbb.taskbar.SHOW_TASKBAR";
@@ -126,7 +123,6 @@ public class Constants {
     public static final String PREF_DISPLAY_DENSITY = "display_density";
     public static final String PREF_DONATE = "donate";
     public static final String PREF_DONT_SHOW_DOUBLE_TAP_DIALOG = "dont_show_double_tap_dialog";
-    public static final String PREF_DONT_SHOW_UNINSTALL_DIALOG = "dont_show_uninstall_dialog";
     public static final String PREF_DESKTOP_SESSION_ACTIVE = "desktop_session_active";
     public static final String PREF_DONT_STOP_DASHBOARD = "dont_stop_dashboard";
     public static final String PREF_DOUBLE_TAP_DIALOG_SHOWN = "double_tap_dialog_shown";
@@ -215,12 +211,10 @@ public class Constants {
     public static final String PREF_TASKBAR_ACTIVE = "taskbar_active";
     public static final String PREF_TASKBAR_SIZE = "taskbar_size";
     public static final String PREF_TASKBAR_STYLE = "taskbar_style";
-    public static final String PREF_TASKER_ENABLED = "tasker_enabled";
     public static final String PREF_THEME = "theme";
     public static final String PREF_TIME_OF_SERVICE_START = "time_of_service_start";
     public static final String PREF_TRANSPARENT_START_MENU = "transparent_start_menu";
     public static final String PREF_UNINSTALL = "uninstall";
-    public static final String PREF_UNINSTALL_DIALOG_SHOWN = "uninstall_dialog_shown";
     public static final String PREF_VISUAL_FEEDBACK = "visual_feedback";
     public static final String PREF_VOLUME = "volume";
     public static final String PREF_WINDOW_SIZE = "window_size";

@@ -372,15 +372,9 @@
 
     <string name="tb_action_continue">Continue</string>
 
-    <string name="tb_tasker_action_title">Select action</string>
-    <string name="tb_tasker_condition_title">Select condition</string>
-    <string name="tb_tasker_on">Andesk On</string>
-    <string name="tb_tasker_off">Andesk Off</string>
     <string name="tb_on">On</string>
     <string name="tb_off">Off</string>
 
-    <string name="tb_pref_title_tasker_enabled">Allow third-party app integration</string>
-    <string name="tb_pref_summary_tasker_enabled">Disable for improved security</string>
 
     <string name="tb_essential_phone_grip_rejection">On the Essential Phone, disable grip rejection (in developer options) to assist with opening/closing Taskbar</string>
 

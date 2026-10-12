@@ -150,27 +150,7 @@ public class MainActivity extends AppCompatActivity {
             U.newHandler().postDelayed(() -> pref.edit().putBoolean(PREF_HAS_CAPTION, hasCaption).apply(), 500);
         }
 
-        if(getPackageName().equals(BuildConfig.PAID_APPLICATION_ID)) {
-            File file = new File(getFilesDir() + File.separator + "imported_successfully");
-            if(freeVersionInstalled() && !file.exists()) {
-                startActivity(new Intent(this, ImportSettingsActivity.class));
-                finish();
-            } else
-                proceedWithAppLaunch(savedInstanceState);
-        } else
-            proceedWithAppLaunch(savedInstanceState);
-    }
-
-    private boolean freeVersionInstalled() {
-        PackageManager pm = getPackageManager();
-        try {
-            PackageInfo pInfo = pm.getPackageInfo(BuildConfig.BASE_APPLICATION_ID, 0);
-            return pInfo.versionCode >= 68
-                    && pm.checkSignatures(BuildConfig.BASE_APPLICATION_ID, getPackageName())
-                    == PackageManager.SIGNATURE_MATCH;
-        } catch (PackageManager.NameNotFoundException e) {
-            return false;
-        }
+        proceedWithAppLaunch(savedInstanceState);
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
@@ -242,45 +222,6 @@ public class MainActivity extends AppCompatActivity {
             Fragment oldFragment = getFragmentManager().findFragmentById(R.id.fragmentContainer);
             navigateTo(oldFragment.getClass().newInstance());
         } catch (IllegalAccessException | InstantiationException ignored) {}
-
-        SharedPreferences pref = U.getSharedPreferences(this);
-        if(!getPackageName().equals(BuildConfig.BASE_APPLICATION_ID) && freeVersionInstalled()) {
-            if(!pref.getBoolean(PREF_DONT_SHOW_UNINSTALL_DIALOG, false)) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setTitle(R.string.tb_settings_imported_successfully)
-                        .setMessage(R.string.tb_import_dialog_message)
-                        .setPositiveButton(R.string.tb_action_uninstall, (dialog, which) -> {
-                            pref.edit().putBoolean(PREF_UNINSTALL_DIALOG_SHOWN, true).apply();
-
-                            try {
-                                startActivity(new Intent(Intent.ACTION_DELETE, Uri.parse("package:" + BuildConfig.BASE_APPLICATION_ID)));
-                            } catch (ActivityNotFoundException ignored) {}
-                        });
-
-                if(pref.getBoolean(PREF_UNINSTALL_DIALOG_SHOWN, false))
-                    builder.setNegativeButton(R.string.tb_action_dont_show_again, (dialogInterface, i) -> pref.edit().putBoolean(PREF_DONT_SHOW_UNINSTALL_DIALOG, true).apply());
-
-                AlertDialog dialog = builder.create();
-                dialog.show();
-                dialog.setCancelable(false);
-            }
-
-            if(!pref.getBoolean(PREF_UNINSTALL_DIALOG_SHOWN, false)) {
-                if(theSwitch != null) theSwitch.setChecked(false);
-
-                SharedPreferences.Editor editor = pref.edit();
-
-                String iconPack = pref.getString(PREF_ICON_PACK, BuildConfig.BASE_APPLICATION_ID);
-                if(iconPack.contains(BuildConfig.BASE_APPLICATION_ID)) {
-                    editor.putString(PREF_ICON_PACK, getPackageName());
-                } else {
-                    U.refreshPinnedIcons(this);
-                }
-
-                editor.putBoolean(PREF_FIRST_RUN, true);
-                editor.apply();
-            }
-        }
 
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1 && !U.isLibrary(this)) {
             ShortcutManager shortcutManager = getSystemService(ShortcutManager.class);
