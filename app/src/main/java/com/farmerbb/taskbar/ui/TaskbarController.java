@@ -735,7 +735,7 @@ public class TaskbarController extends UIController {
         time.setVisibility(View.VISIBLE);
         sysTrayLayout.setLayoutParams(sysTrayParams);
 
-        if(!U.isLibrary(context)) {
+        {
             // A normal click now opens Taskbar's compact control center instead of
             // pulling down Android's notification shade.
             sysTrayLayout.setOnClickListener(v -> openControlCenter());

@@ -73,7 +73,7 @@ public class AppearanceFragment extends SettingsFragment {
         findPreference(PREF_ACCENT_COLOR_PREF).setOnPreferenceClickListener(this);
 
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if(U.isLibrary(getActivity()) || U.isAndroidTV(getActivity()))
+            if(U.isAndroidTV(getActivity()))
                 getPreferenceScreen().removePreference(findPreference(PREF_NOTIFICATION_COUNT));
             else
                 findPreference(PREF_NOTIFICATION_COUNT).setOnPreferenceClickListener(this);

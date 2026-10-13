@@ -84,7 +84,7 @@ public abstract class UIController {
                 ViewParams newParams = isImeVisible ? params.updateBottomMargin(0) : params;
                 host.updateViewLayout(layout, newParams);
 
-                if(isImeFixDisabled() && !U.isLibrary(context)) {
+                if(isImeFixDisabled()) {
                     SharedPreferences pref = U.getSharedPreferences(context);
                     if(!pref.getBoolean(PREF_DESKTOP_MODE_IME_FIX, false)) {
                         pref.edit().putBoolean(PREF_DESKTOP_MODE_IME_FIX, true).apply();

@@ -356,13 +356,7 @@ class TaskbarControllerTest {
     @Test
     fun testDrawSysTrayOnClickListener() {
         PowerMockito.spy(U::class.java)
-        val isLibraryAnswer = BooleanAnswer()
-        PowerMockito.`when`(U.isLibrary(context)).thenAnswer(isLibraryAnswer)
-        isLibraryAnswer.answer = true
-        var sysTrayLayout = initializeSysTrayLayout(POSITION_BOTTOM_RIGHT)
-        Assert.assertFalse(sysTrayLayout.hasOnClickListeners())
-        isLibraryAnswer.answer = false
-        sysTrayLayout = initializeSysTrayLayout(POSITION_BOTTOM_RIGHT)
+        val sysTrayLayout = initializeSysTrayLayout(POSITION_BOTTOM_RIGHT)
         Assert.assertTrue(sysTrayLayout.hasOnClickListeners())
     }
 

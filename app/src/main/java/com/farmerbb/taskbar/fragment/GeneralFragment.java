@@ -48,7 +48,7 @@ public class GeneralFragment extends SettingsFragment {
             getPreferenceScreen().removePreference(startOnBoot);
         U.getSharedPreferences(getActivity()).edit().putBoolean(PREF_START_ON_BOOT, false).apply();
 
-        if(U.isLibrary(getActivity()) || U.isAndroidTV(getActivity()))
+        if(U.isAndroidTV(getActivity()))
             getPreferenceScreen().removePreference(findPreference(PREF_NOTIFICATION_SETTINGS));
         else
             findPreference(PREF_NOTIFICATION_SETTINGS).setOnPreferenceClickListener(this);

@@ -47,11 +47,7 @@ android {
         vectorDrawables.generatedDensities = []
 
         buildConfigField "String", "BASE_APPLICATION_ID", "\"com.farmerbb.taskbar\""
-        buildConfigField "String", "PAID_APPLICATION_ID", "\"com.farmerbb.taskbar.paid\""
-        buildConfigField "String", "SUPPORT_APPLICATION_ID", "\"com.farmerbb.taskbar.support\""
-        buildConfigField "String", "ANDROIDX86_APPLICATION_ID", "\"com.farmerbb.taskbar.androidx86\""
 
-        buildConfigField "long", "TIMESTAMP", "${System.currentTimeMillis()}L"
     }
 
     buildFeatures {
@@ -104,7 +100,6 @@ android {
     flavorDimensions "default"
 
     productFlavors {
-        paid { applicationId "com.farmerbb.taskbar.paid" }
         free { applicationId "com.farmerbb.taskbar" }
     }
 

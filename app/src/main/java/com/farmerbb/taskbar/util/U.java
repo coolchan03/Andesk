@@ -693,18 +693,7 @@ public class U {
     }
 
     public static void checkForUpdates(Context context) {
-        String url;
-        if(!context.getPackageName().equals(BuildConfig.ANDROIDX86_APPLICATION_ID)
-                && !isLibrary(context))
-            url = "https://github.com/coolchan03/Andesk/releases";
-        else if(isPlayStoreRelease(context)) {
-            if(context.getPackageName().equals(BuildConfig.BASE_APPLICATION_ID)
-                    && !isPlayStoreInstalled(context))
-                url = "https://github.com/farmerbb/Taskbar/releases";
-            else
-                url = "https://play.google.com/store/apps/details?id=" + context.getPackageName();
-        } else
-            url = "https://f-droid.org/packages/" + context.getPackageName();
+        String url = "https://github.com/coolchan03/Andesk/releases";
 
         Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setData(Uri.parse(url));
@@ -1143,9 +1132,7 @@ public class U {
             }
         } catch (PackageManager.NameNotFoundException ignored) {}
 
-        return context.getPackageName().equals(BuildConfig.ANDROIDX86_APPLICATION_ID)
-                ? ApplicationType.APP_LANDSCAPE
-                : ApplicationType.APP_PORTRAIT;
+        return ApplicationType.APP_PORTRAIT;
     }
 
     public static boolean isSystemApp(Context context) {
@@ -1204,26 +1191,6 @@ public class U {
         return validAndroidGenericBuildProp
                 && context.getPackageName().equals(BuildConfig.BASE_APPLICATION_ID)
                 && isSystemApp(context);
-    }
-
-    public static boolean isLauncherPermanentlyEnabled(Context context) {
-        if(context.getPackageName().equals(BuildConfig.ANDROIDX86_APPLICATION_ID))
-            return true;
-
-        return hasSupportLibrary(context, 0);
-    }
-
-    public static boolean hasSupportLibrary(Context context, int minVersion) {
-        PackageManager pm = context.getPackageManager();
-        try {
-            PackageInfo pInfo = pm.getPackageInfo(BuildConfig.SUPPORT_APPLICATION_ID, 0);
-            return pInfo.versionCode >= minVersion
-                    && pm.checkSignatures(BuildConfig.SUPPORT_APPLICATION_ID, context.getPackageName()) == PackageManager.SIGNATURE_MATCH
-                    && context.getPackageName().equals(BuildConfig.BASE_APPLICATION_ID)
-                    && isSystemApp(context);
-        } catch (PackageManager.NameNotFoundException e) {
-            return false;
-        }
     }
 
     @VisibleForTesting
@@ -1343,8 +1310,7 @@ public class U {
         if(!isShowHideNavbarSupported()
                 || (!isDesktopModeActive(context)
                 && !isBlissOs(context)
-                && !isProjectSakura(context)
-                && !hasSupportLibrary(context, 7))) {
+                && !isProjectSakura(context))) {
             return;
         }
 
@@ -1362,17 +1328,6 @@ public class U {
             else
                 newHandler().postDelayed(runnable, delay);
 
-            return;
-        }
-
-        if(hasSupportLibrary(context, 7)) {
-            Intent intent = new Intent(BuildConfig.SUPPORT_APPLICATION_ID + ".CHANGE_OVERSCAN");
-            intent.setPackage(BuildConfig.SUPPORT_APPLICATION_ID);
-
-            intent.putExtra("display_id", displayID);
-            intent.putExtra("value", value.get());
-
-            context.sendBroadcast(intent);
             return;
         }
 
@@ -1442,19 +1397,6 @@ public class U {
             editor.apply();
         }
 
-        // Customizations for Android-x86 devices (non-Bliss)
-        if(context.getPackageName().equals(BuildConfig.ANDROIDX86_APPLICATION_ID)
-                && isSystemApp(context)
-                && !pref.getBoolean(PREF_ANDROID_X86_PREFS, false)) {
-            pref.edit()
-                    .putString(PREF_RECENTS_AMOUNT, PREF_RECENTS_AMOUNT_RUNNING_APPS_ONLY)
-                    .putString(PREF_REFRESH_FREQUENCY, "0")
-                    .putString(PREF_MAX_NUM_OF_RECENTS, "2147483647")
-                    .putString(PREF_SORT_ORDER, "true")
-                    .putBoolean(PREF_SHORTCUT_ICON, false)
-                    .putBoolean(PREF_ANDROID_X86_PREFS, true)
-                    .apply();
-        }
     }
 
     public static DisplayInfo getDisplayInfo(Context context) {
@@ -1763,19 +1705,6 @@ public class U {
                 : WindowManager.LayoutParams.TYPE_PHONE;
     }
 
-    public static boolean isDelegatingHomeActivity(Context context) {
-        Intent homeIntent = new Intent(Intent.ACTION_MAIN);
-        homeIntent.addCategory(Intent.CATEGORY_HOME);
-
-        final List<ResolveInfo> listOfLaunchers = context.getPackageManager().queryIntentActivities(homeIntent, 0);
-        for(ResolveInfo launcher : listOfLaunchers) {
-            if(launcher.activityInfo.packageName.equals(BuildConfig.SUPPORT_APPLICATION_ID))
-                return true;
-        }
-
-        return false;
-    }
-
     @SuppressLint("PrivateApi")
     public static String getSystemProperty(String key) {
         allowReflection();
@@ -1957,10 +1886,6 @@ public class U {
                 && !TaskbarPosition.isVertical(context);
     }
 
-    public static boolean isLibrary(Context context) {
-        return !context.getPackageName().equals(BuildConfig.APPLICATION_ID);
-    }
-
     public static boolean applyDisplayCutoutModeTo(WindowManager.LayoutParams params) {
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             params.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
@@ -1989,7 +1914,7 @@ public class U {
     }
 
     public static boolean isDesktopModeSupported(Context context) {
-        if(isLauncherPermanentlyEnabled(context) || isChromeOs(context) || isAndroidTV(context))
+        if(isChromeOs(context) || isAndroidTV(context))
             return false;
 
         return Build.VERSION.SDK_INT > Build.VERSION_CODES.P
@@ -2194,7 +2119,7 @@ public class U {
     }
 
     public static boolean isFavoriteAppTilesEnabled(Context context) {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && !isChromeOs(context) && !isLibrary(context);
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && !isChromeOs(context);
     }
 
     public static Intent getThemedIntent(Context context, Class<?> clazz) {
@@ -2248,8 +2173,6 @@ public class U {
     }
 
     public static boolean isFreeformModeEnabled(Context context) {
-        if(isLibrary(context)) return true;
-
         SharedPreferences pref = getSharedPreferences(context);
         return pref.getBoolean(PREF_DESKTOP_MODE, false) || pref.getBoolean(PREF_FREEFORM_HACK, false);
     }
@@ -2283,9 +2206,7 @@ public class U {
     }
 
     public static boolean isConsumerBuild(Context context) {
-        return !BuildConfig.DEBUG
-                && !context.getPackageName().equals(BuildConfig.ANDROIDX86_APPLICATION_ID)
-                && !isLibrary(context);
+        return !BuildConfig.DEBUG;
     }
 
     @TargetApi(Build.VERSION_CODES.P)
@@ -2348,8 +2269,6 @@ public class U {
     }
 
     public static boolean relaunchActivityIfNeeded(Activity activity) {
-        if(isLibrary(activity)) return false;
-
         Intent intent = activity.getIntent();
         if(getCurrentApiVersion() != 30.0f
                 || !displayDefaultsToFreeform(activity, getExternalDisplay(activity))

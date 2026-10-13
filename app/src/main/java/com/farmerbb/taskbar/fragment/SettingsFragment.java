@@ -65,9 +65,6 @@ public abstract class SettingsFragment extends PreferenceFragment implements Pre
 
         super.onCreate(savedInstanceState);
 
-        if(U.isLibrary(getActivity()))
-            getPreferenceManager().setSharedPreferencesName(BuildConfig.APPLICATION_ID + "_preferences");
-
         // Set values
         setRetainInstance(true);
         setHasOptionsMenu(true);
@@ -138,8 +135,6 @@ public abstract class SettingsFragment extends PreferenceFragment implements Pre
 
                 switch(preference.getKey()) {
                     case PREF_THEME:
-                        if(U.isLibrary(getActivity())) break;
-
                         // Restart MainActivity
                         Intent intent = new Intent(getActivity(), MainActivity.class);
                         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
