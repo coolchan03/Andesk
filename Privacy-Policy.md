@@ -41,4 +41,6 @@ Andesk is designed to run desktop overlays only during an explicitly opened desk
 
 ## Source and questions
 
-Repository: [coolchan03/Andesk](https://github.com/coolchan03/Andesk). Upstream project: [farmerbb/Taskbar](https://github.com/farmerbb/Taskbar).
+For a permission-by-permission explanation and Android Settings instructions, see the [Andesk README](README.md#permissions-and-special-access).
+
+Repository: [coolchan03/Andesk](https://github.com/coolchan03/Andesk). Report issues through the [Andesk issue tracker](https://github.com/coolchan03/Andesk/issues). Contributions: [CONTRIBUTING.md](CONTRIBUTING.md). Upstream project: [farmerbb/Taskbar](https://github.com/farmerbb/Taskbar).
