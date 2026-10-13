@@ -29,7 +29,6 @@
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="${applicationId}.START_STOP_TASKBAR" />
     <uses-permission-sdk-23 android:name="com.android.launcher.permission.INSTALL_SHORTCUT" />
-    <uses-permission-sdk-23 android:name="android.permission.GET_TASKS" />
     <uses-permission-sdk-23 android:name="android.permission.WRITE_SETTINGS" />
     <uses-permission-sdk-23 android:name="android.permission.WRITE_SECURE_SETTINGS" />
     <uses-permission-sdk-23 android:name="android.permission.SET_WALLPAPER_HINTS" />
@@ -37,8 +36,8 @@
     <uses-permission-sdk-23 android:name="android.permission.REQUEST_DELETE_PACKAGES" />
     <uses-permission-sdk-23 android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission-sdk-23 android:name="android.permission.ACCESS_WIFI_STATE" />
-    <uses-permission-sdk-23 android:name="android.permission.CHANGE_WIFI_STATE" />
-    <uses-permission-sdk-23 android:name="android.permission.BLUETOOTH" />
+    <uses-permission-sdk-23 android:name="android.permission.CHANGE_WIFI_STATE" android:maxSdkVersion="28" />
+    <uses-permission-sdk-23 android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30" />
     <uses-permission-sdk-23 android:name="android.permission.QUERY_ALL_PACKAGES" />
     <uses-permission-sdk-23 android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
@@ -64,7 +63,7 @@
         android:xlargeScreens="true"/>
 
     <application
-        android:allowBackup="true"
+        android:allowBackup="false"
         android:icon="@mipmap/andesk_launcher"
         android:label="${appName}"
         android:theme="@style/Taskbar"
