@@ -4,8 +4,8 @@ allprojects {
         VERSION_NAME = "0.1.0"
 
         MIN_SDK_VERSION = 21
-        COMPILE_SDK_VERSION = 34
-        TARGET_SDK_VERSION = 34
+        COMPILE_SDK_VERSION = 35
+        TARGET_SDK_VERSION = 35
 
         SUPPORT_V4_VERSION = "1.0.0"
         APPCOMPAT_VERSION = "1.7.0"
