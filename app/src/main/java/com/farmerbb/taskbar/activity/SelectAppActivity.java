@@ -20,7 +20,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.LauncherActivityInfo;
 import android.content.pm.LauncherApps;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.UserHandle;
@@ -47,6 +46,7 @@ import com.farmerbb.taskbar.util.Blacklist;
 import com.farmerbb.taskbar.util.BlacklistEntry;
 import com.farmerbb.taskbar.util.TopApps;
 import com.farmerbb.taskbar.util.U;
+import com.farmerbb.taskbar.util.CancelableAppListLoader;
 
 import java.text.Collator;
 import java.util.ArrayList;
@@ -57,7 +57,7 @@ import static com.farmerbb.taskbar.util.Constants.*;
 
 public class SelectAppActivity extends AppCompatActivity {
 
-    private AppListGenerator appListGenerator;
+    private final CancelableAppListLoader<AppListAdapter[]> appListGenerator = new CancelableAppListLoader<>();
     private ProgressBar progressBar;
     private AppListAdapter hiddenAdapter;
     private AppListAdapter topAppsAdapter;
@@ -96,6 +96,7 @@ public class SelectAppActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        U.applyActivityTheme(this, R.style.Taskbar_Dialog_Blacklist, R.style.Taskbar_Dialog_Blacklist_Dark);
         super.onCreate(savedInstanceState);
 
         boolean noShadow = getIntent().hasExtra("no_shadow");
@@ -122,8 +123,7 @@ public class SelectAppActivity extends AppCompatActivity {
             }
 
             progressBar = findViewById(R.id.progress_bar);
-            appListGenerator = new AppListGenerator();
-            appListGenerator.execute();
+            appListGenerator.start(this::generateAppList, this::onAppListReady);
         } else {
             // Workaround for ViewPager disappearing on config change
             finish();
@@ -138,8 +138,7 @@ public class SelectAppActivity extends AppCompatActivity {
 
     @Override
     public void finish() {
-        if(appListGenerator != null && appListGenerator.getStatus() == AsyncTask.Status.RUNNING)
-            appListGenerator.cancel(true);
+        appListGenerator.cancel();
 
         if(!isCollapsed) {
             U.sendBroadcast(this, ACTION_SHOW_TASKBAR);
@@ -159,113 +158,115 @@ public class SelectAppActivity extends AppCompatActivity {
         return null;
     }
 
-    private final class AppListGenerator extends AsyncTask<Void, Void, AppListAdapter[]> {
-        @SuppressWarnings("Convert2streamapi")
-        @Override
-        protected AppListAdapter[] doInBackground(Void... params) {
-            UserManager userManager = (UserManager) getSystemService(Context.USER_SERVICE);
-            LauncherApps launcherApps = (LauncherApps) getSystemService(Context.LAUNCHER_APPS_SERVICE);
+    @Override
+    protected void onDestroy() {
+        appListGenerator.cancel();
+        super.onDestroy();
+    }
 
-            final List<UserHandle> userHandles = userManager.getUserProfiles();
-            final List<LauncherActivityInfo> list = new ArrayList<>();
+    @SuppressWarnings("Convert2streamapi")
+    private AppListAdapter[] generateAppList() {
+        UserManager userManager = (UserManager) getSystemService(Context.USER_SERVICE);
+        LauncherApps launcherApps = (LauncherApps) getSystemService(Context.LAUNCHER_APPS_SERVICE);
 
-            for(UserHandle handle : userHandles) {
-                list.addAll(launcherApps.getActivityList(null, handle));
-            }
+        final List<UserHandle> userHandles = userManager.getUserProfiles();
+        final List<LauncherActivityInfo> list = new ArrayList<>();
 
-            // Remove any uninstalled apps from the blacklist and top apps
-            Blacklist blacklist = Blacklist.getInstance(SelectAppActivity.this);
-            TopApps topApps = TopApps.getInstance(SelectAppActivity.this);
-            List<String> blacklistedApps = new ArrayList<>();
-            List<String> topAppsList = new ArrayList<>();
-            List<String> installedApps = new ArrayList<>();
-
-            for(BlacklistEntry entry : blacklist.getBlockedApps()) {
-                blacklistedApps.add(entry.getPackageName());
-            }
-
-            for(BlacklistEntry entry : topApps.getTopApps()) {
-                topAppsList.add(entry.getPackageName());
-            }
-
-            for(LauncherActivityInfo appInfo : list) {
-                installedApps.add(appInfo.getApplicationInfo().packageName + "/" + appInfo.getName()
-                        + ":" + userManager.getSerialNumberForUser(appInfo.getUser()));
-                installedApps.add(appInfo.getApplicationInfo().packageName + "/" + appInfo.getName());
-                installedApps.add(appInfo.getName());
-            }
-
-            for(String packageName : blacklistedApps) {
-                if(!installedApps.contains(packageName))
-                    blacklist.removeBlockedApp(SelectAppActivity.this, packageName);
-            }
-
-            for(String packageName : topAppsList) {
-                if(!installedApps.contains(packageName))
-                    topApps.removeTopApp(SelectAppActivity.this, packageName);
-            }
-
-            Collections.sort(list, (ai1, ai2) -> {
-                String label1;
-                String label2;
-
-                try {
-                    label1 = ai1.getLabel().toString();
-                    label2 = ai2.getLabel().toString();
-                } catch (OutOfMemoryError e) {
-                    System.gc();
-
-                    label1 = ai1.getApplicationInfo().packageName;
-                    label2 = ai2.getApplicationInfo().packageName;
-                }
-
-                return Collator.getInstance().compare(label1, label2);
-            });
-
-            final List<BlacklistEntry> entries = new ArrayList<>();
-            for(LauncherActivityInfo appInfo : list) {
-                String label;
-
-                try {
-                    label = appInfo.getLabel().toString();
-                } catch (OutOfMemoryError e) {
-                    System.gc();
-
-                    label = appInfo.getApplicationInfo().packageName;
-                }
-
-                entries.add(new BlacklistEntry(
-                        appInfo.getApplicationInfo().packageName + "/" + appInfo.getName()
-                                + ":" + userManager.getSerialNumberForUser(appInfo.getUser()),
-                        label));
-            }
-
-            return new AppListAdapter[] {
-                    new AppListAdapter(SelectAppActivity.this, R.layout.tb_row_blacklist, entries, U.HIDDEN),
-                    new AppListAdapter(SelectAppActivity.this, R.layout.tb_row_blacklist, entries, U.TOP_APPS)
-            };
+        for(UserHandle handle : userHandles) {
+            list.addAll(launcherApps.getActivityList(null, handle));
         }
 
-        @Override
-        protected void onPostExecute(AppListAdapter[] adapters) {
-            hiddenAdapter = adapters[U.HIDDEN];
-            topAppsAdapter = adapters[U.TOP_APPS];
+        // Remove any uninstalled apps from the blacklist and top apps
+        Blacklist blacklist = Blacklist.getInstance(SelectAppActivity.this);
+        TopApps topApps = TopApps.getInstance(SelectAppActivity.this);
+        List<String> blacklistedApps = new ArrayList<>();
+        List<String> topAppsList = new ArrayList<>();
+        List<String> installedApps = new ArrayList<>();
 
-            SelectAppPagerAdapter pagerAdapter = new SelectAppPagerAdapter(getSupportFragmentManager());
-            ViewPager viewPager = findViewById(R.id.pager);
-            viewPager.setAdapter(pagerAdapter);
-
-            FrameLayout container = findViewById(R.id.inflate_tabs_here);
-            View tabLayout;
-
-            tabLayout = new TabLayout(SelectAppActivity.this);
-            ((TabLayout) tabLayout).setupWithViewPager(viewPager);
-
-            container.addView(tabLayout);
-
-            findViewById(R.id.configure_start_menu_layout).setVisibility(View.VISIBLE);
-            progressBar.setVisibility(View.GONE);
-            setFinishOnTouchOutside(true);
+        for(BlacklistEntry entry : blacklist.getBlockedApps()) {
+            blacklistedApps.add(entry.getPackageName());
         }
+
+        for(BlacklistEntry entry : topApps.getTopApps()) {
+            topAppsList.add(entry.getPackageName());
+        }
+
+        for(LauncherActivityInfo appInfo : list) {
+            installedApps.add(appInfo.getApplicationInfo().packageName + "/" + appInfo.getName()
+                    + ":" + userManager.getSerialNumberForUser(appInfo.getUser()));
+            installedApps.add(appInfo.getApplicationInfo().packageName + "/" + appInfo.getName());
+            installedApps.add(appInfo.getName());
+        }
+
+        for(String packageName : blacklistedApps) {
+            if(!installedApps.contains(packageName))
+                blacklist.removeBlockedApp(SelectAppActivity.this, packageName);
+        }
+
+        for(String packageName : topAppsList) {
+            if(!installedApps.contains(packageName))
+                topApps.removeTopApp(SelectAppActivity.this, packageName);
+        }
+
+        Collections.sort(list, (ai1, ai2) -> {
+            String label1;
+            String label2;
+
+            try {
+                label1 = ai1.getLabel().toString();
+                label2 = ai2.getLabel().toString();
+            } catch (OutOfMemoryError e) {
+                System.gc();
+
+                label1 = ai1.getApplicationInfo().packageName;
+                label2 = ai2.getApplicationInfo().packageName;
+            }
+
+            return Collator.getInstance().compare(label1, label2);
+        });
+
+        final List<BlacklistEntry> entries = new ArrayList<>();
+        for(LauncherActivityInfo appInfo : list) {
+            String label;
+
+            try {
+                label = appInfo.getLabel().toString();
+            } catch (OutOfMemoryError e) {
+                System.gc();
+
+                label = appInfo.getApplicationInfo().packageName;
+            }
+
+            entries.add(new BlacklistEntry(
+                    appInfo.getApplicationInfo().packageName + "/" + appInfo.getName()
+                            + ":" + userManager.getSerialNumberForUser(appInfo.getUser()),
+                    label));
+        }
+
+        return new AppListAdapter[] {
+                new AppListAdapter(SelectAppActivity.this, R.layout.tb_row_blacklist, entries, U.HIDDEN),
+                new AppListAdapter(SelectAppActivity.this, R.layout.tb_row_blacklist, entries, U.TOP_APPS)
+        };
+    }
+
+    private void onAppListReady(AppListAdapter[] adapters) {
+        hiddenAdapter = adapters[U.HIDDEN];
+        topAppsAdapter = adapters[U.TOP_APPS];
+
+        SelectAppPagerAdapter pagerAdapter = new SelectAppPagerAdapter(getSupportFragmentManager());
+        ViewPager viewPager = findViewById(R.id.pager);
+        viewPager.setAdapter(pagerAdapter);
+
+        FrameLayout container = findViewById(R.id.inflate_tabs_here);
+        View tabLayout;
+
+        tabLayout = new TabLayout(SelectAppActivity.this);
+        ((TabLayout) tabLayout).setupWithViewPager(viewPager);
+
+        container.addView(tabLayout);
+
+        findViewById(R.id.configure_start_menu_layout).setVisibility(View.VISIBLE);
+        progressBar.setVisibility(View.GONE);
+        setFinishOnTouchOutside(true);
     }
 }

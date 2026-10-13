@@ -126,6 +126,7 @@ public class AppearanceFragment extends SettingsFragment {
     @Override
     public void onResume() {
         super.onResume();
+        if(getActivity() == null) return;
 
         Preference iconPackListPref = findPreference(PREF_ICON_PACK_LIST);
         if(iconPackListPref != null) {
@@ -152,6 +153,7 @@ public class AppearanceFragment extends SettingsFragment {
 
     @Override
     public boolean onPreferenceClick(final Preference p) {
+        if(getActivity() == null) return false;
         final SharedPreferences pref = U.getSharedPreferences(getActivity());
 
         switch(p.getKey()) {

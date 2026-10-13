@@ -42,6 +42,7 @@ public abstract class EnableAdditionalSettingsActivityBase extends AppCompatActi
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        U.applyActivityTheme(this, R.style.Taskbar_Dialog_FullWidth, R.style.Taskbar_Dialog_FullWidth_Dark);
         super.onCreate(savedInstanceState);
         setTitle("");
 

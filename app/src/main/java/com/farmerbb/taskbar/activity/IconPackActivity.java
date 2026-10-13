@@ -20,7 +20,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -39,6 +38,7 @@ import com.farmerbb.taskbar.R;
 import com.farmerbb.taskbar.util.IconPack;
 import com.farmerbb.taskbar.util.IconPackManager;
 import com.farmerbb.taskbar.util.U;
+import com.farmerbb.taskbar.util.CancelableAppListLoader;
 
 import java.text.Collator;
 import java.util.ArrayList;
@@ -49,12 +49,13 @@ import static com.farmerbb.taskbar.util.Constants.*;
 
 public class IconPackActivity extends AppCompatActivity {
 
-    private AppListGenerator appListGenerator;
+    private final CancelableAppListLoader<AppListAdapter> appListGenerator = new CancelableAppListLoader<>();
     private ProgressBar progressBar;
     private ListView appList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        U.applyActivityTheme(this, R.style.Taskbar_Dialog_Blacklist, R.style.Taskbar_Dialog_Blacklist_Dark);
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.tb_select_app);
@@ -64,14 +65,12 @@ public class IconPackActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progress_bar);
         appList = findViewById(R.id.list);
 
-        appListGenerator = new AppListGenerator();
-        appListGenerator.execute();
+        appListGenerator.start(this::generateAppList, this::onAppListReady);
     }
 
     @Override
     public void finish() {
-        if(appListGenerator != null && appListGenerator.getStatus() == AsyncTask.Status.RUNNING)
-            appListGenerator.cancel(true);
+        appListGenerator.cancel();
 
         super.finish();
     }
@@ -140,38 +139,40 @@ public class IconPackActivity extends AppCompatActivity {
         }
     }
 
-    private final class AppListGenerator extends AsyncTask<Void, Void, AppListAdapter> {
-        @Override
-        protected AppListAdapter doInBackground(Void... params) {
-            List<IconPack> list = IconPackManager.getInstance().getAvailableIconPacks(IconPackActivity.this);
-            if(list.isEmpty())
-                return null;
-            else {
-                List<IconPack> finalList = new ArrayList<>();
-                IconPack dummyIconPack = new IconPack();
-                dummyIconPack.setPackageName(getPackageName());
-                dummyIconPack.setName(getString(R.string.tb_icon_pack_none));
+    @Override
+    protected void onDestroy() {
+        appListGenerator.cancel();
+        super.onDestroy();
+    }
 
-                Collections.sort(list, (ip1, ip2) -> Collator.getInstance().compare(ip1.getName(), ip2.getName()));
+    private AppListAdapter generateAppList() {
+        List<IconPack> list = IconPackManager.getInstance().getAvailableIconPacks(IconPackActivity.this);
+        if(list.isEmpty())
+            return null;
+        else {
+            List<IconPack> finalList = new ArrayList<>();
+            IconPack dummyIconPack = new IconPack();
+            dummyIconPack.setPackageName(getPackageName());
+            dummyIconPack.setName(getString(R.string.tb_icon_pack_none));
 
-                finalList.add(dummyIconPack);
-                finalList.addAll(list);
+            Collections.sort(list, (ip1, ip2) -> Collator.getInstance().compare(ip1.getName(), ip2.getName()));
 
-                return new AppListAdapter(IconPackActivity.this, R.layout.tb_row, finalList);
-            }
+            finalList.add(dummyIconPack);
+            finalList.addAll(list);
+
+            return new AppListAdapter(IconPackActivity.this, R.layout.tb_row, finalList);
         }
+    }
 
-        @Override
-        protected void onPostExecute(AppListAdapter adapter) {
-            if(adapter == null) {
-                U.showToast(IconPackActivity.this, R.string.tb_no_icon_packs_installed);
-                setResult(RESULT_CANCELED);
-                finish();
-            } else {
-                progressBar.setVisibility(View.GONE);
-                appList.setAdapter(adapter);
-                setFinishOnTouchOutside(true);
-            }
+    private void onAppListReady(AppListAdapter adapter) {
+        if(adapter == null) {
+            U.showToast(IconPackActivity.this, R.string.tb_no_icon_packs_installed);
+            setResult(RESULT_CANCELED);
+            finish();
+        } else {
+            progressBar.setVisibility(View.GONE);
+            appList.setAdapter(adapter);
+            setFinishOnTouchOutside(true);
         }
     }
 }

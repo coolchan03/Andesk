@@ -66,6 +66,7 @@ import androidx.annotation.VisibleForTesting;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.appcompat.view.ContextThemeWrapper;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Display;
 import android.view.View;
 import android.view.WindowManager;
@@ -985,7 +986,9 @@ public class U {
             try {
                 Method method = ActivityOptions.class.getMethod(getWindowingModeMethodName(), int.class);
                 method.invoke(options, stackId);
-            } catch (Exception ignored) {}
+            } catch (Exception e) {
+                Log.w("Andesk", "Unable to set application windowing mode", e);
+            }
         }
 
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -1320,7 +1323,9 @@ public class U {
             Runnable runnable = () -> {
                 try {
                     setOverscan(displayID, value.get());
-                } catch (Exception ignored) {}
+                } catch (Exception e) {
+                    Log.w("Andesk", "Unable to set navigation bar overscan", e);
+                }
             };
 
             if(delay == 0)
@@ -1339,7 +1344,9 @@ public class U {
                 Settings.Secure.putInt(context.getContentResolver(), "navigation_bar_visible", show ? 1 : 0);
             else
                 Settings.System.putInt(context.getContentResolver(), "navigation_bar_show", show ? 1 : 0);
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            Log.w("Andesk", "Unable to change navigation bar visibility", e);
+        }
     }
 
     public static boolean isShowHideNavbarSupported() {
@@ -2122,18 +2129,16 @@ public class U {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && !isChromeOs(context);
     }
 
+    /**
+     * Activity theme selection happens in onCreate before calling the superclass.
+     * Always launch the real activity class; no mirrored dark-theme activities are needed.
+     */
     public static Intent getThemedIntent(Context context, Class<?> clazz) {
-        Class<?> newClass;
+        return new Intent(context, clazz);
+    }
 
-        if(!isDarkTheme(context))
-            newClass = clazz;
-        else try {
-            newClass = Class.forName(clazz.getPackage().getName() + ".dark." + clazz.getSimpleName() + "Dark");
-        } catch (ClassNotFoundException | NullPointerException e) {
-            newClass = clazz;
-        }
-
-        return new Intent(context, newClass);
+    public static void applyActivityTheme(Activity activity, int lightStyle, int darkStyle) {
+        activity.setTheme(isDarkTheme(activity) ? darkStyle : lightStyle);
     }
 
     public static boolean isDarkTheme(Context context) {

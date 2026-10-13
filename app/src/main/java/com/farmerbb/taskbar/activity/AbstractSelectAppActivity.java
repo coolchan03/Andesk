@@ -20,7 +20,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.LauncherActivityInfo;
 import android.content.pm.LauncherApps;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.UserHandle;
@@ -36,6 +35,7 @@ import com.farmerbb.taskbar.adapter.DesktopIconAppListAdapter;
 import com.farmerbb.taskbar.util.AppEntry;
 import com.farmerbb.taskbar.util.IconCache;
 import com.farmerbb.taskbar.util.U;
+import com.farmerbb.taskbar.util.CancelableAppListLoader;
 
 import java.text.Collator;
 import java.util.ArrayList;
@@ -46,7 +46,7 @@ import static com.farmerbb.taskbar.util.Constants.*;
 
 public abstract class AbstractSelectAppActivity extends AppCompatActivity {
 
-    private DesktopIconAppListGenerator appListGenerator;
+    private final CancelableAppListLoader<DesktopIconAppListAdapter> appListGenerator = new CancelableAppListLoader<>();
     private ProgressBar progressBar;
     private ListView appList;
 
@@ -54,6 +54,7 @@ public abstract class AbstractSelectAppActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        U.applyActivityTheme(this, R.style.Taskbar_Dialog_Blacklist, R.style.Taskbar_Dialog_Blacklist_Dark);
         super.onCreate(savedInstanceState);
 
         boolean noShadow = getIntent().hasExtra("no_shadow");
@@ -81,15 +82,12 @@ public abstract class AbstractSelectAppActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progress_bar);
         appList = findViewById(R.id.list);
 
-        appListGenerator = new DesktopIconAppListGenerator();
-        appListGenerator.execute();
+        appListGenerator.start(this::generateAppList, this::onAppListReady);
     }
 
     @Override
     public void finish() {
-        if(appListGenerator != null && appListGenerator.getStatus() == AsyncTask.Status.RUNNING) {
-            appListGenerator.cancel(true);
-        }
+        appListGenerator.cancel();
 
         if(!isCollapsed) {
             U.sendBroadcast(this, ACTION_SHOW_TASKBAR);
@@ -99,60 +97,62 @@ public abstract class AbstractSelectAppActivity extends AppCompatActivity {
 
     public abstract void selectApp(AppEntry entry);
 
-    private final class DesktopIconAppListGenerator extends AsyncTask<Void, Void, DesktopIconAppListAdapter> {
-        @Override
-        protected DesktopIconAppListAdapter doInBackground(Void... params) {
-            UserManager userManager = (UserManager) getSystemService(Context.USER_SERVICE);
-            LauncherApps launcherApps = (LauncherApps) getSystemService(Context.LAUNCHER_APPS_SERVICE);
+    @Override
+    protected void onDestroy() {
+        appListGenerator.cancel();
+        super.onDestroy();
+    }
 
-            final List<UserHandle> userHandles = userManager.getUserProfiles();
-            final List<LauncherActivityInfo> info = new ArrayList<>();
+    private DesktopIconAppListAdapter generateAppList() {
+        UserManager userManager = (UserManager) getSystemService(Context.USER_SERVICE);
+        LauncherApps launcherApps = (LauncherApps) getSystemService(Context.LAUNCHER_APPS_SERVICE);
 
-            for(UserHandle handle : userHandles) {
-                info.addAll(launcherApps.getActivityList(null, handle));
-            }
+        final List<UserHandle> userHandles = userManager.getUserProfiles();
+        final List<LauncherActivityInfo> info = new ArrayList<>();
 
-            Collections.sort(info, (ai1, ai2) -> {
-                String label1;
-                String label2;
-
-                try {
-                    label1 = ai1.getLabel().toString();
-                    label2 = ai2.getLabel().toString();
-                } catch (OutOfMemoryError e) {
-                    System.gc();
-
-                    label1 = ai1.getApplicationInfo().packageName;
-                    label2 = ai2.getApplicationInfo().packageName;
-                }
-
-                return Collator.getInstance().compare(label1, label2);
-            });
-
-            final List<AppEntry> entries = new ArrayList<>();
-            for(LauncherActivityInfo appInfo : info) {
-                AppEntry entry = new AppEntry(
-                        appInfo.getApplicationInfo().packageName,
-                        new ComponentName(
-                                appInfo.getApplicationInfo().packageName,
-                                appInfo.getName()).flattenToString(),
-                        appInfo.getLabel().toString(),
-                        IconCache.getInstance(AbstractSelectAppActivity.this)
-                                .getIcon(AbstractSelectAppActivity.this, appInfo),
-                        false);
-
-                entry.setUserId(userManager.getSerialNumberForUser(appInfo.getUser()));
-                entries.add(entry);
-            }
-
-            return new DesktopIconAppListAdapter(AbstractSelectAppActivity.this, R.layout.tb_desktop_icon_row, entries);
+        for(UserHandle handle : userHandles) {
+            info.addAll(launcherApps.getActivityList(null, handle));
         }
 
-        @Override
-        protected void onPostExecute(DesktopIconAppListAdapter adapter) {
-            progressBar.setVisibility(View.GONE);
-            appList.setAdapter(adapter);
-            setFinishOnTouchOutside(true);
+        Collections.sort(info, (ai1, ai2) -> {
+            String label1;
+            String label2;
+
+            try {
+                label1 = ai1.getLabel().toString();
+                label2 = ai2.getLabel().toString();
+            } catch (OutOfMemoryError e) {
+                System.gc();
+
+                label1 = ai1.getApplicationInfo().packageName;
+                label2 = ai2.getApplicationInfo().packageName;
+            }
+
+            return Collator.getInstance().compare(label1, label2);
+        });
+
+        final List<AppEntry> entries = new ArrayList<>();
+        for(LauncherActivityInfo appInfo : info) {
+            AppEntry entry = new AppEntry(
+                    appInfo.getApplicationInfo().packageName,
+                    new ComponentName(
+                            appInfo.getApplicationInfo().packageName,
+                            appInfo.getName()).flattenToString(),
+                    appInfo.getLabel().toString(),
+                    IconCache.getInstance(AbstractSelectAppActivity.this)
+                            .getIcon(AbstractSelectAppActivity.this, appInfo),
+                    false);
+
+            entry.setUserId(userManager.getSerialNumberForUser(appInfo.getUser()));
+            entries.add(entry);
         }
+
+        return new DesktopIconAppListAdapter(AbstractSelectAppActivity.this, R.layout.tb_desktop_icon_row, entries);
+    }
+
+    private void onAppListReady(DesktopIconAppListAdapter adapter) {
+        progressBar.setVisibility(View.GONE);
+        appList.setAdapter(adapter);
+        setFinishOnTouchOutside(true);
     }
 }

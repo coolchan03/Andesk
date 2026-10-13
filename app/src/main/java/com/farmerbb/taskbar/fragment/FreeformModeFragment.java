@@ -44,6 +44,7 @@ public class FreeformModeFragment extends SettingsFragment {
         public void onReceive(Context context, Intent intent) {
             CheckBoxPreference preference = (CheckBoxPreference) findPreference(PREF_FREEFORM_HACK);
             if(preference != null) {
+                if(getActivity() == null) return;
                 SharedPreferences pref = U.getSharedPreferences(getActivity());
                 preference.setChecked(pref.getBoolean(PREF_FREEFORM_HACK, false));
             }
@@ -126,14 +127,16 @@ public class FreeformModeFragment extends SettingsFragment {
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
+        if(getActivity() != null)
+            U.unregisterReceiver(getActivity(), checkBoxReceiver);
 
-        U.unregisterReceiver(getActivity(), checkBoxReceiver);
+        super.onDestroy();
     }
 
     @TargetApi(Build.VERSION_CODES.N)
     @Override
     public boolean onPreferenceClick(final Preference p) {
+        if(getActivity() == null) return false;
         final SharedPreferences pref = U.getSharedPreferences(getActivity());
 
         switch(p.getKey()) {

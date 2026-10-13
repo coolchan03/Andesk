@@ -123,12 +123,6 @@
             android:launchMode="singleTask"
             android:theme="@style/Taskbar.Incognito"/>
         <activity
-            android:name=".activity.dark.InvisibleActivityAltDark"
-            android:documentLaunchMode="always"
-            android:excludeFromRecents="true"
-            android:launchMode="singleTask"
-            android:theme="@style/Taskbar.Incognito.Dark"/>
-        <activity
             android:name=".activity.InvisibleActivityFreeform"
             android:documentLaunchMode="always"
             android:excludeFromRecents="true"
@@ -176,22 +170,11 @@
             android:excludeFromRecents="true"
             android:theme="@style/Taskbar.Dialog"/>
         <activity
-            android:name=".activity.dark.ContextMenuActivityDark"
-            android:documentLaunchMode="always"
-            android:excludeFromRecents="true"
-            android:theme="@style/Taskbar.Dialog.Dark"/>
-        <activity
             android:name=".activity.SelectAppActivity"
             android:theme="@style/Taskbar.Dialog.Blacklist"/>
         <activity
-            android:name=".activity.dark.SelectAppActivityDark"
-            android:theme="@style/Taskbar.Dialog.Blacklist.Dark"/>
-        <activity
             android:name=".activity.DesktopIconSelectAppActivity"
             android:theme="@style/Taskbar.Dialog.Blacklist"/>
-        <activity
-            android:name=".activity.dark.DesktopIconSelectAppActivityDark"
-            android:theme="@style/Taskbar.Dialog.Blacklist.Dark"/>
         <activity
             android:name=".activity.DummyActivity"
             android:documentLaunchMode="always"
@@ -200,9 +183,6 @@
         <activity
             android:name=".activity.IconPackActivity"
             android:theme="@style/Taskbar.Dialog.Blacklist"/>
-        <activity
-            android:name=".activity.dark.IconPackActivityDark"
-            android:theme="@style/Taskbar.Dialog.Blacklist.Dark"/>
         <!-- Android shortcut creation entry point. -->
         <activity
             android:name=".activity.ShortcutActivity"
@@ -240,26 +220,14 @@
             android:name=".activity.ClearDataActivity"
             android:theme="@style/Taskbar.Dialog.Blacklist"/>
         <activity
-            android:name=".activity.dark.ClearDataActivityDark"
-            android:theme="@style/Taskbar.Dialog.Blacklist.Dark"/>
-        <activity
             android:name=".activity.DashboardActivity"
             android:documentLaunchMode="always"
             android:excludeFromRecents="true"
             android:launchMode="singleTask"
             android:theme="@style/Taskbar.Incognito"/>
         <activity
-            android:name=".activity.dark.DashboardActivityDark"
-            android:documentLaunchMode="always"
-            android:excludeFromRecents="true"
-            android:launchMode="singleTask"
-            android:theme="@style/Taskbar.Incognito.Dark"/>
-        <activity
             android:name=".activity.NavigationBarButtonsActivity"
             android:theme="@style/Taskbar.Dialog.Preference"/>
-        <activity
-            android:name=".activity.dark.NavigationBarButtonsActivityDark"
-            android:theme="@style/Taskbar.Dialog.Preference.Dark"/>
         <activity
             android:name=".activity.TouchAbsorberActivity"
             android:documentLaunchMode="always"
@@ -282,12 +250,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".activity.dark.PersistentShortcutSelectAppActivityDark"
-            android:label="@string/tb_new_shortcut"
-            android:excludeFromRecents="true"
-            android:launchMode="singleInstance"
-            android:theme="@style/Taskbar.Dialog.Blacklist.Dark"/>
         <!-- Android shortcut launch entry point. -->
         <activity
             android:name=".activity.PersistentShortcutLaunchActivity"
@@ -311,9 +273,6 @@
         <activity
             android:name=".activity.EnableAdditionalSettingsActivity"
             android:theme="@style/Taskbar.Dialog.FullWidth"/>
-        <activity
-            android:name=".activity.dark.EnableAdditionalSettingsActivityDark"
-            android:theme="@style/Taskbar.Dialog.FullWidth.Dark"/>
 
         <!-- TaskbarService receives task-removal callbacks and only shuts
              the session down when the removed task is DesktopLauncherActivity. -->

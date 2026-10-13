@@ -119,6 +119,7 @@ public class DesktopModeFragment extends SettingsFragment {
     @Override
     public void onResume() {
         super.onResume();
+        if(getActivity() == null) return;
 
         if(updateAdditionalSettings) {
             updateAdditionalSettings = false;
@@ -171,14 +172,17 @@ public class DesktopModeFragment extends SettingsFragment {
 
     @Override
     public void onDestroy() {
-        DisplayManager manager = (DisplayManager) getActivity().getSystemService(Context.DISPLAY_SERVICE);
-        manager.unregisterDisplayListener(listener);
+        if(getActivity() != null) {
+            DisplayManager manager = (DisplayManager) getActivity().getSystemService(Context.DISPLAY_SERVICE);
+            if(manager != null) manager.unregisterDisplayListener(listener);
+        }
 
         super.onDestroy();
     }
 
     @Override
     public boolean onPreferenceClick(final Preference p) {
+        if(getActivity() == null) return false;
         switch(p.getKey()) {
             case PREF_DESKTOP_MODE:
                 boolean isChecked = ((CheckBoxPreference) p).isChecked();
@@ -262,6 +266,7 @@ public class DesktopModeFragment extends SettingsFragment {
     }
 
     private void updateAdditionalSettings() {
+        if(getActivity() == null) return;
         SharedPreferences pref = U.getSharedPreferences(getActivity());
         updateAdditionalSettings(pref.getBoolean(PREF_DESKTOP_MODE, false));
     }

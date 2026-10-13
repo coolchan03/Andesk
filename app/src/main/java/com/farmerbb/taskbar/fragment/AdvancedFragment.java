@@ -56,6 +56,7 @@ public class AdvancedFragment extends SettingsFragment {
     private final BroadcastReceiver homeToggleReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+            if(getActivity() == null) return;
             SharedPreferences pref = U.getSharedPreferences(getActivity());
             CheckBoxPreference checkBox = (CheckBoxPreference) findPreference(PREF_LAUNCHER);
             if(checkBox != null)
@@ -146,7 +147,8 @@ public class AdvancedFragment extends SettingsFragment {
 
     @Override
     public void onDetach() {
-        U.unregisterReceiver(getActivity(), homeToggleReceiver);
+        if(getActivity() != null)
+            U.unregisterReceiver(getActivity(), homeToggleReceiver);
 
         super.onDetach();
     }
@@ -155,6 +157,7 @@ public class AdvancedFragment extends SettingsFragment {
     @SuppressWarnings("deprecation")
     @Override
     public boolean onPreferenceClick(final Preference p) {
+        if(getActivity() == null) return false;
         final SharedPreferences pref = U.getSharedPreferences(getActivity());
 
         switch(p.getKey()) {
@@ -251,8 +254,9 @@ public class AdvancedFragment extends SettingsFragment {
                 dialog.show();
 
                 U.newHandler().post(() -> {
+                    if(getActivity() == null) return;
                     InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-                    imm.showSoftInput(editText2, InputMethodManager.SHOW_IMPLICIT);
+                    if(imm != null) imm.showSoftInput(editText2, InputMethodManager.SHOW_IMPLICIT);
                 });
 
                 break;
@@ -289,6 +293,7 @@ public class AdvancedFragment extends SettingsFragment {
     }
 
     private void updateDashboardGridSize(boolean restartTaskbar) {
+        if(getActivity() == null) return;
         int width = U.getIntPrefWithDefault(getActivity(), PREF_DASHBOARD_WIDTH);
         int height = U.getIntPrefWithDefault(getActivity(), PREF_DASHBOARD_HEIGHT);
 
