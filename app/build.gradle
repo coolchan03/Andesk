@@ -21,13 +21,12 @@ jacocoAndroidUnitTestReport {
 
 repositories {
     google()
-    maven { url "https://jitpack.io" }
 }
 
 spotless {
     kotlin {
         target '**/*.kt'
-        ktlint()userData(['max_line_length': '100'])
+        ktlint().userData(['max_line_length': '100'])
     }
 }
 
@@ -111,8 +110,9 @@ android {
         }
     }
     
-    lintOptions {
-        abortOnError false
+    lint {
+        abortOnError true
+        baseline = file("lint-baseline.xml")
     }
 
     testOptions {
