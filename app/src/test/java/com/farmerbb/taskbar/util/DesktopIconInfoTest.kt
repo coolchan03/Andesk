@@ -29,11 +29,11 @@ class DesktopIconInfoTest {
         val icon = context.resources.getDrawable(R.drawable.tb_apps)
         val componentName = ComponentName(context, MainActivity::class.java)
         appEntry = AppEntry(
-                packageName,
-                componentName.flattenToString(),
-                packageName,
-                icon,
-                false
+            packageName,
+            componentName.flattenToString(),
+            packageName,
+            icon,
+            false,
         )
         desktopIconInfo = DesktopIconInfo(defaultColumn, defaultRow, appEntry)
     }
@@ -47,7 +47,8 @@ class DesktopIconInfoTest {
     @Test
     fun testSerializable() {
         val newDesktopIconInfo = SerializationUtils.deserialize<DesktopIconInfo>(
-                SerializationUtils.serialize(desktopIconInfo))
+            SerializationUtils.serialize(desktopIconInfo),
+        )
         testNewDesktopIconInfo(newDesktopIconInfo)
     }
 
@@ -56,16 +57,16 @@ class DesktopIconInfoTest {
         Assert.assertEquals(desktopIconInfo.column.toLong(), newDesktopIconInfo.column.toLong())
         Assert.assertEquals(desktopIconInfo.row.toLong(), newDesktopIconInfo.row.toLong())
         Assert.assertEquals(
-                desktopIconInfo.entry.componentName,
-                newDesktopIconInfo.entry.componentName
+            desktopIconInfo.entry.componentName,
+            newDesktopIconInfo.entry.componentName,
         )
         Assert.assertEquals(
-                desktopIconInfo.entry.packageName,
-                newDesktopIconInfo.entry.packageName
+            desktopIconInfo.entry.packageName,
+            newDesktopIconInfo.entry.packageName,
         )
         Assert.assertEquals(
-                desktopIconInfo.entry.label,
-                newDesktopIconInfo.entry.label
+            desktopIconInfo.entry.label,
+            newDesktopIconInfo.entry.label,
         )
         Assert.assertNotNull(ReflectionHelpers.getField(desktopIconInfo.entry, "icon"))
         Assert.assertNull(ReflectionHelpers.getField(newDesktopIconInfo.entry, "icon"))

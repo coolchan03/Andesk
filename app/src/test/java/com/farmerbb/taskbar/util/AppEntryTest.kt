@@ -27,11 +27,11 @@ class AppEntryTest {
         componentName = ComponentName(context, MainActivity::class.java)
         icon = context.resources.getDrawable(R.drawable.tb_apps)
         appEntry = AppEntry(
-                context.packageName,
-                componentName.flattenToString(),
-                context.packageName,
-                icon,
-                true
+            context.packageName,
+            componentName.flattenToString(),
+            context.packageName,
+            icon,
+            true,
         )
     }
 

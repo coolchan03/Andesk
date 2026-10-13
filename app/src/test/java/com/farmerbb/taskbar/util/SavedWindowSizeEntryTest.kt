@@ -23,7 +23,8 @@ class SavedWindowSizeEntryTest {
     @Test
     fun testSerializable() {
         val newEntry = SerializationUtils.deserialize<SavedWindowSizesEntry>(
-                SerializationUtils.serialize(entry))
+            SerializationUtils.serialize(entry),
+        )
         Assert.assertEquals(entry.componentName, newEntry.componentName)
         Assert.assertEquals(entry.windowSize, newEntry.windowSize)
     }

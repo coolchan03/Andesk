@@ -62,7 +62,8 @@ class BlacklistTest {
     fun testSerializable() {
         blacklist.addBlockedApp(context, entry)
         val newBlacklist = SerializationUtils.deserialize<Blacklist>(
-                SerializationUtils.serialize(blacklist))
+            SerializationUtils.serialize(blacklist),
+        )
         Assert.assertTrue(newBlacklist.isBlocked(context.packageName))
     }
 }

@@ -82,15 +82,15 @@ class UIControllerTest {
         val shadowService = Shadows.shadowOf(hostService)
         Assert.assertTrue(shadowService.isStoppedBySelf)
         Assert.assertFalse(
-                U.getSharedPreferences(context).getBoolean(Constants.PREF_TASKBAR_ACTIVE, true)
+            U.getSharedPreferences(context).getBoolean(Constants.PREF_TASKBAR_ACTIVE, true),
         )
     }
 
     private fun setTaskbarActive(active: Boolean) {
         U.getSharedPreferences(context)
-                .edit()
-                .putBoolean(Constants.PREF_TASKBAR_ACTIVE, active)
-                .apply()
+            .edit()
+            .putBoolean(Constants.PREF_TASKBAR_ACTIVE, active)
+            .apply()
     }
 
     private class TestRunnable : Runnable {

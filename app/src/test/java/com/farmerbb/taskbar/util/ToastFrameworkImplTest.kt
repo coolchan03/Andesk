@@ -32,13 +32,16 @@ class ToastFrameworkImplTest {
         Assert.assertEquals(message, ShadowToast.getTextOfLatestToast())
         val toast = ShadowToast.getLatestToast()
         Assert.assertEquals(length.toLong(), toast.duration.toLong())
-        Assert.assertEquals((Gravity.BOTTOM or Gravity.CENTER_VERTICAL).toLong(),
-                toast.gravity.toLong())
+        Assert.assertEquals(
+            (Gravity.BOTTOM or Gravity.CENTER_VERTICAL).toLong(),
+            toast.gravity.toLong(),
+        )
         Assert.assertEquals(0, toast.xOffset.toLong())
         Assert.assertEquals(
-                context.resources.getDimensionPixelSize(R.dimen.tb_toast_y_offset).toLong(),
-                toast.yOffset
-                        .toLong())
+            context.resources.getDimensionPixelSize(R.dimen.tb_toast_y_offset).toLong(),
+            toast.yOffset
+                .toLong(),
+        )
     }
 
     @Test

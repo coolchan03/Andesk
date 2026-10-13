@@ -37,8 +37,9 @@ class StartReceiverTest {
         val activityIntent = Shadows.shadowOf(application).peekNextStartedActivity()
         Assert.assertNotNull(activityIntent)
         Assert.assertEquals(
-                DesktopLauncherActivity::class.java.name,
-                activityIntent.component?.className)
+            DesktopLauncherActivity::class.java.name,
+            activityIntent.component?.className,
+        )
         Assert.assertNull(Shadows.shadowOf(application).peekNextStartedService())
     }
 
@@ -51,8 +52,9 @@ class StartReceiverTest {
         val activityIntent = Shadows.shadowOf(application).peekNextStartedActivity()
         Assert.assertNotNull(activityIntent)
         Assert.assertEquals(
-                DesktopLauncherActivity::class.java.name,
-                activityIntent.component?.className)
+            DesktopLauncherActivity::class.java.name,
+            activityIntent.component?.className,
+        )
         Assert.assertNull(Shadows.shadowOf(application).peekNextStartedService())
     }
 

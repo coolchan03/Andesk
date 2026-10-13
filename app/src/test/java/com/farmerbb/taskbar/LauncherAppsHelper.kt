@@ -12,16 +12,14 @@ object LauncherAppsHelper {
     fun generateTestLauncherActivityInfo(
         context: Context,
         activityInfo: ActivityInfo,
-        userHandleId: Int
-    ): LauncherActivityInfo {
-        return ReflectionHelpers.callConstructor(
-                LauncherActivityInfo::class.java,
-                ClassParameter.from(Context::class.java, context),
-                ClassParameter.from(ActivityInfo::class.java, activityInfo),
-                ClassParameter.from(
-                        UserHandle::class.java,
-                        UserHandle.getUserHandleForUid(userHandleId)
-                )
-        )
-    }
+        userHandleId: Int,
+    ): LauncherActivityInfo = ReflectionHelpers.callConstructor(
+        LauncherActivityInfo::class.java,
+        ClassParameter.from(Context::class.java, context),
+        ClassParameter.from(ActivityInfo::class.java, activityInfo),
+        ClassParameter.from(
+            UserHandle::class.java,
+            UserHandle.getUserHandleForUid(userHandleId),
+        ),
+    )
 }

@@ -34,8 +34,8 @@ class ShowHideTaskbarReceiverTest {
         taskbarIntent = Intent(context, TaskbarService::class.java)
         prefs = U.getSharedPreferences(context)
         prefs.edit()
-                .putBoolean(Constants.PREF_DESKTOP_SESSION_ACTIVE, true)
-                .apply()
+            .putBoolean(Constants.PREF_DESKTOP_SESSION_ACTIVE, true)
+            .apply()
         LauncherHelper.getInstance().setDesktopLauncherOpen(true)
         showHideTaskbarReceiver = ShowHideTaskbarReceiver()
     }
@@ -44,9 +44,9 @@ class ShowHideTaskbarReceiverTest {
     fun tearDown() {
         LauncherHelper.getInstance().setDesktopLauncherOpen(false)
         prefs.edit()
-                .remove(Constants.PREF_DESKTOP_SESSION_ACTIVE)
-                .remove(Constants.PREF_TASKBAR_ACTIVE)
-                .apply()
+            .remove(Constants.PREF_DESKTOP_SESSION_ACTIVE)
+            .remove(Constants.PREF_TASKBAR_ACTIVE)
+            .apply()
     }
 
     @Test
@@ -76,9 +76,9 @@ class ShowHideTaskbarReceiverTest {
     fun testStaleDesktopSessionCannotRestartTaskbar() {
         val intent = Intent(Constants.ACTION_SHOW_HIDE_TASKBAR)
         prefs.edit()
-                .putBoolean(Constants.PREF_DESKTOP_SESSION_ACTIVE, true)
-                .putBoolean(Constants.PREF_TASKBAR_ACTIVE, true)
-                .apply()
+            .putBoolean(Constants.PREF_DESKTOP_SESSION_ACTIVE, true)
+            .putBoolean(Constants.PREF_TASKBAR_ACTIVE, true)
+            .apply()
         LauncherHelper.getInstance().setDesktopLauncherOpen(false)
         Shadows.shadowOf(application).clearStartedServices()
 
@@ -94,10 +94,10 @@ class ShowHideTaskbarReceiverTest {
         val intent = Intent(Constants.ACTION_SHOW_HIDE_TASKBAR)
         ShadowSettings.setCanDrawOverlays(true)
         prefs.edit()
-                .putBoolean(Constants.PREF_TASKBAR_ACTIVE, true)
-                .putBoolean(Constants.PREF_IS_HIDDEN, true)
-                .putBoolean(Constants.PREF_COLLAPSED, true)
-                .apply()
+            .putBoolean(Constants.PREF_TASKBAR_ACTIVE, true)
+            .putBoolean(Constants.PREF_IS_HIDDEN, true)
+            .putBoolean(Constants.PREF_COLLAPSED, true)
+            .apply()
         Shadows.shadowOf(application).clearStartedServices()
 
         showHideTaskbarReceiver.onReceive(context, intent)

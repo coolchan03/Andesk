@@ -37,9 +37,9 @@ class BootReceiverTest {
         intent = Intent(Intent.ACTION_BOOT_COMPLETED)
         prefs = U.getSharedPreferences(context)
         prefs.edit()
-                .remove(Constants.PREF_DESKTOP_SESSION_ACTIVE)
-                .remove(Constants.PREF_TASKBAR_ACTIVE)
-                .apply()
+            .remove(Constants.PREF_DESKTOP_SESSION_ACTIVE)
+            .remove(Constants.PREF_TASKBAR_ACTIVE)
+            .apply()
     }
 
     @After
@@ -92,10 +92,10 @@ class BootReceiverTest {
     @Test
     fun testBootNeverRestoresDesktopSession() {
         prefs.edit()
-                .putBoolean(Constants.PREF_START_ON_BOOT, true)
-                .putBoolean(Constants.PREF_TASKBAR_ACTIVE, true)
-                .putBoolean(Constants.PREF_DESKTOP_SESSION_ACTIVE, true)
-                .apply()
+            .putBoolean(Constants.PREF_START_ON_BOOT, true)
+            .putBoolean(Constants.PREF_TASKBAR_ACTIVE, true)
+            .putBoolean(Constants.PREF_DESKTOP_SESSION_ACTIVE, true)
+            .apply()
 
         bootReceiver.onReceive(context, intent)
 

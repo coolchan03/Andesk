@@ -4,13 +4,13 @@ import android.content.Context
 import android.view.Surface
 import android.view.WindowManager
 import androidx.test.core.app.ApplicationProvider
-import java.util.function.Predicate
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows
+import java.util.function.Predicate
 
 @RunWith(RobolectricTestRunner::class)
 class TaskbarPositionTest {
@@ -37,44 +37,44 @@ class TaskbarPositionTest {
     @Test
     fun testIsVerticalWithContext() {
         checkTaskbarPositionGroup(
-                Constants.POSITION_BOTTOM_LEFT,
-                { context: Context? -> TaskbarPosition.isVertical(context) },
-                false
+            Constants.POSITION_BOTTOM_LEFT,
+            { context: Context? -> TaskbarPosition.isVertical(context) },
+            false,
         )
         checkTaskbarPositionGroup(
-                Constants.POSITION_BOTTOM_RIGHT,
-                { context: Context? -> TaskbarPosition.isVertical(context) },
-                false
+            Constants.POSITION_BOTTOM_RIGHT,
+            { context: Context? -> TaskbarPosition.isVertical(context) },
+            false,
         )
         checkTaskbarPositionGroup(
-                Constants.POSITION_BOTTOM_VERTICAL_LEFT,
-                { context: Context? -> TaskbarPosition.isVertical(context) },
-                true
+            Constants.POSITION_BOTTOM_VERTICAL_LEFT,
+            { context: Context? -> TaskbarPosition.isVertical(context) },
+            true,
         )
         checkTaskbarPositionGroup(
-                Constants.POSITION_BOTTOM_VERTICAL_RIGHT,
-                { context: Context? -> TaskbarPosition.isVertical(context) },
-                true
+            Constants.POSITION_BOTTOM_VERTICAL_RIGHT,
+            { context: Context? -> TaskbarPosition.isVertical(context) },
+            true,
         )
         checkTaskbarPositionGroup(
-                Constants.POSITION_TOP_LEFT,
-                { context: Context? -> TaskbarPosition.isVertical(context) },
-                false
+            Constants.POSITION_TOP_LEFT,
+            { context: Context? -> TaskbarPosition.isVertical(context) },
+            false,
         )
         checkTaskbarPositionGroup(
-                Constants.POSITION_TOP_RIGHT,
-                { context: Context? -> TaskbarPosition.isVertical(context) },
-                false
+            Constants.POSITION_TOP_RIGHT,
+            { context: Context? -> TaskbarPosition.isVertical(context) },
+            false,
         )
         checkTaskbarPositionGroup(
-                Constants.POSITION_TOP_VERTICAL_LEFT,
-                { context: Context? -> TaskbarPosition.isVertical(context) },
-                true
+            Constants.POSITION_TOP_VERTICAL_LEFT,
+            { context: Context? -> TaskbarPosition.isVertical(context) },
+            true,
         )
         checkTaskbarPositionGroup(
-                Constants.POSITION_TOP_VERTICAL_RIGHT,
-                { context: Context? -> TaskbarPosition.isVertical(context) },
-                true
+            Constants.POSITION_TOP_VERTICAL_RIGHT,
+            { context: Context? -> TaskbarPosition.isVertical(context) },
+            true,
         )
     }
 
@@ -93,44 +93,44 @@ class TaskbarPositionTest {
     @Test
     fun testIsLeftWithContext() {
         checkTaskbarPositionGroup(
-                Constants.POSITION_BOTTOM_LEFT,
-                { context: Context? -> TaskbarPosition.isLeft(context) },
-                true
+            Constants.POSITION_BOTTOM_LEFT,
+            { context: Context? -> TaskbarPosition.isLeft(context) },
+            true,
         )
         checkTaskbarPositionGroup(
-                Constants.POSITION_BOTTOM_RIGHT,
-                { context: Context? -> TaskbarPosition.isLeft(context) },
-                false
+            Constants.POSITION_BOTTOM_RIGHT,
+            { context: Context? -> TaskbarPosition.isLeft(context) },
+            false,
         )
         checkTaskbarPositionGroup(
-                Constants.POSITION_BOTTOM_VERTICAL_LEFT,
-                { context: Context? -> TaskbarPosition.isLeft(context) },
-                true
+            Constants.POSITION_BOTTOM_VERTICAL_LEFT,
+            { context: Context? -> TaskbarPosition.isLeft(context) },
+            true,
         )
         checkTaskbarPositionGroup(
-                Constants.POSITION_BOTTOM_VERTICAL_RIGHT,
-                { context: Context? -> TaskbarPosition.isLeft(context) },
-                false
+            Constants.POSITION_BOTTOM_VERTICAL_RIGHT,
+            { context: Context? -> TaskbarPosition.isLeft(context) },
+            false,
         )
         checkTaskbarPositionGroup(
-                Constants.POSITION_TOP_LEFT,
-                { context: Context? -> TaskbarPosition.isLeft(context) },
-                true
+            Constants.POSITION_TOP_LEFT,
+            { context: Context? -> TaskbarPosition.isLeft(context) },
+            true,
         )
         checkTaskbarPositionGroup(
-                Constants.POSITION_TOP_RIGHT,
-                { context: Context? -> TaskbarPosition.isLeft(context) },
-                false
+            Constants.POSITION_TOP_RIGHT,
+            { context: Context? -> TaskbarPosition.isLeft(context) },
+            false,
         )
         checkTaskbarPositionGroup(
-                Constants.POSITION_TOP_VERTICAL_LEFT,
-                { context: Context? -> TaskbarPosition.isLeft(context) },
-                true
+            Constants.POSITION_TOP_VERTICAL_LEFT,
+            { context: Context? -> TaskbarPosition.isLeft(context) },
+            true,
         )
         checkTaskbarPositionGroup(
-                Constants.POSITION_TOP_VERTICAL_RIGHT,
-                { context: Context? -> TaskbarPosition.isLeft(context) },
-                false
+            Constants.POSITION_TOP_VERTICAL_RIGHT,
+            { context: Context? -> TaskbarPosition.isLeft(context) },
+            false,
         )
     }
 
@@ -149,44 +149,44 @@ class TaskbarPositionTest {
     @Test
     fun testIsRightWithContext() {
         checkTaskbarPositionGroup(
-                Constants.POSITION_BOTTOM_LEFT,
-                { context: Context? -> TaskbarPosition.isRight(context) },
-                false
+            Constants.POSITION_BOTTOM_LEFT,
+            { context: Context? -> TaskbarPosition.isRight(context) },
+            false,
         )
         checkTaskbarPositionGroup(
-                Constants.POSITION_BOTTOM_RIGHT,
-                { context: Context? -> TaskbarPosition.isRight(context) },
-                true
+            Constants.POSITION_BOTTOM_RIGHT,
+            { context: Context? -> TaskbarPosition.isRight(context) },
+            true,
         )
         checkTaskbarPositionGroup(
-                Constants.POSITION_BOTTOM_VERTICAL_LEFT,
-                { context: Context? -> TaskbarPosition.isRight(context) },
-                false
+            Constants.POSITION_BOTTOM_VERTICAL_LEFT,
+            { context: Context? -> TaskbarPosition.isRight(context) },
+            false,
         )
         checkTaskbarPositionGroup(
-                Constants.POSITION_BOTTOM_VERTICAL_RIGHT,
-                { context: Context? -> TaskbarPosition.isRight(context) },
-                true
+            Constants.POSITION_BOTTOM_VERTICAL_RIGHT,
+            { context: Context? -> TaskbarPosition.isRight(context) },
+            true,
         )
         checkTaskbarPositionGroup(
-                Constants.POSITION_TOP_LEFT,
-                { context: Context? -> TaskbarPosition.isRight(context) },
-                false
+            Constants.POSITION_TOP_LEFT,
+            { context: Context? -> TaskbarPosition.isRight(context) },
+            false,
         )
         checkTaskbarPositionGroup(
-                Constants.POSITION_TOP_RIGHT,
-                { context: Context? -> TaskbarPosition.isRight(context) },
-                true
+            Constants.POSITION_TOP_RIGHT,
+            { context: Context? -> TaskbarPosition.isRight(context) },
+            true,
         )
         checkTaskbarPositionGroup(
-                Constants.POSITION_TOP_VERTICAL_LEFT,
-                { context: Context? -> TaskbarPosition.isRight(context) },
-                false
+            Constants.POSITION_TOP_VERTICAL_LEFT,
+            { context: Context? -> TaskbarPosition.isRight(context) },
+            false,
         )
         checkTaskbarPositionGroup(
-                Constants.POSITION_TOP_VERTICAL_RIGHT,
-                { context: Context? -> TaskbarPosition.isRight(context) },
-                true
+            Constants.POSITION_TOP_VERTICAL_RIGHT,
+            { context: Context? -> TaskbarPosition.isRight(context) },
+            true,
         )
     }
 
@@ -205,44 +205,44 @@ class TaskbarPositionTest {
     @Test
     fun testIsBottomWithContext() {
         checkTaskbarPositionGroup(
-                Constants.POSITION_BOTTOM_LEFT,
-                { context: Context? -> TaskbarPosition.isBottom(context) },
-                true
+            Constants.POSITION_BOTTOM_LEFT,
+            { context: Context? -> TaskbarPosition.isBottom(context) },
+            true,
         )
         checkTaskbarPositionGroup(
-                Constants.POSITION_BOTTOM_RIGHT,
-                { context: Context? -> TaskbarPosition.isBottom(context) },
-                true
+            Constants.POSITION_BOTTOM_RIGHT,
+            { context: Context? -> TaskbarPosition.isBottom(context) },
+            true,
         )
         checkTaskbarPositionGroup(
-                Constants.POSITION_BOTTOM_VERTICAL_LEFT,
-                { context: Context? -> TaskbarPosition.isBottom(context) },
-                true
+            Constants.POSITION_BOTTOM_VERTICAL_LEFT,
+            { context: Context? -> TaskbarPosition.isBottom(context) },
+            true,
         )
         checkTaskbarPositionGroup(
-                Constants.POSITION_BOTTOM_VERTICAL_RIGHT,
-                { context: Context? -> TaskbarPosition.isBottom(context) },
-                true
+            Constants.POSITION_BOTTOM_VERTICAL_RIGHT,
+            { context: Context? -> TaskbarPosition.isBottom(context) },
+            true,
         )
         checkTaskbarPositionGroup(
-                Constants.POSITION_TOP_LEFT,
-                { context: Context? -> TaskbarPosition.isBottom(context) },
-                false
+            Constants.POSITION_TOP_LEFT,
+            { context: Context? -> TaskbarPosition.isBottom(context) },
+            false,
         )
         checkTaskbarPositionGroup(
-                Constants.POSITION_TOP_RIGHT,
-                { context: Context? -> TaskbarPosition.isBottom(context) },
-                false
+            Constants.POSITION_TOP_RIGHT,
+            { context: Context? -> TaskbarPosition.isBottom(context) },
+            false,
         )
         checkTaskbarPositionGroup(
-                Constants.POSITION_TOP_VERTICAL_LEFT,
-                { context: Context? -> TaskbarPosition.isBottom(context) },
-                false
+            Constants.POSITION_TOP_VERTICAL_LEFT,
+            { context: Context? -> TaskbarPosition.isBottom(context) },
+            false,
         )
         checkTaskbarPositionGroup(
-                Constants.POSITION_TOP_VERTICAL_RIGHT,
-                { context: Context? -> TaskbarPosition.isBottom(context) },
-                false
+            Constants.POSITION_TOP_VERTICAL_RIGHT,
+            { context: Context? -> TaskbarPosition.isBottom(context) },
+            false,
         )
     }
 
@@ -261,44 +261,44 @@ class TaskbarPositionTest {
     @Test
     fun testIsVerticalLeftWithContext() {
         checkTaskbarPositionGroup(
-                Constants.POSITION_BOTTOM_LEFT,
-                { context: Context? -> TaskbarPosition.isVerticalLeft(context) },
-                false
+            Constants.POSITION_BOTTOM_LEFT,
+            { context: Context? -> TaskbarPosition.isVerticalLeft(context) },
+            false,
         )
         checkTaskbarPositionGroup(
-                Constants.POSITION_BOTTOM_RIGHT,
-                { context: Context? -> TaskbarPosition.isVerticalLeft(context) },
-                false
+            Constants.POSITION_BOTTOM_RIGHT,
+            { context: Context? -> TaskbarPosition.isVerticalLeft(context) },
+            false,
         )
         checkTaskbarPositionGroup(
-                Constants.POSITION_BOTTOM_VERTICAL_LEFT,
-                { context: Context? -> TaskbarPosition.isVerticalLeft(context) },
-                true
+            Constants.POSITION_BOTTOM_VERTICAL_LEFT,
+            { context: Context? -> TaskbarPosition.isVerticalLeft(context) },
+            true,
         )
         checkTaskbarPositionGroup(
-                Constants.POSITION_BOTTOM_VERTICAL_RIGHT,
-                { context: Context? -> TaskbarPosition.isVerticalLeft(context) },
-                false
+            Constants.POSITION_BOTTOM_VERTICAL_RIGHT,
+            { context: Context? -> TaskbarPosition.isVerticalLeft(context) },
+            false,
         )
         checkTaskbarPositionGroup(
-                Constants.POSITION_TOP_LEFT,
-                { context: Context? -> TaskbarPosition.isVerticalLeft(context) },
-                false
+            Constants.POSITION_TOP_LEFT,
+            { context: Context? -> TaskbarPosition.isVerticalLeft(context) },
+            false,
         )
         checkTaskbarPositionGroup(
-                Constants.POSITION_TOP_RIGHT,
-                { context: Context? -> TaskbarPosition.isVerticalLeft(context) },
-                false
+            Constants.POSITION_TOP_RIGHT,
+            { context: Context? -> TaskbarPosition.isVerticalLeft(context) },
+            false,
         )
         checkTaskbarPositionGroup(
-                Constants.POSITION_TOP_VERTICAL_LEFT,
-                { context: Context? -> TaskbarPosition.isVerticalLeft(context) },
-                true
+            Constants.POSITION_TOP_VERTICAL_LEFT,
+            { context: Context? -> TaskbarPosition.isVerticalLeft(context) },
+            true,
         )
         checkTaskbarPositionGroup(
-                Constants.POSITION_TOP_VERTICAL_RIGHT,
-                { context: Context? -> TaskbarPosition.isVerticalLeft(context) },
-                false
+            Constants.POSITION_TOP_VERTICAL_RIGHT,
+            { context: Context? -> TaskbarPosition.isVerticalLeft(context) },
+            false,
         )
     }
 
@@ -317,44 +317,44 @@ class TaskbarPositionTest {
     @Test
     fun testIsVerticalRightWithContext() {
         checkTaskbarPositionGroup(
-                Constants.POSITION_BOTTOM_LEFT,
-                { context: Context? -> TaskbarPosition.isVerticalRight(context) },
-                false
+            Constants.POSITION_BOTTOM_LEFT,
+            { context: Context? -> TaskbarPosition.isVerticalRight(context) },
+            false,
         )
         checkTaskbarPositionGroup(
-                Constants.POSITION_BOTTOM_RIGHT,
-                { context: Context? -> TaskbarPosition.isVerticalRight(context) },
-                false
+            Constants.POSITION_BOTTOM_RIGHT,
+            { context: Context? -> TaskbarPosition.isVerticalRight(context) },
+            false,
         )
         checkTaskbarPositionGroup(
-                Constants.POSITION_BOTTOM_VERTICAL_LEFT,
-                { context: Context? -> TaskbarPosition.isVerticalRight(context) },
-                false
+            Constants.POSITION_BOTTOM_VERTICAL_LEFT,
+            { context: Context? -> TaskbarPosition.isVerticalRight(context) },
+            false,
         )
         checkTaskbarPositionGroup(
-                Constants.POSITION_BOTTOM_VERTICAL_RIGHT,
-                { context: Context? -> TaskbarPosition.isVerticalRight(context) },
-                true
+            Constants.POSITION_BOTTOM_VERTICAL_RIGHT,
+            { context: Context? -> TaskbarPosition.isVerticalRight(context) },
+            true,
         )
         checkTaskbarPositionGroup(
-                Constants.POSITION_TOP_LEFT,
-                { context: Context? -> TaskbarPosition.isVerticalRight(context) },
-                false
+            Constants.POSITION_TOP_LEFT,
+            { context: Context? -> TaskbarPosition.isVerticalRight(context) },
+            false,
         )
         checkTaskbarPositionGroup(
-                Constants.POSITION_TOP_RIGHT,
-                { context: Context? -> TaskbarPosition.isVerticalRight(context) },
-                false
+            Constants.POSITION_TOP_RIGHT,
+            { context: Context? -> TaskbarPosition.isVerticalRight(context) },
+            false,
         )
         checkTaskbarPositionGroup(
-                Constants.POSITION_TOP_VERTICAL_LEFT,
-                { context: Context? -> TaskbarPosition.isVerticalRight(context) },
-                false
+            Constants.POSITION_TOP_VERTICAL_LEFT,
+            { context: Context? -> TaskbarPosition.isVerticalRight(context) },
+            false,
         )
         checkTaskbarPositionGroup(
-                Constants.POSITION_TOP_VERTICAL_RIGHT,
-                { context: Context? -> TaskbarPosition.isVerticalRight(context) },
-                true
+            Constants.POSITION_TOP_VERTICAL_RIGHT,
+            { context: Context? -> TaskbarPosition.isVerticalRight(context) },
+            true,
         )
     }
 
@@ -368,147 +368,147 @@ class TaskbarPositionTest {
     @Test
     fun testGetTaskbarPositionWithAnchorAndPositionBottomLeft() {
         checkTaskbarPositionWithDifferentRotation(
-                Constants.POSITION_BOTTOM_LEFT,
-                object : ArrayList<String>() {
-                    init {
-                        add(Constants.POSITION_BOTTOM_LEFT)
-                        add(Constants.POSITION_BOTTOM_VERTICAL_RIGHT)
-                        add(Constants.POSITION_TOP_RIGHT)
-                        add(Constants.POSITION_TOP_VERTICAL_LEFT)
-                    }
+            Constants.POSITION_BOTTOM_LEFT,
+            object : ArrayList<String>() {
+                init {
+                    add(Constants.POSITION_BOTTOM_LEFT)
+                    add(Constants.POSITION_BOTTOM_VERTICAL_RIGHT)
+                    add(Constants.POSITION_TOP_RIGHT)
+                    add(Constants.POSITION_TOP_VERTICAL_LEFT)
                 }
+            },
         )
     }
 
     @Test
     fun testGetTaskbarPositionWithAnchorAndPositionBottomVerticalLeft() {
         checkTaskbarPositionWithDifferentRotation(
-                Constants.POSITION_BOTTOM_VERTICAL_LEFT,
-                object : ArrayList<String>() {
-                    init {
-                        add(Constants.POSITION_BOTTOM_VERTICAL_LEFT)
-                        add(Constants.POSITION_BOTTOM_RIGHT)
-                        add(Constants.POSITION_TOP_VERTICAL_RIGHT)
-                        add(Constants.POSITION_TOP_LEFT)
-                    }
+            Constants.POSITION_BOTTOM_VERTICAL_LEFT,
+            object : ArrayList<String>() {
+                init {
+                    add(Constants.POSITION_BOTTOM_VERTICAL_LEFT)
+                    add(Constants.POSITION_BOTTOM_RIGHT)
+                    add(Constants.POSITION_TOP_VERTICAL_RIGHT)
+                    add(Constants.POSITION_TOP_LEFT)
                 }
+            },
         )
     }
 
     @Test
     fun testGetTaskbarPositionWithAnchorAndPositionBottomRight() {
         checkTaskbarPositionWithDifferentRotation(
-                Constants.POSITION_BOTTOM_RIGHT,
-                object : ArrayList<String>() {
-                    init {
-                        add(Constants.POSITION_BOTTOM_RIGHT)
-                        add(Constants.POSITION_TOP_VERTICAL_RIGHT)
-                        add(Constants.POSITION_TOP_LEFT)
-                        add(Constants.POSITION_BOTTOM_VERTICAL_LEFT)
-                    }
+            Constants.POSITION_BOTTOM_RIGHT,
+            object : ArrayList<String>() {
+                init {
+                    add(Constants.POSITION_BOTTOM_RIGHT)
+                    add(Constants.POSITION_TOP_VERTICAL_RIGHT)
+                    add(Constants.POSITION_TOP_LEFT)
+                    add(Constants.POSITION_BOTTOM_VERTICAL_LEFT)
                 }
+            },
         )
     }
 
     @Test
     fun testGetTaskbarPositionWithAnchorAndPositionBottomVerticalRight() {
         checkTaskbarPositionWithDifferentRotation(
-                Constants.POSITION_BOTTOM_VERTICAL_RIGHT,
-                object : ArrayList<String>() {
-                    init {
-                        add(Constants.POSITION_BOTTOM_VERTICAL_RIGHT)
-                        add(Constants.POSITION_TOP_RIGHT)
-                        add(Constants.POSITION_TOP_VERTICAL_LEFT)
-                        add(Constants.POSITION_BOTTOM_LEFT)
-                    }
+            Constants.POSITION_BOTTOM_VERTICAL_RIGHT,
+            object : ArrayList<String>() {
+                init {
+                    add(Constants.POSITION_BOTTOM_VERTICAL_RIGHT)
+                    add(Constants.POSITION_TOP_RIGHT)
+                    add(Constants.POSITION_TOP_VERTICAL_LEFT)
+                    add(Constants.POSITION_BOTTOM_LEFT)
                 }
+            },
         )
     }
 
     @Test
     fun testGetTaskbarPositionWithAnchorAndPositionTopLeft() {
         checkTaskbarPositionWithDifferentRotation(
-                Constants.POSITION_TOP_LEFT,
-                object : ArrayList<String>() {
-                    init {
-                        add(Constants.POSITION_TOP_LEFT)
-                        add(Constants.POSITION_BOTTOM_VERTICAL_LEFT)
-                        add(Constants.POSITION_BOTTOM_RIGHT)
-                        add(Constants.POSITION_TOP_VERTICAL_RIGHT)
-                    }
+            Constants.POSITION_TOP_LEFT,
+            object : ArrayList<String>() {
+                init {
+                    add(Constants.POSITION_TOP_LEFT)
+                    add(Constants.POSITION_BOTTOM_VERTICAL_LEFT)
+                    add(Constants.POSITION_BOTTOM_RIGHT)
+                    add(Constants.POSITION_TOP_VERTICAL_RIGHT)
                 }
+            },
         )
     }
 
     @Test
     fun testGetTaskbarPositionWithAnchorAndPositionTopVerticalLeft() {
         checkTaskbarPositionWithDifferentRotation(
-                Constants.POSITION_TOP_VERTICAL_LEFT,
-                object : ArrayList<String>() {
-                    init {
-                        add(Constants.POSITION_TOP_VERTICAL_LEFT)
-                        add(Constants.POSITION_BOTTOM_LEFT)
-                        add(Constants.POSITION_BOTTOM_VERTICAL_RIGHT)
-                        add(Constants.POSITION_TOP_RIGHT)
-                    }
+            Constants.POSITION_TOP_VERTICAL_LEFT,
+            object : ArrayList<String>() {
+                init {
+                    add(Constants.POSITION_TOP_VERTICAL_LEFT)
+                    add(Constants.POSITION_BOTTOM_LEFT)
+                    add(Constants.POSITION_BOTTOM_VERTICAL_RIGHT)
+                    add(Constants.POSITION_TOP_RIGHT)
                 }
+            },
         )
     }
 
     @Test
     fun testGetTaskbarPositionWithAnchorAndPositionTopRight() {
         checkTaskbarPositionWithDifferentRotation(
-                Constants.POSITION_TOP_RIGHT,
-                object : ArrayList<String>() {
-                    init {
-                        add(Constants.POSITION_TOP_RIGHT)
-                        add(Constants.POSITION_TOP_VERTICAL_LEFT)
-                        add(Constants.POSITION_BOTTOM_LEFT)
-                        add(Constants.POSITION_BOTTOM_VERTICAL_RIGHT)
-                    }
+            Constants.POSITION_TOP_RIGHT,
+            object : ArrayList<String>() {
+                init {
+                    add(Constants.POSITION_TOP_RIGHT)
+                    add(Constants.POSITION_TOP_VERTICAL_LEFT)
+                    add(Constants.POSITION_BOTTOM_LEFT)
+                    add(Constants.POSITION_BOTTOM_VERTICAL_RIGHT)
                 }
+            },
         )
     }
 
     @Test
     fun testGetTaskbarPositionWithAnchorAndPositionTopVerticalRight() {
         checkTaskbarPositionWithDifferentRotation(
-                Constants.POSITION_TOP_VERTICAL_RIGHT,
-                object : ArrayList<String>() {
-                    init {
-                        add(Constants.POSITION_TOP_VERTICAL_RIGHT)
-                        add(Constants.POSITION_TOP_LEFT)
-                        add(Constants.POSITION_BOTTOM_VERTICAL_LEFT)
-                        add(Constants.POSITION_BOTTOM_RIGHT)
-                    }
+            Constants.POSITION_TOP_VERTICAL_RIGHT,
+            object : ArrayList<String>() {
+                init {
+                    add(Constants.POSITION_TOP_VERTICAL_RIGHT)
+                    add(Constants.POSITION_TOP_LEFT)
+                    add(Constants.POSITION_BOTTOM_VERTICAL_LEFT)
+                    add(Constants.POSITION_BOTTOM_RIGHT)
                 }
+            },
         )
     }
 
     @Test
     fun testGetTaskbarPositionWithAnchorAndInvalidPosition() {
         checkTaskbarPositionWithDifferentRotation(
-                "invalid-position",
-                object : ArrayList<String>() {
-                    init {
-                        add(Constants.POSITION_BOTTOM_LEFT)
-                        add(Constants.POSITION_BOTTOM_LEFT)
-                        add(Constants.POSITION_BOTTOM_LEFT)
-                        add(Constants.POSITION_BOTTOM_LEFT)
-                    }
+            "invalid-position",
+            object : ArrayList<String>() {
+                init {
+                    add(Constants.POSITION_BOTTOM_LEFT)
+                    add(Constants.POSITION_BOTTOM_LEFT)
+                    add(Constants.POSITION_BOTTOM_LEFT)
+                    add(Constants.POSITION_BOTTOM_LEFT)
                 }
+            },
         )
     }
 
     private fun checkTaskbarPositionWithDifferentRotation(
         originPosition: String,
-        changedPositions: List<String>
+        changedPositions: List<String>,
     ) {
         Assert.assertEquals(4, changedPositions.size.toLong())
         val oldPosition = U.getSharedPreferences(context)
-                .getString(Constants.PREF_POSITION, Constants.POSITION_BOTTOM_LEFT)
+            .getString(Constants.PREF_POSITION, Constants.POSITION_BOTTOM_LEFT)
         val oldAnchor = U.getSharedPreferences(context)
-                .getBoolean(Constants.PREF_ANCHOR, false)
+            .getBoolean(Constants.PREF_ANCHOR, false)
         initializeTaskbarPosition(originPosition)
         initializeRotation(Surface.ROTATION_0)
         Assert.assertEquals(changedPositions[0], TaskbarPosition.getTaskbarPosition(context))
@@ -519,33 +519,33 @@ class TaskbarPositionTest {
         initializeRotation(Surface.ROTATION_270)
         Assert.assertEquals(changedPositions[3], TaskbarPosition.getTaskbarPosition(context))
         U.getSharedPreferences(context).edit()
-                .putBoolean(Constants.PREF_ANCHOR, oldAnchor).apply()
+            .putBoolean(Constants.PREF_ANCHOR, oldAnchor).apply()
         U.getSharedPreferences(context).edit()
-                .putString(Constants.PREF_POSITION, oldPosition).apply()
+            .putString(Constants.PREF_POSITION, oldPosition).apply()
     }
 
     private fun checkTaskbarPositionGroup(
         originPosition: String,
         predicate: Predicate<Context?>,
-        expectedResult: Boolean
+        expectedResult: Boolean,
     ) {
         val oldPosition = U.getSharedPreferences(context)
-                .getString(Constants.PREF_POSITION, Constants.POSITION_BOTTOM_LEFT)
+            .getString(Constants.PREF_POSITION, Constants.POSITION_BOTTOM_LEFT)
         val oldAnchor = U.getSharedPreferences(context)
-                .getBoolean(Constants.PREF_ANCHOR, false)
+            .getBoolean(Constants.PREF_ANCHOR, false)
         initializeTaskbarPosition(originPosition)
         Assert.assertEquals(expectedResult, predicate.test(context))
         U.getSharedPreferences(context).edit()
-                .putBoolean(Constants.PREF_ANCHOR, oldAnchor).apply()
+            .putBoolean(Constants.PREF_ANCHOR, oldAnchor).apply()
         U.getSharedPreferences(context).edit()
-                .putString(Constants.PREF_POSITION, oldPosition).apply()
+            .putString(Constants.PREF_POSITION, oldPosition).apply()
     }
 
     private fun initializeTaskbarPosition(position: String) {
         U.getSharedPreferences(context).edit()
-                .putBoolean(Constants.PREF_ANCHOR, true).apply()
+            .putBoolean(Constants.PREF_ANCHOR, true).apply()
         U.getSharedPreferences(context).edit()
-                .putString(Constants.PREF_POSITION, position).apply()
+            .putString(Constants.PREF_POSITION, position).apply()
     }
 
     private fun initializeRotation(rotation: Int) {

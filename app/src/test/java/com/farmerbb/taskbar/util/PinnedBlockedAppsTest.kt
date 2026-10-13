@@ -101,8 +101,9 @@ class PinnedBlockedAppsTest {
         pinnedBlockedApps.addPinnedApp(context, appEntry)
         pinnedBlockedApps.addBlockedApp(context, appEntry)
         val newPinnedBlockedApps =
-                SerializationUtils.deserialize<PinnedBlockedApps>(
-                        SerializationUtils.serialize(pinnedBlockedApps))
+            SerializationUtils.deserialize<PinnedBlockedApps>(
+                SerializationUtils.serialize(pinnedBlockedApps),
+            )
         Assert.assertTrue(newPinnedBlockedApps.isPinned(packageName))
         Assert.assertTrue(newPinnedBlockedApps.isBlocked(packageName))
     }

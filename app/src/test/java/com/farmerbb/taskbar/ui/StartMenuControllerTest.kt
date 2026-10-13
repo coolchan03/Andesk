@@ -81,65 +81,81 @@ class StartMenuControllerTest {
     @Test
     fun testGetStartMenuLayoutId() {
         Assert.assertEquals(
-                R.layout.tb_start_menu_left.toLong(),
-                uiController.getStartMenuLayoutId(POSITION_BOTTOM_LEFT)
-                        .toLong())
+            R.layout.tb_start_menu_left.toLong(),
+            uiController.getStartMenuLayoutId(POSITION_BOTTOM_LEFT)
+                .toLong(),
+        )
         Assert.assertEquals(
-                R.layout.tb_start_menu_right.toLong(),
-                uiController.getStartMenuLayoutId(POSITION_BOTTOM_RIGHT)
-                        .toLong())
+            R.layout.tb_start_menu_right.toLong(),
+            uiController.getStartMenuLayoutId(POSITION_BOTTOM_RIGHT)
+                .toLong(),
+        )
         Assert.assertEquals(
-                R.layout.tb_start_menu_top_left.toLong(),
-                uiController.getStartMenuLayoutId(POSITION_TOP_LEFT)
-                        .toLong())
+            R.layout.tb_start_menu_top_left.toLong(),
+            uiController.getStartMenuLayoutId(POSITION_TOP_LEFT)
+                .toLong(),
+        )
         Assert.assertEquals(
-                R.layout.tb_start_menu_vertical_left.toLong(),
-                uiController.getStartMenuLayoutId(POSITION_TOP_VERTICAL_LEFT)
-                        .toLong())
+            R.layout.tb_start_menu_vertical_left.toLong(),
+            uiController.getStartMenuLayoutId(POSITION_TOP_VERTICAL_LEFT)
+                .toLong(),
+        )
         Assert.assertEquals(
-                R.layout.tb_start_menu_vertical_left.toLong(),
-                uiController.getStartMenuLayoutId(POSITION_BOTTOM_VERTICAL_LEFT)
-                        .toLong())
+            R.layout.tb_start_menu_vertical_left.toLong(),
+            uiController.getStartMenuLayoutId(POSITION_BOTTOM_VERTICAL_LEFT)
+                .toLong(),
+        )
         Assert.assertEquals(
-                R.layout.tb_start_menu_top_right.toLong(),
-                uiController.getStartMenuLayoutId(POSITION_TOP_RIGHT)
-                        .toLong())
+            R.layout.tb_start_menu_top_right.toLong(),
+            uiController.getStartMenuLayoutId(POSITION_TOP_RIGHT)
+                .toLong(),
+        )
         Assert.assertEquals(
-                R.layout.tb_start_menu_vertical_right.toLong(),
-                uiController.getStartMenuLayoutId(POSITION_TOP_VERTICAL_RIGHT)
-                        .toLong())
+            R.layout.tb_start_menu_vertical_right.toLong(),
+            uiController.getStartMenuLayoutId(POSITION_TOP_VERTICAL_RIGHT)
+                .toLong(),
+        )
         Assert.assertEquals(
-                R.layout.tb_start_menu_vertical_right.toLong(),
-                uiController.getStartMenuLayoutId(POSITION_BOTTOM_VERTICAL_RIGHT)
-                        .toLong())
+            R.layout.tb_start_menu_vertical_right.toLong(),
+            uiController.getStartMenuLayoutId(POSITION_BOTTOM_VERTICAL_RIGHT)
+                .toLong(),
+        )
     }
 
     @Test
     fun testGetStartMenuGravity() {
         Assert.assertEquals(
-                (Gravity.BOTTOM or Gravity.LEFT).toLong(),
-                uiController.getStartMenuGravity(POSITION_BOTTOM_LEFT).toLong())
+            (Gravity.BOTTOM or Gravity.LEFT).toLong(),
+            uiController.getStartMenuGravity(POSITION_BOTTOM_LEFT).toLong(),
+        )
         Assert.assertEquals(
-                (Gravity.BOTTOM or Gravity.LEFT).toLong(),
-                uiController.getStartMenuGravity(POSITION_BOTTOM_VERTICAL_LEFT).toLong())
+            (Gravity.BOTTOM or Gravity.LEFT).toLong(),
+            uiController.getStartMenuGravity(POSITION_BOTTOM_VERTICAL_LEFT).toLong(),
+        )
         Assert.assertEquals(
-                (Gravity.BOTTOM or Gravity.RIGHT).toLong(),
-                uiController.getStartMenuGravity(POSITION_BOTTOM_RIGHT).toLong())
+            (Gravity.BOTTOM or Gravity.RIGHT).toLong(),
+            uiController.getStartMenuGravity(POSITION_BOTTOM_RIGHT).toLong(),
+        )
         Assert.assertEquals(
-                (Gravity.BOTTOM or Gravity.RIGHT).toLong(),
-                uiController.getStartMenuGravity(POSITION_BOTTOM_VERTICAL_RIGHT).toLong())
+            (Gravity.BOTTOM or Gravity.RIGHT).toLong(),
+            uiController.getStartMenuGravity(POSITION_BOTTOM_VERTICAL_RIGHT).toLong(),
+        )
         Assert.assertEquals(
-                (Gravity.TOP or Gravity.LEFT).toLong(),
-                uiController.getStartMenuGravity(POSITION_TOP_LEFT).toLong())
+            (Gravity.TOP or Gravity.LEFT).toLong(),
+            uiController.getStartMenuGravity(POSITION_TOP_LEFT).toLong(),
+        )
         Assert.assertEquals(
-                (Gravity.TOP or Gravity.LEFT).toLong(),
-                uiController.getStartMenuGravity(POSITION_TOP_VERTICAL_LEFT).toLong())
+            (Gravity.TOP or Gravity.LEFT).toLong(),
+            uiController.getStartMenuGravity(POSITION_TOP_VERTICAL_LEFT).toLong(),
+        )
         Assert.assertEquals(
-                (Gravity.TOP or Gravity.RIGHT).toLong(),
-                uiController.getStartMenuGravity(POSITION_TOP_RIGHT).toLong())
+            (Gravity.TOP or Gravity.RIGHT).toLong(),
+            uiController.getStartMenuGravity(POSITION_TOP_RIGHT).toLong(),
+        )
         Assert.assertEquals(
-                (Gravity.TOP or Gravity.RIGHT).toLong(),
-                uiController.getStartMenuGravity(POSITION_TOP_VERTICAL_RIGHT).toLong())
+            (Gravity.TOP or Gravity.RIGHT).toLong(),
+            uiController.getStartMenuGravity(POSITION_TOP_VERTICAL_RIGHT).toLong(),
+        )
     }
 
     @Test
@@ -172,8 +188,12 @@ class StartMenuControllerTest {
         val queryList: MutableList<LauncherActivityInfo> = ArrayList()
         val userManager = context.getSystemService(Context.USER_SERVICE) as UserManager
         val packageManager = context.packageManager
-        var appEntries = uiController.generateAppEntries(context, userManager,
-                packageManager, queryList)
+        var appEntries = uiController.generateAppEntries(
+            context,
+            userManager,
+            packageManager,
+            queryList,
+        )
         Assert.assertEquals(0, appEntries.size.toLong())
         val activityInfo = ActivityInfo()
         activityInfo.packageName = Constants.TEST_PACKAGE
@@ -182,16 +202,26 @@ class StartMenuControllerTest {
         activityInfo.applicationInfo = ApplicationInfo()
         activityInfo.applicationInfo.packageName = activityInfo.packageName
         val launcherActivityInfo = generateTestLauncherActivityInfo(
-                context, activityInfo, Constants.DEFAULT_TEST_USER_ID
+            context,
+            activityInfo,
+            Constants.DEFAULT_TEST_USER_ID,
         )
         queryList.add(launcherActivityInfo)
-        appEntries = uiController.generateAppEntries(context, userManager,
-                packageManager, queryList)
+        appEntries = uiController.generateAppEntries(
+            context,
+            userManager,
+            packageManager,
+            queryList,
+        )
         Assert.assertEquals(1, appEntries.size.toLong())
         verifyAppEntryContent(activityInfo, appEntries[0])
         queryList.add(launcherActivityInfo)
-        appEntries = uiController.generateAppEntries(context, userManager,
-                packageManager, queryList)
+        appEntries = uiController.generateAppEntries(
+            context,
+            userManager,
+            packageManager,
+            queryList,
+        )
         Assert.assertEquals(2, appEntries.size.toLong())
         verifyAppEntryContent(activityInfo, appEntries[0])
         verifyAppEntryContent(activityInfo, appEntries[1])
