@@ -21,6 +21,8 @@ jacocoAndroidUnitTestReport {
 
 repositories {
     google()
+    // toast-compat:1.0.5 is distributed through JitPack, not Maven Central.
+    maven { url "https://jitpack.io" }
 }
 
 spotless {
