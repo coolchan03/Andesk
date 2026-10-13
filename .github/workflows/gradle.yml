@@ -33,27 +33,19 @@ jobs:
       - name: Build
         run: ./gradlew assembleFreeDebug
       - name: Upload debug APK
-        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: andesk-debug-apk
           path: app/build/outputs/apk/free/debug/*.apk
           if-no-files-found: error
       - name: Run tests
         run: ./gradlew testFreeDebug
-      - name: Generate lint baseline (PR6 preparation)
-        run: ./gradlew updateLintBaselineFreeDebug
-      - name: Upload generated lint baseline (PR6 preparation)
-        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
-        with:
-          name: andesk-lint-baseline
-          path: app/lint-baseline.xml
-          if-no-files-found: error
       - name: Android lint
         if: always()
         run: ./gradlew lintFreeDebug
       - name: Upload test reports after failure
         if: failure()
-        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: andesk-test-failure-reports
           path: app/build/reports/tests/

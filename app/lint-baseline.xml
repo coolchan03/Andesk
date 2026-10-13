@@ -1,0 +1,2921 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.5.2" type="baseline" client="gradle" dependencies="false" name="AGP (8.5.2)" variant="all" version="8.5.2">
+
+    <issue
+        id="MissingPermission"
+        message="Missing permissions required by BluetoothAdapter.disable: android.permission.BLUETOOTH_CONNECT"
+        errorLine1="                    adapter.disable();"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/farmerbb/taskbar/activity/SystemTrayActivity.java"
+            line="185"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="MissingPermission"
+        message="Missing permissions required by BluetoothAdapter.enable: android.permission.BLUETOOTH_CONNECT"
+        errorLine1="                    adapter.enable();"
+        errorLine2="                    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/farmerbb/taskbar/activity/SystemTrayActivity.java"
+            line="187"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="MissingSuperCall"
+        message="Overriding method should call `super.onBackPressed`"
+        errorLine1="    public void onBackPressed() {}"
+        errorLine2="                ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/farmerbb/taskbar/activity/DimScreenActivity.java"
+            line="143"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="MissingSuperCall"
+        message="Overriding method should call `super.onBackPressed`"
+        errorLine1="    public void onBackPressed() {"
+        errorLine2="                ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/farmerbb/taskbar/activity/HomeActivityDelegate.java"
+            line="941"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="InconsistentArrays"
+        message="Array `tb_pref_theme_list_values` has an inconsistent number of items (2 in `values/donottranslate.xml`, 3 in `values-v28/donottranslate.xml`)"
+        errorLine1="    &lt;string-array name=&quot;tb_pref_theme_list_values&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values/donottranslate.xml"
+            line="78"
+            column="5"
+            message="Declaration with array size (2)"/>
+        <location
+            file="src/main/res/values-v28/donottranslate.xml"
+            line="19"
+            column="5"
+            message="Declaration with array size (3)"/>
+    </issue>
+
+    <issue
+        id="InconsistentArrays"
+        message="Array `tb_pref_theme_list` has an inconsistent number of items (2 in `values-de/strings.xml`, 3 in `values-de-v28/strings.xml`)"
+        errorLine1="    &lt;string-array name=&quot;tb_pref_theme_list&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="153"
+            column="5"
+            message="Declaration with array size (2)"/>
+        <location
+            file="src/main/res/values-de/strings.xml"
+            line="134"
+            column="5"
+            message="Declaration with array size (2)"/>
+        <location
+            file="src/main/res/values-de-v28/strings.xml"
+            line="22"
+            column="5"
+            message="Declaration with array size (3)"/>
+        <location
+            file="src/main/res/values-es/strings.xml"
+            line="134"
+            column="5"
+            message="Declaration with array size (2)"/>
+        <location
+            file="src/main/res/values-es-v28/strings.xml"
+            line="22"
+            column="3"
+            message="Declaration with array size (3)"/>
+        <location
+            file="src/main/res/values-ja/strings.xml"
+            line="134"
+            column="5"
+            message="Declaration with array size (2)"/>
+        <location
+            file="src/main/res/values-ja-v28/strings.xml"
+            line="21"
+            column="5"
+            message="Declaration with array size (3)"/>
+        <location
+            file="src/main/res/values-nl/strings.xml"
+            line="134"
+            column="5"
+            message="Declaration with array size (2)"/>
+        <location
+            file="src/main/res/values-nl-v28/strings.xml"
+            line="22"
+            column="5"
+            message="Declaration with array size (3)"/>
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="400"
+            column="5"
+            message="Declaration with array size (2)"/>
+        <location
+            file="src/main/res/values-pl-v28/strings.xml"
+            line="29"
+            column="5"
+            message="Declaration with array size (3)"/>
+        <location
+            file="src/main/res/values-ru/strings.xml"
+            line="134"
+            column="5"
+            message="Declaration with array size (2)"/>
+        <location
+            file="src/main/res/values-ru-v28/strings.xml"
+            line="21"
+            column="5"
+            message="Declaration with array size (3)"/>
+        <location
+            file="src/main/res/values-tr/strings.xml"
+            line="349"
+            column="1"
+            message="Declaration with array size (2)"/>
+        <location
+            file="src/main/res/values-tr-v28/strings.xml"
+            line="34"
+            column="5"
+            message="Declaration with array size (3)"/>
+        <location
+            file="src/main/res/values-v28/strings.xml"
+            line="22"
+            column="5"
+            message="Declaration with array size (3)"/>
+        <location
+            file="src/main/res/values-zh-rCN/strings.xml"
+            line="134"
+            column="5"
+            message="Declaration with array size (2)"/>
+        <location
+            file="src/main/res/values-zh-rCN-v28/strings.xml"
+            line="22"
+            column="5"
+            message="Declaration with array size (3)"/>
+    </issue>
+
+    <issue
+        id="DefaultLocale"
+        message="Implicitly using the default locale is a common source of bugs: Use `toUpperCase(Locale)` instead. For strings meant to be internal use `Locale.ROOT`, otherwise `Locale.getDefault()`."
+        errorLine1="        findPreference(PREF_BACKGROUND_TINT_PREF).setSummary(&quot;#&quot; + String.format(&quot;%08x&quot;, U.getBackgroundTint(getActivity())).toUpperCase());"
+        errorLine2="                                                                                                                             ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/farmerbb/taskbar/fragment/AppearanceFragment.java"
+            line="111"
+            column="126"/>
+    </issue>
+
+    <issue
+        id="DefaultLocale"
+        message="Implicitly using the default locale is a common source of bugs: Use `toUpperCase(Locale)` instead. For strings meant to be internal use `Locale.ROOT`, otherwise `Locale.getDefault()`."
+        errorLine1="        findPreference(PREF_ACCENT_COLOR_PREF).setSummary(&quot;#&quot; + String.format(&quot;%08x&quot;, U.getAccentColor(getActivity())).toUpperCase());"
+        errorLine2="                                                                                                                       ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/farmerbb/taskbar/fragment/AppearanceFragment.java"
+            line="112"
+            column="120"/>
+    </issue>
+
+    <issue
+        id="DefaultLocale"
+        message="Implicitly using the default locale is a common source of bugs: Use `toUpperCase(Locale)` instead. For strings meant to be internal use `Locale.ROOT`, otherwise `Locale.getDefault()`."
+        errorLine1="                            findPreference(PREF_BACKGROUND_TINT_PREF).setSummary(&quot;#&quot; + String.format(&quot;%08x&quot;, U.getBackgroundTint(getActivity())).toUpperCase());"
+        errorLine2="                                                                                                                                                 ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/farmerbb/taskbar/fragment/AppearanceFragment.java"
+            line="179"
+            column="146"/>
+    </issue>
+
+    <issue
+        id="DefaultLocale"
+        message="Implicitly using the default locale is a common source of bugs: Use `toUpperCase(Locale)` instead. For strings meant to be internal use `Locale.ROOT`, otherwise `Locale.getDefault()`."
+        errorLine1="                            findPreference(PREF_ACCENT_COLOR_PREF).setSummary(&quot;#&quot; + String.format(&quot;%08x&quot;, U.getAccentColor(getActivity())).toUpperCase());"
+        errorLine2="                                                                                                                                           ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/farmerbb/taskbar/fragment/AppearanceFragment.java"
+            line="180"
+            column="140"/>
+    </issue>
+
+    <issue
+        id="DefaultLocale"
+        message="Implicitly using the default locale is a common source of bugs: Use `toUpperCase(Locale)` instead. For strings meant to be internal use `Locale.ROOT`, otherwise `Locale.getDefault()`."
+        errorLine1="        hexPreview.setText(&quot;#&quot; + String.format(&quot;%08x&quot;, Color.argb(alpha, red, green, blue)).toUpperCase());"
+        errorLine2="                                                                                            ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/farmerbb/taskbar/fragment/AppearanceFragment.java"
+            line="246"
+            column="93"/>
+    </issue>
+
+    <issue
+        id="DefaultLocale"
+        message="Implicitly using the default locale is a common source of bugs: Use `toUpperCase(Locale)` instead. For strings meant to be internal use `Locale.ROOT`, otherwise `Locale.getDefault()`."
+        errorLine1="                hexPreview.setText(&quot;#&quot; + String.format(&quot;%08x&quot;, Color.argb(alpha, red, green, blue)).toUpperCase());"
+        errorLine2="                                                                                                    ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/farmerbb/taskbar/fragment/AppearanceFragment.java"
+            line="259"
+            column="101"/>
+    </issue>
+
+    <issue
+        id="DefaultLocale"
+        message="Implicitly using the default locale is a common source of bugs: Use `toUpperCase(Locale)` instead. For strings meant to be internal use `Locale.ROOT`, otherwise `Locale.getDefault()`."
+        errorLine1="                hexPreview.setText(&quot;#&quot; + String.format(&quot;%08x&quot;, Color.argb(alpha, red, green, blue)).toUpperCase());"
+        errorLine2="                                                                                                    ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/farmerbb/taskbar/fragment/AppearanceFragment.java"
+            line="282"
+            column="101"/>
+    </issue>
+
+    <issue
+        id="DefaultLocale"
+        message="Implicitly using the default locale is a common source of bugs: Use `toUpperCase(Locale)` instead. For strings meant to be internal use `Locale.ROOT`, otherwise `Locale.getDefault()`."
+        errorLine1="                hexPreview.setText(&quot;#&quot; + String.format(&quot;%08x&quot;, Color.argb(alpha, red, green, blue)).toUpperCase());"
+        errorLine2="                                                                                                    ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/farmerbb/taskbar/fragment/AppearanceFragment.java"
+            line="305"
+            column="101"/>
+    </issue>
+
+    <issue
+        id="DefaultLocale"
+        message="Implicitly using the default locale is a common source of bugs: Use `toUpperCase(Locale)` instead. For strings meant to be internal use `Locale.ROOT`, otherwise `Locale.getDefault()`."
+        errorLine1="                hexPreview.setText(&quot;#&quot; + String.format(&quot;%08x&quot;, Color.argb(alpha, red, green, blue)).toUpperCase());"
+        errorLine2="                                                                                                    ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/farmerbb/taskbar/fragment/AppearanceFragment.java"
+            line="328"
+            column="101"/>
+    </issue>
+
+    <issue
+        id="DefaultLocale"
+        message="Implicitly using the default locale is a common source of bugs: Use `toUpperCase(Locale)` instead. For strings meant to be internal use `Locale.ROOT`, otherwise `Locale.getDefault()`."
+        errorLine1="                    findPreference(preferenceId + &quot;_pref&quot;).setSummary(&quot;#&quot; + String.format(&quot;%08x&quot;, Color.argb(alpha, red, green, blue)).toUpperCase());"
+        errorLine2="                                                                                                                                       ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/farmerbb/taskbar/fragment/AppearanceFragment.java"
+            line="357"
+            column="136"/>
+    </issue>
+
+    <issue
+        id="DefaultLocale"
+        message="Implicitly using the default locale is a common source of bugs: Use `toUpperCase(Locale)` instead. For strings meant to be internal use `Locale.ROOT`, otherwise `Locale.getDefault()`."
+        errorLine1="                button.setText(getResources().getString(R.string.tb_action_reset).toUpperCase());"
+        errorLine2="                                                                                  ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/farmerbb/taskbar/activity/ClearDataActivity.java"
+            line="56"
+            column="83"/>
+    </issue>
+
+    <issue
+        id="DefaultLocale"
+        message="Implicitly using the default locale is a common source of bugs: Use `toUpperCase(Locale)` instead. For strings meant to be internal use `Locale.ROOT`, otherwise `Locale.getDefault()`."
+        errorLine1="                button.setText(getResources().getString(R.string.tb_action_close).toUpperCase());"
+        errorLine2="                                                                                  ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/farmerbb/taskbar/activity/ClearDataActivity.java"
+            line="58"
+            column="83"/>
+    </issue>
+
+    <issue
+        id="DefaultLocale"
+        message="Implicitly using the default locale is a common source of bugs: Use `toUpperCase(Locale)` instead. For strings meant to be internal use `Locale.ROOT`, otherwise `Locale.getDefault()`."
+        errorLine1="        button.setText(getResources().getString(R.string.tb_action_close).toUpperCase());"
+        errorLine2="                                                                          ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/farmerbb/taskbar/activity/ClearDataActivity.java"
+            line="96"
+            column="75"/>
+    </issue>
+
+    <issue
+        id="DefaultLocale"
+        message="Implicitly using the default locale is a common source of bugs: Use `toLowerCase(Locale)` instead. For strings meant to be internal use `Locale.ROOT`, otherwise `Locale.getDefault()`."
+        errorLine1="                    if(appInfo.getLabel().toString().toLowerCase().contains(query.toLowerCase()))"
+        errorLine2="                                                     ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/farmerbb/taskbar/ui/StartMenuController.java"
+            line="506"
+            column="54"/>
+    </issue>
+
+    <issue
+        id="DefaultLocale"
+        message="Implicitly using the default locale is a common source of bugs: Use `toLowerCase(Locale)` instead. For strings meant to be internal use `Locale.ROOT`, otherwise `Locale.getDefault()`."
+        errorLine1="                    if(appInfo.getLabel().toString().toLowerCase().contains(query.toLowerCase()))"
+        errorLine2="                                                                                  ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/farmerbb/taskbar/ui/StartMenuController.java"
+            line="506"
+            column="83"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 22 (current min is 21): `android.provider.Settings#ACTION_NOTIFICATION_LISTENER_SETTINGS`"
+        errorLine1="                    startActivity(new Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS));"
+        errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/farmerbb/taskbar/fragment/AppearanceFragment.java"
+            line="164"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 22 (current min is 21): `android.provider.Settings#ACTION_BATTERY_SAVER_SETTINGS`"
+        errorLine1="        Intent intent = new Intent(Settings.ACTION_BATTERY_SAVER_SETTINGS);"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/farmerbb/taskbar/ui/TaskbarController.java"
+            line="839"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="InternalInsetResource"
+        message="Using internal inset dimension resource `status_bar_height` is not supported"
+        errorLine1="        int resourceId = getResources().getIdentifier(&quot;status_bar_height&quot;, &quot;dimen&quot;, &quot;android&quot;);"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/farmerbb/taskbar/activity/ContextMenuActivity.java"
+            line="127"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="StartActivityAndCollapseDeprecated"
+        message="TileService#startActivityAndCollapse(Intent) is deprecated. Use TileService#startActivityAndCollapse(PendingIntent) instead."
+        errorLine1="            startActivityAndCollapse(intent);"
+        errorLine2="                                     ~~~~~~">
+        <location
+            file="src/nonlib/java/com/farmerbb/taskbar/service/FavoriteAppTileService.java"
+            line="87"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="StartActivityAndCollapseDeprecated"
+        message="TileService#startActivityAndCollapse(Intent) is deprecated. Use TileService#startActivityAndCollapse(PendingIntent) instead."
+        errorLine1="            startActivityAndCollapse(shortcutIntent);"
+        errorLine2="                                     ~~~~~~~~~~~~~~">
+        <location
+            file="src/nonlib/java/com/farmerbb/taskbar/service/FavoriteAppTileService.java"
+            line="119"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="CustomSplashScreen"
+        message="The application should not provide its own launch screen"
+        errorLine1="public class PersistentShortcutLaunchActivity extends Activity {"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/nonlib/java/com/farmerbb/taskbar/activity/PersistentShortcutLaunchActivity.java"
+            line="30"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="InflateParams"
+        message="Avoid passing `null` as the view root (needed to resolve layout parameters on the inflated layout&apos;s root element)"
+        errorLine1="        sysTrayLayout = (LinearLayout) LayoutInflater.from(context).inflate(R.layout.tb_system_tray, null);"
+        errorLine2="                                                                                                     ~~~~">
+        <location
+            file="src/main/java/com/farmerbb/taskbar/ui/TaskbarController.java"
+            line="718"
+            column="102"/>
+    </issue>
+
+    <issue
+        id="QueryPermissionsNeeded"
+        message="Consider adding a `&lt;queries>` declaration to your manifest when calling this method; see https://g.co/dev/packagevisibility for details"
+        errorLine1="        List&lt;ResolveInfo> listOfLaunchers = manager.queryIntentActivities(homeIntent, 0);"
+        errorLine2="                                                    ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/farmerbb/taskbar/activity/HSLActivity.java"
+            line="64"
+            column="53"/>
+    </issue>
+
+    <issue
+        id="QueryPermissionsNeeded"
+        message="Consider adding a `&lt;queries>` declaration to your manifest when calling this method; see https://g.co/dev/packagevisibility for details"
+        errorLine1="        final List&lt;ResolveInfo> listOfLaunchers = manager.queryIntentActivities(homeIntent, 0);"
+        errorLine2="                                                          ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/farmerbb/taskbar/activity/HSLConfigActivity.java"
+            line="123"
+            column="59"/>
+    </issue>
+
+    <issue
+        id="QueryPermissionsNeeded"
+        message="Consider adding a `&lt;queries>` declaration to your manifest when calling this method; see https://g.co/dev/packagevisibility for details"
+        errorLine1="        List&lt;ResolveInfo> rinfo = pm.queryIntentActivities(new Intent(&quot;org.adw.launcher.THEMES&quot;), PackageManager.GET_META_DATA);"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/farmerbb/taskbar/util/IconPackManager.java"
+            line="46"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="QueryPermissionsNeeded"
+        message="Consider adding a `&lt;queries>` declaration to your manifest when calling this method; see https://g.co/dev/packagevisibility for details"
+        errorLine1="                    if(intent.resolveActivity(getPackageManager()) == null)"
+        errorLine2="                              ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/farmerbb/taskbar/activity/KeyboardShortcutActivity.java"
+            line="67"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="QueryPermissionsNeeded"
+        message="Consider adding a `&lt;queries>` declaration to your manifest when calling this method; see https://g.co/dev/packagevisibility for details"
+        errorLine1="                    if(intent.resolveActivity(getPackageManager()) != null) {"
+        errorLine2="                              ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/farmerbb/taskbar/activity/KeyboardShortcutActivity.java"
+            line="70"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="QueryPermissionsNeeded"
+        message="Consider adding a `&lt;queries>` declaration to your manifest when calling this method; see https://g.co/dev/packagevisibility for details"
+        errorLine1="        ActivityInfo activityInfo = intent.resolveActivityInfo(getContext().getPackageManager(), 0);"
+        errorLine2="                                           ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/farmerbb/taskbar/adapter/StartMenuAdapter.java"
+            line="189"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="QueryPermissionsNeeded"
+        message="Consider adding a `&lt;queries>` declaration to your manifest when calling this method; see https://g.co/dev/packagevisibility for details"
+        errorLine1="                                if(intent.resolveActivity(context.getPackageManager()) != null) {"
+        errorLine2="                                          ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/farmerbb/taskbar/ui/StartMenuController.java"
+            line="262"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="QueryPermissionsNeeded"
+        message="Consider adding a `&lt;queries>` declaration to your manifest when calling this method; see https://g.co/dev/packagevisibility for details"
+        errorLine1="        List&lt;ResolveInfo> ris = context.getPackageManager().queryIntentActivities(intentToResolve, 0);"
+        errorLine2="                                                            ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/farmerbb/taskbar/ui/TaskbarController.java"
+            line="1904"
+            column="61"/>
+    </issue>
+
+    <issue
+        id="QueryPermissionsNeeded"
+        message="Consider adding a `&lt;queries>` declaration to your manifest when calling this method; see https://g.co/dev/packagevisibility for details"
+        errorLine1="        ActivityInfo activityInfo = intent.resolveActivityInfo(context.getPackageManager(), 0);"
+        errorLine2="                                           ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/farmerbb/taskbar/util/U.java"
+            line="2197"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="RedundantLabel"
+        message="Redundant label can be removed"
+        errorLine1="            android:label=&quot;${appName}&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/playstore/AndroidManifest.xml"
+            line="76"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="RedundantLabel"
+        message="Redundant label can be removed"
+        errorLine1="            android:label=&quot;${appName}&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/playstore/AndroidManifest.xml"
+            line="96"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="RedundantLabel"
+        message="Redundant label can be removed"
+        errorLine1="            android:label=&quot;${appName}&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/playstore/AndroidManifest.xml"
+            line="141"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="RedundantLabel"
+        message="Redundant label can be removed"
+        errorLine1="            android:label=&quot;${appName}&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/playstore/AndroidManifest.xml"
+            line="159"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.appcompat:appcompat than 1.7.0 is available: 1.8.0"
+        errorLine1="    implementation &quot;androidx.appcompat:appcompat:$APPCOMPAT_VERSION&quot;"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="build.gradle"
+            line="175"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of com.google.android.material:material than 1.12.0 is available: 1.14.0"
+        errorLine1="    implementation &quot;com.google.android.material:material:$MATERIAL_VERSION&quot;"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="build.gradle"
+            line="178"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.test:core than 1.4.0 is available: 1.7.0"
+        errorLine1="    testImplementation &apos;androidx.test:core:1.4.0&apos;"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="build.gradle"
+            line="189"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of com.android.tools:desugar_jdk_libs than 2.1.2 is available: 2.1.5"
+        errorLine1="    coreLibraryDesugaring &quot;com.android.tools:desugar_jdk_libs:2.1.2&quot;"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="build.gradle"
+            line="197"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="SourceLockedOrientationActivity"
+        message="You should not lock orientation of your activities, so that you can support a good user experience for any device or orientation"
+        errorLine1="        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/farmerbb/taskbar/activity/DimScreenActivity.java"
+            line="85"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="SpUsage"
+        message="Should use &quot;`sp`&quot; instead of &quot;`dp`&quot; for text sizes"
+        errorLine1="            android:textSize=&quot;20dp&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_taskbar_left.xml"
+            line="24"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="SpUsage"
+        message="Should use &quot;`sp`&quot; instead of &quot;`dp`&quot; for text sizes"
+        errorLine1="            android:textSize=&quot;20dp&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_taskbar_left.xml"
+            line="196"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="SpUsage"
+        message="Should use &quot;`sp`&quot; instead of &quot;`dp`&quot; for text sizes"
+        errorLine1="            android:textSize=&quot;20dp&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_taskbar_right.xml"
+            line="24"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="SpUsage"
+        message="Should use &quot;`sp`&quot; instead of &quot;`dp`&quot; for text sizes"
+        errorLine1="            android:textSize=&quot;20dp&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_taskbar_right.xml"
+            line="198"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="SpUsage"
+        message="Should use &quot;`sp`&quot; instead of &quot;`dp`&quot; for text sizes"
+        errorLine1="            android:textSize=&quot;20dp&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_taskbar_top_vertical.xml"
+            line="32"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="SpUsage"
+        message="Should use &quot;`sp`&quot; instead of &quot;`dp`&quot; for text sizes"
+        errorLine1="            android:textSize=&quot;20dp&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_taskbar_top_vertical.xml"
+            line="215"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="SpUsage"
+        message="Should use &quot;`sp`&quot; instead of &quot;`dp`&quot; for text sizes"
+        errorLine1="                android:textSize=&quot;20dp&quot;"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_taskbar_vertical.xml"
+            line="33"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="SpUsage"
+        message="Should use &quot;`sp`&quot; instead of &quot;`dp`&quot; for text sizes"
+        errorLine1="            android:textSize=&quot;20dp&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_taskbar_vertical.xml"
+            line="215"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="SwitchIntDef"
+        message="Switch statement on an `int` with known associated constant missing case `ActivityInfo.LAUNCH_MULTIPLE`, `ActivityInfo.LAUNCH_SINGLE_INSTANCE_PER_TASK`, `ActivityInfo.LAUNCH_SINGLE_TOP`"
+        errorLine1="            switch(activityInfo.launchMode) {"
+        errorLine2="            ~~~~~~">
+        <location
+            file="src/main/java/com/farmerbb/taskbar/util/U.java"
+            line="2199"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="DiscouragedApi"
+        message="Use of this function is discouraged because resource reflection makes it harder to perform build optimizations and compile-time verification of code. It is much more efficient to retrieve resources by identifier (e.g. `R.foo.bar`) than by name (e.g. `getIdentifier(&quot;bar&quot;, &quot;foo&quot;, null)`)."
+        errorLine1="        int enter = getResources().getIdentifier(&quot;activity_close_enter&quot;, &quot;anim&quot;, &quot;android&quot;);"
+        errorLine2="                                   ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/farmerbb/taskbar/activity/BackupRestoreActivity.java"
+            line="46"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="DiscouragedApi"
+        message="Use of this function is discouraged because resource reflection makes it harder to perform build optimizations and compile-time verification of code. It is much more efficient to retrieve resources by identifier (e.g. `R.foo.bar`) than by name (e.g. `getIdentifier(&quot;bar&quot;, &quot;foo&quot;, null)`)."
+        errorLine1="        int exit = getResources().getIdentifier(&quot;activity_close_exit&quot;, &quot;anim&quot;, &quot;android&quot;);"
+        errorLine2="                                  ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/farmerbb/taskbar/activity/BackupRestoreActivity.java"
+            line="47"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="DiscouragedApi"
+        message="Use of this function is discouraged because resource reflection makes it harder to perform build optimizations and compile-time verification of code. It is much more efficient to retrieve resources by identifier (e.g. `R.foo.bar`) than by name (e.g. `getIdentifier(&quot;bar&quot;, &quot;foo&quot;, null)`)."
+        errorLine1="        int resourceId = getResources().getIdentifier(&quot;status_bar_height&quot;, &quot;dimen&quot;, &quot;android&quot;);"
+        errorLine2="                                        ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/farmerbb/taskbar/activity/ContextMenuActivity.java"
+            line="127"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="DiscouragedApi"
+        message="Use of this function is discouraged because resource reflection makes it harder to perform build optimizations and compile-time verification of code. It is much more efficient to retrieve resources by identifier (e.g. `R.foo.bar`) than by name (e.g. `getIdentifier(&quot;bar&quot;, &quot;foo&quot;, null)`)."
+        errorLine1="            int enter = getResources().getIdentifier(&quot;activity_close_enter&quot;, &quot;anim&quot;, &quot;android&quot;);"
+        errorLine2="                                       ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/farmerbb/taskbar/activity/HSLActivity.java"
+            line="44"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="DiscouragedApi"
+        message="Use of this function is discouraged because resource reflection makes it harder to perform build optimizations and compile-time verification of code. It is much more efficient to retrieve resources by identifier (e.g. `R.foo.bar`) than by name (e.g. `getIdentifier(&quot;bar&quot;, &quot;foo&quot;, null)`)."
+        errorLine1="            int exit = getResources().getIdentifier(&quot;activity_close_exit&quot;, &quot;anim&quot;, &quot;android&quot;);"
+        errorLine2="                                      ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/farmerbb/taskbar/activity/HSLActivity.java"
+            line="45"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="DiscouragedApi"
+        message="Use of this function is discouraged because resource reflection makes it harder to perform build optimizations and compile-time verification of code. It is much more efficient to retrieve resources by identifier (e.g. `R.foo.bar`) than by name (e.g. `getIdentifier(&quot;bar&quot;, &quot;foo&quot;, null)`)."
+        errorLine1="                int appfilterid = getResources(mContext).getIdentifier(&quot;appfilter&quot;, &quot;xml&quot;, packageName);"
+        errorLine2="                                                         ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/farmerbb/taskbar/util/IconPack.java"
+            line="94"
+            column="58"/>
+    </issue>
+
+    <issue
+        id="DiscouragedApi"
+        message="Use of this function is discouraged because resource reflection makes it harder to perform build optimizations and compile-time verification of code. It is much more efficient to retrieve resources by identifier (e.g. `R.foo.bar`) than by name (e.g. `getIdentifier(&quot;bar&quot;, &quot;foo&quot;, null)`)."
+        errorLine1="        int id = getResources(context).getIdentifier(drawableName, &quot;drawable&quot;, packageName);"
+        errorLine2="                                       ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/farmerbb/taskbar/util/IconPack.java"
+            line="175"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="DiscouragedApi"
+        message="Use of this function is discouraged because resource reflection makes it harder to perform build optimizations and compile-time verification of code. It is much more efficient to retrieve resources by identifier (e.g. `R.foo.bar`) than by name (e.g. `getIdentifier(&quot;bar&quot;, &quot;foo&quot;, null)`)."
+        errorLine1="        int id = getResources(context).getIdentifier(drawableName, &quot;drawable&quot;, packageName);"
+        errorLine2="                                       ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/farmerbb/taskbar/util/IconPack.java"
+            line="186"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="DiscouragedApi"
+        message="Use of this function is discouraged because resource reflection makes it harder to perform build optimizations and compile-time verification of code. It is much more efficient to retrieve resources by identifier (e.g. `R.foo.bar`) than by name (e.g. `getIdentifier(&quot;bar&quot;, &quot;foo&quot;, null)`)."
+        errorLine1="                    if(getResources(mContext).getIdentifier(drawable, &quot;drawable&quot;, packageName) > 0)"
+        errorLine2="                                              ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/farmerbb/taskbar/util/IconPack.java"
+            line="206"
+            column="47"/>
+    </issue>
+
+    <issue
+        id="DiscouragedApi"
+        message="Use of this function is discouraged because resource reflection makes it harder to perform build optimizations and compile-time verification of code. It is much more efficient to retrieve resources by identifier (e.g. `R.foo.bar`) than by name (e.g. `getIdentifier(&quot;bar&quot;, &quot;foo&quot;, null)`)."
+        errorLine1="                    if(getResources(mContext).getIdentifier(drawable, &quot;drawable&quot;, packageName) > 0)"
+        errorLine2="                                              ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/farmerbb/taskbar/util/IconPack.java"
+            line="233"
+            column="47"/>
+    </issue>
+
+    <issue
+        id="DiscouragedApi"
+        message="Use of this function is discouraged because resource reflection makes it harder to perform build optimizations and compile-time verification of code. It is much more efficient to retrieve resources by identifier (e.g. `R.foo.bar`) than by name (e.g. `getIdentifier(&quot;bar&quot;, &quot;foo&quot;, null)`)."
+        errorLine1="        return context.getResources().getIdentifier(name, &quot;drawable&quot;, packageName);"
+        errorLine2="                                      ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/farmerbb/taskbar/ui/TaskbarController.java"
+            line="2062"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="DiscouragedApi"
+        message="Use of this function is discouraged because resource reflection makes it harder to perform build optimizations and compile-time verification of code. It is much more efficient to retrieve resources by identifier (e.g. `R.foo.bar`) than by name (e.g. `getIdentifier(&quot;bar&quot;, &quot;foo&quot;, null)`)."
+        errorLine1="        int resourceId = context.getResources().getIdentifier(id, &quot;dimen&quot;, &quot;android&quot;);"
+        errorLine2="                                                ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/farmerbb/taskbar/util/U.java"
+            line="768"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;tb_add_widget&quot; is not translated in &quot;de&quot; (German), &quot;ru&quot; (Russian), &quot;ja&quot; (Japanese), &quot;pl&quot; (Polish), &quot;es&quot; (Spanish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)"
+        errorLine1="    &lt;string name=&quot;tb_add_widget&quot;>Add widget&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="20"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;tb_move_resize_widget&quot; is not translated in &quot;de&quot; (German), &quot;ru&quot; (Russian), &quot;ja&quot; (Japanese), &quot;pl&quot; (Polish), &quot;es&quot; (Spanish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)"
+        errorLine1="    &lt;string name=&quot;tb_move_resize_widget&quot;>Move / resize&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="21"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;tb_pref_title_taskbar_style&quot; is not translated in &quot;de&quot; (German), &quot;ru&quot; (Russian), &quot;ja&quot; (Japanese), &quot;pl&quot; (Polish), &quot;es&quot; (Spanish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)"
+        errorLine1="    &lt;string name=&quot;tb_pref_title_taskbar_style&quot;>Taskbar style&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="80"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;tb_pref_summary_taskbar_style&quot; is not translated in &quot;de&quot; (German), &quot;ru&quot; (Russian), &quot;ja&quot; (Japanese), &quot;pl&quot; (Polish), &quot;es&quot; (Spanish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)"
+        errorLine1="    &lt;string name=&quot;tb_pref_summary_taskbar_style&quot;>Choose a preset, or use Classic to customize the colors and layout below&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="81"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;tb_pref_title_taskbar_size&quot; is not translated in &quot;de&quot; (German), &quot;ru&quot; (Russian), &quot;ja&quot; (Japanese), &quot;pl&quot; (Polish), &quot;es&quot; (Spanish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)"
+        errorLine1="    &lt;string name=&quot;tb_pref_title_taskbar_size&quot;>Taskbar size&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="88"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;tb_pref_summary_taskbar_size&quot; is not translated in &quot;de&quot; (German), &quot;ru&quot; (Russian), &quot;ja&quot; (Japanese), &quot;pl&quot; (Polish), &quot;es&quot; (Spanish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)"
+        errorLine1="    &lt;string name=&quot;tb_pref_summary_taskbar_size&quot;>Choose compact, standard, or large taskbar controls&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="89"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;tb_exit_desktop&quot; is not translated in &quot;de&quot; (German), &quot;ru&quot; (Russian), &quot;ja&quot; (Japanese), &quot;pl&quot; (Polish), &quot;es&quot; (Spanish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)"
+        errorLine1="    &lt;string name=&quot;tb_exit_desktop&quot;>Exit desktop&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="128"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;tb_wifi&quot; is not translated in &quot;de&quot; (German), &quot;ru&quot; (Russian), &quot;ja&quot; (Japanese), &quot;pl&quot; (Polish), &quot;es&quot; (Spanish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)"
+        errorLine1="    &lt;string name=&quot;tb_wifi&quot;>Wi-Fi&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="513"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;tb_bluetooth&quot; is not translated in &quot;de&quot; (German), &quot;ru&quot; (Russian), &quot;ja&quot; (Japanese), &quot;pl&quot; (Polish), &quot;es&quot; (Spanish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)"
+        errorLine1="    &lt;string name=&quot;tb_bluetooth&quot;>Bluetooth&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="514"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;tb_notifications&quot; is not translated in &quot;de&quot; (German), &quot;ru&quot; (Russian), &quot;ja&quot; (Japanese), &quot;pl&quot; (Polish), &quot;es&quot; (Spanish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)"
+        errorLine1="    &lt;string name=&quot;tb_notifications&quot;>Notifications&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="515"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="Typos"
+        message="Did you mean &quot;windows!!&quot; instead of &quot;windows11&quot;?"
+        errorLine1="        &lt;item>windows11&lt;/item>"
+        errorLine2="              ^">
+        <location
+            file="src/main/res/values/donottranslate.xml"
+            line="55"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="Typos"
+        message="&quot;Seit dem&quot; is a common misspelling; did you mean &quot;Seitdem&quot;?"
+        errorLine1="        &lt;item>Seit dem letzten Tag genutzte Apps&lt;/item>"
+        errorLine2="              ^">
+        <location
+            file="src/main/res/values-de/strings.xml"
+            line="55"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="Typos"
+        message="&quot;Seit dem&quot; is a common misspelling; did you mean &quot;Seitdem&quot;?"
+        errorLine1="        &lt;item>Seit dem Start von Taskbar genutzte Apps&lt;/item>"
+        errorLine2="              ^">
+        <location
+            file="src/main/res/values-de/strings.xml"
+            line="56"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="Typos"
+        message="&quot;Seit dem&quot; is a common misspelling; did you mean &quot;Seitdem&quot;?"
+        errorLine1="        &lt;item>Seit dem letzten Tag genutzte Apps&lt;/item>"
+        errorLine2="              ^">
+        <location
+            file="src/main/res/values-de/strings.xml"
+            line="60"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="Typos"
+        message="&quot;Seit dem&quot; is a common misspelling; did you mean &quot;Seitdem&quot;?"
+        errorLine1="        &lt;item>Seit dem Start von Taskbar genutzte Apps&lt;/item>"
+        errorLine2="              ^">
+        <location
+            file="src/main/res/values-de/strings.xml"
+            line="61"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="Typos"
+        message="&quot;via&quot; is a common misspelling; did you mean &quot;vía&quot;?"
+        errorLine1="    &lt;string name=&quot;tb_shizuku_successful&quot;>Successfully enabled additional settings via Shizuku&lt;/string>"
+        errorLine2="                                                                                  ^">
+        <location
+            file="src/main/res/values-es/strings.xml"
+            line="493"
+            column="83"/>
+    </issue>
+
+    <issue
+        id="PluralsCandidate"
+        message="Formatting %d followed by words (&quot;Braden&quot;): This should probably be a plural rather than a string"
+        errorLine1="    &lt;string name=&quot;tb_pref_about_description&quot;>Andesk: desktop-style productivity for Android\n\nForked from Taskbar by Braden Farmer\nOriginal Taskbar &amp;#169; %1$d Braden Farmer\n\nClick here to check for Andesk updates! %2$s&lt;/string>"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="102"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="PluralsCandidate"
+        message="Formatting %d followed by words (&quot;Braden&quot;): This should probably be a plural rather than a string"
+        errorLine1="    &lt;string name=&quot;tb_pref_about_description_alt&quot;>Andesk: desktop-style productivity for Android\n\nForked from Taskbar by Braden Farmer\nOriginal Taskbar &amp;#169; %1$d Braden Farmer&lt;/string>"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="103"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="PluralsCandidate"
+        message="Formatting %d followed by words (&quot;apps&quot;): This should probably be a plural rather than a string"
+        errorLine1="    &lt;string name=&quot;tb_apps_hidden&quot;>%1$d apps hidden&lt;/string>"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="187"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="PluralsCandidate"
+        message="Formatting %d followed by words (&quot;top&quot;): This should probably be a plural rather than a string"
+        errorLine1="    &lt;string name=&quot;tb_top_apps&quot;>%1$d top apps&lt;/string>"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="190"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="PluralsCandidate"
+        message="Formatting %d followed by words (&quot;apps&quot;): This should probably be a plural rather than a string"
+        errorLine1="    &lt;string name=&quot;tb_max_num_of_recents&quot;>%1$d apps&lt;/string>"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="306"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="PluralsCandidate"
+        message="Formatting %d followed by words (&quot;dpi&quot;): This should probably be a plural rather than a string"
+        errorLine1="    &lt;string name=&quot;tb_density_custom&quot;>Custom (%ddpi)&lt;/string>"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="455"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="PluralsCandidate"
+        message="Formatting %d followed by words (&quot;dpi&quot;): This should probably be a plural rather than a string"
+        errorLine1="    &lt;string name=&quot;tb_density_default&quot;>Default (%ddpi)&lt;/string>"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="456"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="StringFormatCount"
+        message="Inconsistent number of arguments in formatting string `tb_app_hidden`; found both 1 here and 0 in values/strings.xml"
+        errorLine1="    &lt;string name=&quot;tb_app_hidden&quot;>%1$d aplicación oculta&lt;/string>"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-es/strings.xml"
+            line="167"
+            column="5"/>
+        <location
+            file="src/main/res/values/strings.xml"
+            line="186"
+            column="5"
+            message="Conflicting number of arguments (0) here"/>
+    </issue>
+
+    <issue
+        id="StringFormatCount"
+        message="Inconsistent number of arguments in formatting string `tb_top_app`; found both 1 here and 0 in values/strings.xml"
+        errorLine1="    &lt;string name=&quot;tb_top_app&quot;>%1$d aplicación popular&lt;/string>"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-es/strings.xml"
+            line="170"
+            column="5"/>
+        <location
+            file="src/main/res/values/strings.xml"
+            line="189"
+            column="5"
+            message="Conflicting number of arguments (0) here"/>
+    </issue>
+
+    <issue
+        id="DataExtractionRules"
+        message="The attribute `android:allowBackup` is deprecated from Android 12 and higher and may be removed in future versions. Consider adding the attribute `android:dataExtractionRules` specifying an `@xml` resource which configures cloud backups and device transfers on Android 12 and higher."
+        errorLine1="        android:allowBackup=&quot;false&quot;"
+        errorLine2="                             ~~~~~">
+        <location
+            file="src/playstore/AndroidManifest.xml"
+            line="66"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary;` Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU` is never true here"
+        errorLine1="                    &amp;&amp; Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/farmerbb/taskbar/activity/HomeActivityDelegate.java"
+            line="659"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary;` Build.VERSION.SDK_INT >= Build.VERSION_CODES.O` is never true here"
+        errorLine1="                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/farmerbb/taskbar/service/NotificationService.java"
+            line="122"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary;` Build.VERSION.SDK_INT >= Build.VERSION_CODES.N` is never true here"
+        errorLine1="                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/farmerbb/taskbar/service/NotificationService.java"
+            line="162"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="StaticFieldLeak"
+        message="This `AsyncTask` class should be static or leaks might occur (com.farmerbb.taskbar.activity.AbstractSelectAppActivity.DesktopIconAppListGenerator)"
+        errorLine1="    private final class DesktopIconAppListGenerator extends AsyncTask&lt;Void, Void, DesktopIconAppListAdapter> {"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/farmerbb/taskbar/activity/AbstractSelectAppActivity.java"
+            line="102"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="StaticFieldLeak"
+        message="This `AsyncTask` class should be static or leaks might occur (com.farmerbb.taskbar.activity.IconPackActivity.AppListGenerator)"
+        errorLine1="    private final class AppListGenerator extends AsyncTask&lt;Void, Void, AppListAdapter> {"
+        errorLine2="                        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/farmerbb/taskbar/activity/IconPackActivity.java"
+            line="143"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="StaticFieldLeak"
+        message="This `AsyncTask` class should be static or leaks might occur (com.farmerbb.taskbar.activity.SelectAppActivity.AppListGenerator)"
+        errorLine1="    private final class AppListGenerator extends AsyncTask&lt;Void, Void, AppListAdapter[]&gt; {"
+        errorLine2="                        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/farmerbb/taskbar/activity/SelectAppActivity.java"
+            line="162"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="UseCompoundDrawables"
+        message="This tag and its children can be replaced by one `&lt;TextView/>` and a compound drawable"
+        errorLine1="&lt;LinearLayout"
+        errorLine2=" ~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_row.xml"
+            line="17"
+            column="2"/>
+    </issue>
+
+    <issue
+        id="UseCompoundDrawables"
+        message="This tag and its children can be replaced by one `&lt;TextView/>` and a compound drawable"
+        errorLine1="&lt;LinearLayout"
+        errorLine2=" ~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_row_alt.xml"
+            line="17"
+            column="2"/>
+    </issue>
+
+    <issue
+        id="VectorPath"
+        message="Very long vector path (871 characters), which is bad for performance. Considering reducing precision, removing minor details or rasterizing vector."
+        errorLine1="        android:pathData=&quot;M19.43,12.98c0.04,-0.32 0.07,-0.64 0.07,-0.98s-0.03,-0.66 -0.07,-0.98l2.11,-1.65c0.19,-0.15 0.24,-0.42 0.12,-0.64l-2,-3.46c-0.12,-0.22 -0.39,-0.3 -0.61,-0.22l-2.49,1c-0.52,-0.4 -1.08,-0.73 -1.69,-0.98l-0.38,-2.65C14.46,2.18 14.25,2 14,2h-4c-0.25,0 -0.46,0.18 -0.49,0.42l-0.38,2.65c-0.61,0.25 -1.17,0.59 -1.69,0.98l-2.49,-1c-0.23,-0.09 -0.49,0 -0.61,0.22l-2,3.46c-0.13,0.22 -0.07,0.49 0.12,0.64l2.11,1.65c-0.04,0.32 -0.07,0.65 -0.07,0.98s0.03,0.66 0.07,0.98l-2.11,1.65c-0.19,0.15 -0.24,0.42 -0.12,0.64l2,3.46c0.12,0.22 0.39,0.3 0.61,0.22l2.49,-1c0.52,0.4 1.08,0.73 1.69,0.98l0.38,2.65c0.03,0.24 0.24,0.42 0.49,0.42h4c0.25,0 0.46,-0.18 0.49,-0.42l0.38,-2.65c0.61,-0.25 1.17,-0.59 1.69,-0.98l2.49,1c0.23,0.09 0.49,0 0.61,-0.22l2,-3.46c0.12,-0.22 0.07,-0.49 -0.12,-0.64l-2.11,-1.65zM12,15.5c-1.93,0 -3.5,-1.57 -3.5,-3.5s1.57,-3.5 3.5,-3.5 3.5,1.57 3.5,3.5 -1.57,3.5 -3.5,3.5z&quot;/>"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/nonlib/res/drawable/tb_settings.xml"
+            line="8"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="MergeRootFrame"
+        message="This `&lt;FrameLayout>` can be replaced with a `&lt;merge>` tag"
+        errorLine1="&lt;FrameLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/layout/tb_desktop_icon_select_app.xml"
+            line="17"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="Overdraw"
+        message="Possible overdraw: Root element paints background `?attr/selectableItemBackground` with a theme that also paints a background (inferred theme is `@style/Taskbar`)"
+        errorLine1="    android:background=&quot;?attr/selectableItemBackground&quot; >"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_desktop_icon_row.xml"
+            line="23"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="Overdraw"
+        message="Possible overdraw: Root element paints background `?attr/tb_main_activity_background` with a theme that also paints a background (inferred theme is `@style/Theme_AppCompat_Light`)"
+        errorLine1="              android:background=&quot;?attr/tb_main_activity_background&quot; >"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/nonlib/res/layout/tb_main.xml"
+            line="25"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.integer.tb_def_dashboard_width` appears to be unused"
+        errorLine1="    &lt;integer name=&quot;tb_def_dashboard_width&quot;>2&lt;/integer>"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/default_values.xml"
+            line="20"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.integer.tb_def_dashboard_height` appears to be unused"
+        errorLine1="    &lt;integer name=&quot;tb_def_dashboard_height&quot;>2&lt;/integer>"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/default_values.xml"
+            line="21"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.dimen.tb_settings_icon_size` appears to be unused"
+        errorLine1="    &lt;dimen name=&quot;tb_settings_icon_size&quot;>24dp&lt;/dimen>"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/dimens.xml"
+            line="46"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.tb_action_show` appears to be unused"
+        errorLine1="    &lt;string name=&quot;tb_action_show&quot;>Show Taskbar&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="26"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.tb_action_hide` appears to be unused"
+        errorLine1="    &lt;string name=&quot;tb_action_hide&quot;>Hide Taskbar&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="27"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.tb_action_show_alt` appears to be unused"
+        errorLine1="    &lt;string name=&quot;tb_action_show_alt&quot;>Show&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="28"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.tb_action_hide_alt` appears to be unused"
+        errorLine1="    &lt;string name=&quot;tb_action_hide_alt&quot;>Hide&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="29"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.tb_pref_title_start_on_boot` appears to be unused"
+        errorLine1="    &lt;string name=&quot;tb_pref_title_start_on_boot&quot;>Launch on boot&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="43"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.tb_pref_description_keyboard_shortcut_alt` appears to be unused"
+        errorLine1="    &lt;string name=&quot;tb_pref_description_keyboard_shortcut_alt&quot;>Start/stop Andesk\n&amp;#8226; WinKey+M / Search+M\n\nShow start menu\n&amp;#8226; WinKey / Search\n(requires Andesk to be set as the assist app in Settings)&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="133"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.tb_pref_title_freeform_mode_help` appears to be unused"
+        errorLine1="    &lt;string name=&quot;tb_pref_title_freeform_mode_help&quot;>Help &amp;amp; instructions for freeform mode&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="166"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.tb_dialog_donate_message` appears to be unused"
+        errorLine1="    &lt;string name=&quot;tb_dialog_donate_message&quot;>Support the development of Taskbar by upgrading to the Donate Version for %1$s!\n\nThe Donate Version is identical to the free version and your preferences will automatically transfer over.\n\nTaskbar is and will always be 100%% free, open source, with absolutely no ads.  However, your support is greatly appreciated!&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="202"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.tb_action_no_thanks` appears to be unused"
+        errorLine1="    &lt;string name=&quot;tb_action_no_thanks&quot;>No thanks&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="203"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.tb_settings_imported_successfully` appears to be unused"
+        errorLine1="    &lt;string name=&quot;tb_settings_imported_successfully&quot;>Settings imported successfully&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="206"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.tb_import_dialog_message` appears to be unused"
+        errorLine1="    &lt;string name=&quot;tb_import_dialog_message&quot;>Thank you for purchasing the Donate Version of Taskbar!\n\nYour settings have been imported successfully and you may now uninstall the free version of the app.&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="207"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.tb_action_uninstall` appears to be unused"
+        errorLine1="    &lt;string name=&quot;tb_action_uninstall&quot;>Uninstall&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="208"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.tb_apply_icon_pack` appears to be unused"
+        errorLine1="    &lt;string name=&quot;tb_apply_icon_pack&quot;>Apply icon pack&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="221"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.tb_apply_icon_pack_description` appears to be unused"
+        errorLine1="    &lt;string name=&quot;tb_apply_icon_pack_description&quot;>Apply \&quot;%1$s\&quot; to Taskbar?&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="222"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.tb_must_specify_extra` appears to be unused"
+        errorLine1="    &lt;string name=&quot;tb_must_specify_extra&quot;>Must specify Intent.EXTRA_PACKAGE_NAME&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="223"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.tb_invalid_package_name` appears to be unused"
+        errorLine1="    &lt;string name=&quot;tb_invalid_package_name&quot;>Invalid package name&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="224"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.tb_change_wallpaper_alt` appears to be unused"
+        errorLine1="    &lt;string name=&quot;tb_change_wallpaper_alt&quot;>Change wallpaper&amp;#8230;&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="286"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.tb_toggle_start_menu` appears to be unused"
+        errorLine1="    &lt;string name=&quot;tb_toggle_start_menu&quot;>Toggle Start Menu&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="381"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.tb_toggle_dashboard` appears to be unused"
+        errorLine1="    &lt;string name=&quot;tb_toggle_dashboard&quot;>Toggle Dashboard&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="382"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.tb_powered_by_taskbar` appears to be unused"
+        errorLine1="    &lt;string name=&quot;tb_powered_by_taskbar&quot;>Powered by Andesk&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="410"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.tb_desktop_mode_help` appears to be unused"
+        errorLine1="    &lt;string name=&quot;tb_desktop_mode_help&quot;>&lt;b>About desktop mode&lt;/b>\n\nTaskbar supports Android 10\&apos;s built-in desktop mode functionality. You can connect your compatible Android 10+ device to an external display and run apps in resizable windows, with Taskbar\&apos;s interface running on your external display and your existing launcher still running on your phone.\n\nDesktop mode requires a USB-to-HDMI adapter (or a lapdock), and a compatible device that supports video output. Additionally, certain settings require granting a special permission via adb.\n\nTo get started, tick the checkbox for \&quot;Desktop mode.\&quot; The app will guide you through the one-time setup process, which involves:\n\n&amp;#8226; Enabling the \&quot;Enable freeform windows\&quot; and \&quot;Force desktop mode\&quot; developer options\n\n&amp;#8226; Setting Taskbar as your default home app\n\n&amp;#8226; Rebooting your device\n\n&lt;b>Why does Taskbar need to be set as my default home app for desktop mode to work?&lt;/b>\n\nBy design, Android will only allow the default home app to act as the launcher for desktop mode on external displays.  If the currently set home app does not specifically declare support for desktop mode, then Android will fall back to using a predefined desktop mode interface.\n\nTaskbar is able to work around this limitation by acting as a shim between the system and your preferred launcher.  When Taskbar is set as your home app, when the home button is pressed it will immediately start the launcher you prefer to use on your phone, then quit.  This launcher is set within Taskbar\&apos;s desktop mode preferences by clicking on the \&quot;Primary launcher\&quot; setting.\n\nThere are a couple of caveats to keep in mind when Taskbar is set as your home app:\n\n&amp;#8226; Most app shortcuts (seen when long-pressing an app icon) will no longer be available to your primary launcher.  This is due to an Android system limitation where only the default home app has access to app shortcuts that are dynamically created.\n\n&amp;#8226; Certain animations that occur when pressing the home button may look incorrect.  This is due to the aforementioned behavior where Taskbar acts as a shim when the home button is pressed.\n\n&lt;b>How do I know if my device supports video output to external displays?&lt;/b>\n\nThe folks over at NexDock maintain a list of Android 10+ smartphones that are compatible with USB-to-HDMI video output (this list excludes Samsung and Huawei devices).  You can view this list here: http://nexdock.com/lapdock-for-smartphones\n\nGoogle Pixel devices, notably, do not include support for video output.  However, you can still use Taskbar with standard screen mirroring on these devices, either via Chromecast or by using a DisplayLink dock coupled with the DisplayLink Presenter app.\n\n&lt;b>Should I use Taskbar\&apos;s desktop mode over my device\&apos;s built-in desktop mode solution, such as Samsung DeX?&lt;/b>\n\nSome OEMs, such as Samsung and Huawei, have implemented their own version of desktop mode, building on top of Google\&apos;s implementation in Android 10.  These solutions have better integration with the rest of the system and are generally more polished overall.  There is no need to switch over to Taskbar if you\&apos;re happy with your device\&apos;s existing desktop mode solution.\n\nTaskbar\&apos;s desktop mode support is geared towards devices that don\&apos;t offer a built-in desktop mode solution beyond what Google ships as stock with Android 10.\n\n&lt;b>I can\&apos;t find the \&quot;Force desktop mode\&quot; toggle in developer options &amp;#8211; can I still use desktop mode?&lt;/b>\n\nSome devices (such as the ASUS ROG Phone 2) do not have the \&quot;Force desktop mode\&quot; toggle in developer options. You will need to enable that option manually via adb. To do so, connect your device to a computer with the Android SDK installed, and run the following command (one-line):\n\nadb shell settings put global force_desktop_mode_on_external_displays 1\n\n&lt;b>What should I do if something goes wrong or my launcher / apps behave funky when desktop mode is enabled?&lt;/b>\n\nPlease follow these steps to disable desktop mode in case anything goes wrong:\n\n&amp;#8226; Pull down the quick settings drawer, then enter system settings via the gear icon\n\n&amp;#8226; Navigate to developer options and disable \&quot;Enable freeform support\&quot; and \&quot;Force desktop mode\&quot;\n\n&amp;#8226; Reboot your device&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="494"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.drawable.tb_battery_20` appears to be unused"
+        errorLine1="&lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/drawable/tb_battery_20.xml"
+            line="1"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.drawable.tb_battery_30` appears to be unused"
+        errorLine1="&lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/drawable/tb_battery_30.xml"
+            line="1"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.drawable.tb_battery_50` appears to be unused"
+        errorLine1="&lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/drawable/tb_battery_50.xml"
+            line="1"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.drawable.tb_battery_60` appears to be unused"
+        errorLine1="&lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/drawable/tb_battery_60.xml"
+            line="1"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.drawable.tb_battery_90` appears to be unused"
+        errorLine1="&lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/drawable/tb_battery_90.xml"
+            line="1"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.drawable.tb_battery_alert` appears to be unused"
+        errorLine1="&lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/drawable/tb_battery_alert.xml"
+            line="1"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.drawable.tb_battery_charging_20` appears to be unused"
+        errorLine1="&lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/drawable/tb_battery_charging_20.xml"
+            line="1"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.drawable.tb_battery_charging_30` appears to be unused"
+        errorLine1="&lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/drawable/tb_battery_charging_30.xml"
+            line="1"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.drawable.tb_battery_charging_50` appears to be unused"
+        errorLine1="&lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/drawable/tb_battery_charging_50.xml"
+            line="1"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.drawable.tb_battery_charging_60` appears to be unused"
+        errorLine1="&lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/drawable/tb_battery_charging_60.xml"
+            line="1"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.drawable.tb_battery_charging_80` appears to be unused"
+        errorLine1="&lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/drawable/tb_battery_charging_80.xml"
+            line="1"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.drawable.tb_battery_charging_90` appears to be unused"
+        errorLine1="&lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/drawable/tb_battery_charging_90.xml"
+            line="1"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.drawable.tb_battery_charging_full` appears to be unused"
+        errorLine1="&lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/drawable/tb_battery_charging_full.xml"
+            line="1"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.drawable.tb_battery_full` appears to be unused"
+        errorLine1="&lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/drawable/tb_battery_full.xml"
+            line="1"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.drawable.tb_signal_cellular_0_bar` appears to be unused"
+        errorLine1="&lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/drawable/tb_signal_cellular_0_bar.xml"
+            line="1"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.drawable.tb_signal_cellular_1_bar` appears to be unused"
+        errorLine1="&lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/drawable/tb_signal_cellular_1_bar.xml"
+            line="1"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.drawable.tb_signal_cellular_2_bar` appears to be unused"
+        errorLine1="&lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/drawable/tb_signal_cellular_2_bar.xml"
+            line="1"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.drawable.tb_signal_cellular_4_bar` appears to be unused"
+        errorLine1="&lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/drawable/tb_signal_cellular_4_bar.xml"
+            line="1"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.drawable.tb_signal_wifi_0_bar` appears to be unused"
+        errorLine1="&lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/drawable/tb_signal_wifi_0_bar.xml"
+            line="1"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.drawable.tb_signal_wifi_1_bar` appears to be unused"
+        errorLine1="&lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/drawable/tb_signal_wifi_1_bar.xml"
+            line="1"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.drawable.tb_signal_wifi_2_bar` appears to be unused"
+        errorLine1="&lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/drawable/tb_signal_wifi_2_bar.xml"
+            line="1"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.drawable.tb_signal_wifi_4_bar` appears to be unused"
+        errorLine1="&lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/drawable/tb_signal_wifi_4_bar.xml"
+            line="1"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.layout.tb_tab_layout` appears to be unused"
+        errorLine1="&lt;LinearLayout"
+        errorLine2="^">
+        <location
+            file="src/main/res/layout/tb_tab_layout.xml"
+            line="1"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="UselessParent"
+        message="This `ScrollView` layout or its `LinearLayout` parent is possibly unnecessary"
+        errorLine1="    &lt;ScrollView"
+        errorLine2="     ~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_freeform_help_dialog.xml"
+            line="25"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="UselessParent"
+        message="This `LinearLayout` layout or its `FrameLayout` parent is possibly unnecessary; transfer the `background` attribute to the other view"
+        errorLine1="                &lt;LinearLayout"
+        errorLine2="                 ~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_start_menu_left.xml"
+            line="61"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="UselessParent"
+        message="This `LinearLayout` layout or its `FrameLayout` parent is possibly unnecessary; transfer the `background` attribute to the other view"
+        errorLine1="                &lt;LinearLayout"
+        errorLine2="                 ~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_start_menu_right.xml"
+            line="61"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="UselessParent"
+        message="This `LinearLayout` layout or its `FrameLayout` parent is possibly unnecessary; transfer the `background` attribute to the other view"
+        errorLine1="        &lt;LinearLayout"
+        errorLine2="         ~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_start_menu_top_left.xml"
+            line="66"
+            column="10"/>
+    </issue>
+
+    <issue
+        id="UselessParent"
+        message="This `LinearLayout` layout or its `FrameLayout` parent is possibly unnecessary; transfer the `background` attribute to the other view"
+        errorLine1="        &lt;LinearLayout"
+        errorLine2="         ~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_start_menu_top_right.xml"
+            line="66"
+            column="10"/>
+    </issue>
+
+    <issue
+        id="UselessParent"
+        message="This `LinearLayout` layout or its `FrameLayout` parent is possibly unnecessary; transfer the `background` attribute to the other view"
+        errorLine1="                        &lt;LinearLayout"
+        errorLine2="                         ~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_start_menu_vertical_left.xml"
+            line="71"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="UselessParent"
+        message="This `LinearLayout` layout or its `FrameLayout` parent is possibly unnecessary; transfer the `background` attribute to the other view"
+        errorLine1="                        &lt;LinearLayout"
+        errorLine2="                         ~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_start_menu_vertical_right.xml"
+            line="66"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="UselessParent"
+        message="This `LinearLayout` layout or its `FrameLayout` parent is unnecessary"
+        errorLine1="                &lt;LinearLayout"
+        errorLine2="                 ~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_taskbar_left.xml"
+            line="45"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="UselessParent"
+        message="This `LinearLayout` layout or its `FrameLayout` parent is unnecessary"
+        errorLine1="                &lt;LinearLayout"
+        errorLine2="                 ~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_taskbar_right.xml"
+            line="125"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="UselessParent"
+        message="This `LinearLayout` layout or its `FrameLayout` parent is unnecessary"
+        errorLine1="        &lt;LinearLayout"
+        errorLine2="         ~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_taskbar_top_vertical.xml"
+            line="56"
+            column="10"/>
+    </issue>
+
+    <issue
+        id="UselessParent"
+        message="This `LinearLayout` layout or its `FrameLayout` parent is unnecessary"
+        errorLine1="        &lt;LinearLayout"
+        errorLine2="         ~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_taskbar_vertical.xml"
+            line="135"
+            column="10"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="&lt;string name=&quot;tb_app_shortcuts&quot;>Więcej akcji...&lt;/string>"
+        errorLine2="                                ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="49"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="&lt;string name=&quot;tb_importing_settings&quot;>Importowanie ustawień... proszę czekać.&lt;/string>"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="184"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="&lt;string name=&quot;tb_nothing_to_see_here&quot;>Burada görülecek hiçbir şey yok...&lt;/string>"
+        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-tr/strings.xml"
+            line="188"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="&lt;string name=&quot;tb_nothing_to_see_here&quot;>Nie ma tu nic do zobaczenia, poruszaj się wzdłuż...&lt;/string>"
+        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="202"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="&lt;string name=&quot;tb_set_wallpaper&quot;>Ustaw tapetę za pomocą...&lt;/string>"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="327"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="&lt;string name=&quot;tb_show_window_sizes&quot;>Nowe okno...&lt;/string>"
+        errorLine2="                                    ~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="332"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="IconNoDpi"
+        message="The following images appear in both `-nodpi` and in a density folder: tb_sakura.png">
+        <location
+            file="src/main/res/drawable-xxxhdpi/tb_sakura.png"/>
+        <location
+            file="src/main/res/drawable-xxhdpi/tb_sakura.png"/>
+        <location
+            file="src/main/res/drawable-xhdpi/tb_sakura.png"/>
+        <location
+            file="src/main/res/drawable-mdpi/tb_sakura.png"/>
+    </issue>
+
+    <issue
+        id="MonochromeLauncherIcon"
+        message="The application adaptive icon is missing a monochrome tag"
+        errorLine1="&lt;adaptive-icon xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;>"
+        errorLine2="^">
+        <location
+            file="src/nonlib/res/mipmap-anydpi-v26/andesk_launcher.xml"
+            line="2"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="IconDuplicatesConfig"
+        message="The `tb_sakura.png` icon has identical contents in the following configuration folders: drawable-nodpi, drawable">
+        <location
+            file="src/main/res/drawable/tb_sakura.png"/>
+        <location
+            file="src/main/res/drawable-nodpi/tb_sakura.png"/>
+    </issue>
+
+    <issue
+        id="IconLocation"
+        message="Found bitmap drawable `res/drawable/tb_sakura.png` in densityless folder">
+        <location
+            file="src/main/res/drawable/tb_sakura.png"/>
+    </issue>
+
+    <issue
+        id="IconDensities"
+        message="Missing the following drawables in `drawable-hdpi`: tb_sakura.png (found in drawable-mdpi, drawable-nodpi, drawable-xhdpi, drawable-xxhdpi, drawable-xxxhdpi)">
+        <location
+            file="src/main/res/drawable-hdpi"/>
+    </issue>
+
+    <issue
+        id="ReportShortcutUsage"
+        message="Calling this method indicates use of dynamic shortcuts, but there are no calls to methods that track shortcut usage, such as `pushDynamicShortcut` or `reportShortcutUsed`. Calling these methods is recommended, as they track shortcut usage and allow launchers to adjust which shortcuts appear based on activation history. Please see https://developer.android.com/develop/ui/views/launch/shortcuts/managing-shortcuts#track-usage"
+        errorLine1="                    shortcutManager.setDynamicShortcuts(Arrays.asList(shortcut, shortcut2));"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/farmerbb/taskbar/activity/MainActivity.java"
+            line="235"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="ReportShortcutUsage"
+        message="Calling this method indicates use of dynamic shortcuts, but there are no calls to methods that track shortcut usage, such as `pushDynamicShortcut` or `reportShortcutUsed`. Calling these methods is recommended, as they track shortcut usage and allow launchers to adjust which shortcuts appear based on activation history. Please see https://developer.android.com/develop/ui/views/launch/shortcuts/managing-shortcuts#track-usage"
+        errorLine1="                    shortcutManager.setDynamicShortcuts(Collections.singletonList(shortcut));"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/farmerbb/taskbar/activity/MainActivity.java"
+            line="237"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="ClickableViewAccessibility"
+        message="Custom view `WidgetFrame` overrides `onTouchEvent` but not `performClick`"
+        errorLine1="        public boolean onTouchEvent(MotionEvent ev) {"
+        errorLine2="                       ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/farmerbb/taskbar/widget/DesktopWidgetManager.java"
+            line="424"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="ClickableViewAccessibility"
+        message="`ResizeTouchListener#onTouch` should call `View#performClick` when a click is detected"
+        errorLine1="        public boolean onTouch(View v, MotionEvent ev) {"
+        errorLine2="                       ~~~~~~~">
+        <location
+            file="src/main/java/com/farmerbb/taskbar/widget/DesktopWidgetManager.java"
+            line="468"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="ClickableViewAccessibility"
+        message="Custom view ``FrameLayout`` has `setOnTouchListener` called on it but does not override `performClick`"
+        errorLine1="            iconContainer.setOnTouchListener((v, event) -> {"
+        errorLine2="            ^">
+        <location
+            file="src/main/java/com/farmerbb/taskbar/activity/HomeActivityDelegate.java"
+            line="1192"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="ClickableViewAccessibility"
+        message="`onTouch` lambda should call `View#performClick` when a click is detected"
+        errorLine1="            iconContainer.setOnTouchListener((v, event) -> {"
+        errorLine2="                                             ^">
+        <location
+            file="src/main/java/com/farmerbb/taskbar/activity/HomeActivityDelegate.java"
+            line="1192"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="ClickableViewAccessibility"
+        message="`DesktopIconTouchListener#onTouch` should call `View#performClick` when a click is detected"
+        errorLine1="        public boolean onTouch(View view, MotionEvent motionEvent) {"
+        errorLine2="                       ~~~~~~~">
+        <location
+            file="src/main/java/com/farmerbb/taskbar/activity/HomeActivityDelegate.java"
+            line="1440"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="ClickableViewAccessibility"
+        message="Custom view ``LinearLayout`` has `setOnTouchListener` called on it but does not override `performClick`"
+        errorLine1="            layout.setOnTouchListener((v, event) -> {"
+        errorLine2="            ^">
+        <location
+            file="src/main/java/com/farmerbb/taskbar/adapter/StartMenuAdapter.java"
+            line="174"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="ClickableViewAccessibility"
+        message="`onTouch` lambda should call `View#performClick` when a click is detected"
+        errorLine1="            layout.setOnTouchListener((v, event) -> {"
+        errorLine2="                                      ^">
+        <location
+            file="src/main/java/com/farmerbb/taskbar/adapter/StartMenuAdapter.java"
+            line="174"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="ClickableViewAccessibility"
+        message="Custom view ``SearchView`` has `setOnTouchListener` called on it but does not override `performClick`"
+        errorLine1="            searchView.setOnTouchListener((v, event) -> {"
+        errorLine2="            ^">
+        <location
+            file="src/main/java/com/farmerbb/taskbar/ui/StartMenuController.java"
+            line="237"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="ClickableViewAccessibility"
+        message="`onTouch` lambda should call `View#performClick` when a click is detected"
+        errorLine1="            searchView.setOnTouchListener((v, event) -> {"
+        errorLine2="                                          ^">
+        <location
+            file="src/main/java/com/farmerbb/taskbar/ui/StartMenuController.java"
+            line="237"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="ClickableViewAccessibility"
+        message="Custom view ``FrameLayout`` has `setOnTouchListener` called on it but does not override `performClick`"
+        errorLine1="            layout.setOnTouchListener((v, event) -> {"
+        errorLine2="            ^">
+        <location
+            file="src/main/java/com/farmerbb/taskbar/ui/TaskbarController.java"
+            line="1816"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="ClickableViewAccessibility"
+        message="`onTouch` lambda should call `View#performClick` when a click is detected"
+        errorLine1="            layout.setOnTouchListener((v, event) -> {"
+        errorLine2="                                      ^">
+        <location
+            file="src/main/java/com/farmerbb/taskbar/ui/TaskbarController.java"
+            line="1816"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="        &lt;ImageView"
+        errorLine2="         ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_dashboard.xml"
+            line="48"
+            column="10"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView"
+        errorLine2="     ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_desktop_icon_row.xml"
+            line="25"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView"
+        errorLine2="     ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_icon.xml"
+            line="25"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView"
+        errorLine2="     ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_icon.xml"
+            line="32"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView"
+        errorLine2="     ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_icon.xml"
+            line="44"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView"
+        errorLine2="     ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_row.xml"
+            line="25"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView"
+        errorLine2="     ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_row_alt.xml"
+            line="27"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="&lt;ImageView xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2=" ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_secondscreen_pref_widget.xml"
+            line="1"
+            column="2"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="            &lt;ImageButton"
+        errorLine2="             ~~~~~~~~~~~">
+        <location
+            file="src/nonlib/res/layout/tb_shortcut_options.xml"
+            line="97"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="                                &lt;ImageView"
+        errorLine2="                                 ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_start_menu_left.xml"
+            line="81"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="                                &lt;ImageView"
+        errorLine2="                                 ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_start_menu_right.xml"
+            line="81"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="                &lt;ImageView"
+        errorLine2="                 ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_start_menu_top_left.xml"
+            line="86"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="                &lt;ImageView"
+        errorLine2="                 ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_start_menu_top_right.xml"
+            line="86"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="                                        &lt;ImageView"
+        errorLine2="                                         ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_start_menu_vertical_left.xml"
+            line="91"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="                                        &lt;ImageView"
+        errorLine2="                                         ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_start_menu_vertical_right.xml"
+            line="86"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView"
+        errorLine2="     ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_switch_layout.xml"
+            line="22"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="        &lt;ImageView"
+        errorLine2="         ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_system_tray.xml"
+            line="45"
+            column="10"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView"
+        errorLine2="     ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_system_tray.xml"
+            line="66"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView"
+        errorLine2="     ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_system_tray.xml"
+            line="73"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView"
+        errorLine2="     ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_system_tray.xml"
+            line="80"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView"
+        errorLine2="     ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_system_tray.xml"
+            line="87"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="        &lt;ImageView"
+        errorLine2="         ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_taskbar_left.xml"
+            line="33"
+            column="10"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="                &lt;ImageView"
+        errorLine2="                 ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_taskbar_left.xml"
+            line="112"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="                &lt;ImageView"
+        errorLine2="                 ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_taskbar_left.xml"
+            line="120"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="                &lt;ImageView"
+        errorLine2="                 ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_taskbar_left.xml"
+            line="128"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="                &lt;ImageView"
+        errorLine2="                 ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_taskbar_right.xml"
+            line="92"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="                &lt;ImageView"
+        errorLine2="                 ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_taskbar_right.xml"
+            line="100"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="                &lt;ImageView"
+        errorLine2="                 ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_taskbar_right.xml"
+            line="108"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="        &lt;ImageView"
+        errorLine2="         ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_taskbar_right.xml"
+            line="185"
+            column="10"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView"
+        errorLine2="     ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_taskbar_top_vertical.xml"
+            line="44"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="        &lt;ImageView"
+        errorLine2="         ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_taskbar_top_vertical.xml"
+            line="123"
+            column="10"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="        &lt;ImageView"
+        errorLine2="         ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_taskbar_top_vertical.xml"
+            line="131"
+            column="10"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="        &lt;ImageView"
+        errorLine2="         ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_taskbar_top_vertical.xml"
+            line="139"
+            column="10"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="        &lt;ImageView"
+        errorLine2="         ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_taskbar_vertical.xml"
+            line="102"
+            column="10"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="        &lt;ImageView"
+        errorLine2="         ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_taskbar_vertical.xml"
+            line="110"
+            column="10"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="        &lt;ImageView"
+        errorLine2="         ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_taskbar_vertical.xml"
+            line="118"
+            column="10"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView"
+        errorLine2="     ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_taskbar_vertical.xml"
+            line="195"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="KeyboardInaccessibleWidget"
+        message="&apos;clickable&apos; attribute found, please also add &apos;focusable&apos;"
+        errorLine1="    android:clickable=&quot;true&quot;"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_start_menu_left.xml"
+            line="24"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="KeyboardInaccessibleWidget"
+        message="&apos;clickable&apos; attribute found, please also add &apos;focusable&apos;"
+        errorLine1="                            android:clickable=&quot;true&quot; >"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_start_menu_left.xml"
+            line="79"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="KeyboardInaccessibleWidget"
+        message="&apos;clickable&apos; attribute found, please also add &apos;focusable&apos;"
+        errorLine1="    android:clickable=&quot;true&quot;"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_start_menu_right.xml"
+            line="24"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="KeyboardInaccessibleWidget"
+        message="&apos;clickable&apos; attribute found, please also add &apos;focusable&apos;"
+        errorLine1="                            android:clickable=&quot;true&quot; >"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_start_menu_right.xml"
+            line="79"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="KeyboardInaccessibleWidget"
+        message="&apos;clickable&apos; attribute found, please also add &apos;focusable&apos;"
+        errorLine1="    android:clickable=&quot;true&quot;"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_start_menu_top_left.xml"
+            line="24"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="KeyboardInaccessibleWidget"
+        message="&apos;clickable&apos; attribute found, please also add &apos;focusable&apos;"
+        errorLine1="                android:clickable=&quot;true&quot; >"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_start_menu_top_left.xml"
+            line="84"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="KeyboardInaccessibleWidget"
+        message="&apos;clickable&apos; attribute found, please also add &apos;focusable&apos;"
+        errorLine1="    android:clickable=&quot;true&quot;"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_start_menu_top_right.xml"
+            line="24"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="KeyboardInaccessibleWidget"
+        message="&apos;clickable&apos; attribute found, please also add &apos;focusable&apos;"
+        errorLine1="                android:clickable=&quot;true&quot; >"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_start_menu_top_right.xml"
+            line="84"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="KeyboardInaccessibleWidget"
+        message="&apos;clickable&apos; attribute found, please also add &apos;focusable&apos;"
+        errorLine1="    android:clickable=&quot;true&quot;"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_start_menu_vertical_left.xml"
+            line="24"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="KeyboardInaccessibleWidget"
+        message="&apos;clickable&apos; attribute found, please also add &apos;focusable&apos;"
+        errorLine1="                                    android:clickable=&quot;true&quot; >"
+        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_start_menu_vertical_left.xml"
+            line="89"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="KeyboardInaccessibleWidget"
+        message="&apos;clickable&apos; attribute found, please also add &apos;focusable&apos;"
+        errorLine1="    android:clickable=&quot;true&quot;"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_start_menu_vertical_right.xml"
+            line="24"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="KeyboardInaccessibleWidget"
+        message="&apos;clickable&apos; attribute found, please also add &apos;focusable&apos;"
+        errorLine1="                                    android:clickable=&quot;true&quot; >"
+        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_start_menu_vertical_right.xml"
+            line="84"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="KeyboardInaccessibleWidget"
+        message="&apos;clickable&apos; attribute found, please also add &apos;focusable&apos;"
+        errorLine1="        android:clickable=&quot;true&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_switch_layout.xml"
+            line="29"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="KeyboardInaccessibleWidget"
+        message="&apos;clickable&apos; attribute found, please also add &apos;focusable&apos;"
+        errorLine1="                  android:clickable=&quot;true&quot;"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_taskbar_top_vertical.xml"
+            line="25"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="KeyboardInaccessibleWidget"
+        message="&apos;clickable&apos; attribute found, please also add &apos;focusable&apos;"
+        errorLine1="        android:clickable=&quot;true&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_taskbar_top_vertical.xml"
+            line="208"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="KeyboardInaccessibleWidget"
+        message="&apos;clickable&apos; attribute found, please also add &apos;focusable&apos;"
+        errorLine1="        android:clickable=&quot;true&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_taskbar_vertical.xml"
+            line="26"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="KeyboardInaccessibleWidget"
+        message="&apos;clickable&apos; attribute found, please also add &apos;focusable&apos;"
+        errorLine1="                  android:clickable=&quot;true&quot;"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_taskbar_vertical.xml"
+            line="208"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="LabelFor"
+        message="Missing accessibility label: provide either a view with an `android:labelFor` that references this view or provide an `android:hint`"
+        errorLine1="    &lt;EditText"
+        errorLine2="     ~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_dashboard_size_dialog.xml"
+            line="23"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="LabelFor"
+        message="Missing accessibility label: provide either a view with an `android:labelFor` that references this view or provide an `android:hint`"
+        errorLine1="    &lt;EditText"
+        errorLine2="     ~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_dashboard_size_dialog.xml"
+            line="42"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="                addDesktopItem.setText(&quot;+ Add to desktop&quot;);"
+        errorLine2="                                       ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/farmerbb/taskbar/activity/HomeActivityDelegate.java"
+            line="446"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="Do not concatenate text displayed with `setText`. Use resource string with placeholders."
+        errorLine1="                        shortcutView.setText((document.optBoolean(&quot;folder&quot;) ? &quot;📁 &quot; : &quot;📄 &quot;) + document.optString(&quot;title&quot;, &quot;Shortcut&quot;));"
+        errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/farmerbb/taskbar/activity/HomeActivityDelegate.java"
+            line="1212"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="RtlSymmetry"
+        message="When you define `paddingLeft` you should probably also define `paddingRight` for right-to-left symmetry"
+        errorLine1="    android:paddingLeft=&quot;4dp&quot;"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_row.xml"
+            line="21"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="RtlSymmetry"
+        message="When you define `paddingEnd` you should probably also define `paddingStart` for right-to-left symmetry"
+        errorLine1="        android:paddingEnd=&quot;12dp&quot;/>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_switch_layout.xml"
+            line="39"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Redundant attribute `layout_marginLeft`; already defining `layout_marginStart` with `targetSdkVersion` 21"
+        errorLine1="        android:layout_marginLeft=&quot;4dp&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_desktop_icon_row.xml"
+            line="36"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider replacing `android:layout_marginLeft` with `android:layout_marginStart=&quot;8dp&quot;` to better support right-to-left layouts"
+        errorLine1="        android:layout_marginLeft=&quot;8dp&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_icon.xml"
+            line="36"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Use &quot;`start`&quot; instead of &quot;`left`&quot; to ensure correct behavior in right-to-left locales"
+        errorLine1="        android:layout_gravity=&quot;bottom|left&quot;"
+        errorLine2="                                ~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_icon.xml"
+            line="38"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider replacing `android:paddingLeft` with `android:paddingStart=&quot;4dp&quot;` to better support right-to-left layouts"
+        errorLine1="    android:paddingLeft=&quot;4dp&quot;"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_row.xml"
+            line="21"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider replacing `android:layout_marginLeft` with `android:layout_marginStart=&quot;4dp&quot;` to better support right-to-left layouts"
+        errorLine1="        android:layout_marginLeft=&quot;4dp&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_row.xml"
+            line="36"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider replacing `android:layout_marginLeft` with `android:layout_marginStart=&quot;21dp&quot;` to better support right-to-left layouts"
+        errorLine1="            android:layout_marginLeft=&quot;21dp&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_taskbar_top_vertical.xml"
+            line="31"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider replacing `android:layout_marginLeft` with `android:layout_marginStart=&quot;21dp&quot;` to better support right-to-left layouts"
+        errorLine1="            android:layout_marginLeft=&quot;21dp&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_taskbar_top_vertical.xml"
+            line="214"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider replacing `android:layout_marginLeft` with `android:layout_marginStart=&quot;14.2857dp&quot;` to better support right-to-left layouts"
+        errorLine1="                android:layout_marginLeft=&quot;14.2857dp&quot;"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_taskbar_vertical.xml"
+            line="32"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider replacing `android:layout_marginLeft` with `android:layout_marginStart=&quot;14.2857dp&quot;` to better support right-to-left layouts"
+        errorLine1="            android:layout_marginLeft=&quot;14.2857dp&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/tb_taskbar_vertical.xml"
+            line="214"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="RtlEnabled"
+        message="The project references RTL attributes, but does not explicitly enable or disable RTL support with `android:supportsRtl` in the manifest">
+        <location
+            file="src/playstore/AndroidManifest.xml"/>
+    </issue>
+
+</issues>
