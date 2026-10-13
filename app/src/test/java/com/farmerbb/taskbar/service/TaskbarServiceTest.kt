@@ -14,10 +14,10 @@ class TaskbarServiceTest {
     @Test
     fun testDesktopLauncherTaskDetection() {
         val desktopIntent = Intent().setComponent(
-            ComponentName("com.farmerbb.taskbar", DesktopLauncherActivity::class.java.name)
+            ComponentName("com.farmerbb.taskbar", DesktopLauncherActivity::class.java.name),
         )
         val settingsIntent = Intent().setComponent(
-            ComponentName("com.farmerbb.taskbar", MainActivity::class.java.name)
+            ComponentName("com.farmerbb.taskbar", MainActivity::class.java.name),
         )
 
         Assert.assertTrue(TaskbarService.isDesktopLauncherTask(desktopIntent))

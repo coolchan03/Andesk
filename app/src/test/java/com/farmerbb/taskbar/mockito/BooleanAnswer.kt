@@ -5,7 +5,5 @@ import org.mockito.stubbing.Answer
 
 class BooleanAnswer : Answer<Boolean> {
     var answer = false
-    override fun answer(invocation: InvocationOnMock): Boolean {
-        return answer
-    }
+    override fun answer(invocation: InvocationOnMock): Boolean = answer
 }

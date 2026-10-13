@@ -32,7 +32,5 @@ class RunnableHooker : Runnable {
         hasRun = true
     }
 
-    fun hasRun(): Boolean {
-        return hasRun
-    }
+    fun hasRun(): Boolean = hasRun
 }

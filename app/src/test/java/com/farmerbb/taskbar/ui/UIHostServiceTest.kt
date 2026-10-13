@@ -28,8 +28,8 @@ class UIHostServiceTest {
     fun setUp() {
         context = ApplicationProvider.getApplicationContext()
         U.getSharedPreferences(context).edit()
-                .putBoolean(Constants.PREF_DESKTOP_SESSION_ACTIVE, true)
-                .apply()
+            .putBoolean(Constants.PREF_DESKTOP_SESSION_ACTIVE, true)
+            .apply()
         LauncherHelper.getInstance().setDesktopLauncherOpen(true)
 
         controller = Robolectric.buildService(TestUIHostService::class.java)
@@ -43,8 +43,8 @@ class UIHostServiceTest {
         uiController.onRecreateHost = null
         uiController.onDestroyHost = null
         U.getSharedPreferences(context).edit()
-                .remove(Constants.PREF_DESKTOP_SESSION_ACTIVE)
-                .apply()
+            .remove(Constants.PREF_DESKTOP_SESSION_ACTIVE)
+            .apply()
         LauncherHelper.getInstance().setDesktopLauncherOpen(false)
     }
 
@@ -93,8 +93,8 @@ class UIHostServiceTest {
     @Test
     fun testNoDesktopSessionStopsBeforeCreatingUi() {
         U.getSharedPreferences(context).edit()
-                .putBoolean(Constants.PREF_DESKTOP_SESSION_ACTIVE, false)
-                .apply()
+            .putBoolean(Constants.PREF_DESKTOP_SESSION_ACTIVE, false)
+            .apply()
 
         val rejectedController = Robolectric.buildService(TestUIHostService::class.java)
         val rejectedService = rejectedController.create().get()
@@ -106,9 +106,9 @@ class UIHostServiceTest {
     @Test
     fun testStaleSessionFlagCannotCreateUi() {
         U.getSharedPreferences(context).edit()
-                .putBoolean(Constants.PREF_DESKTOP_SESSION_ACTIVE, true)
-                .putBoolean(Constants.PREF_TASKBAR_ACTIVE, true)
-                .apply()
+            .putBoolean(Constants.PREF_DESKTOP_SESSION_ACTIVE, true)
+            .putBoolean(Constants.PREF_TASKBAR_ACTIVE, true)
+            .apply()
         LauncherHelper.getInstance().setDesktopLauncherOpen(false)
 
         val rejectedController = Robolectric.buildService(TestUIHostService::class.java)
@@ -116,11 +116,13 @@ class UIHostServiceTest {
 
         Assert.assertTrue(Shadows.shadowOf(rejectedService).isStoppedBySelf)
         Assert.assertFalse(
-                U.getSharedPreferences(context)
-                        .getBoolean(Constants.PREF_DESKTOP_SESSION_ACTIVE, true))
+            U.getSharedPreferences(context)
+                .getBoolean(Constants.PREF_DESKTOP_SESSION_ACTIVE, true),
+        )
         Assert.assertFalse(
-                U.getSharedPreferences(context)
-                        .getBoolean(Constants.PREF_TASKBAR_ACTIVE, true))
+            U.getSharedPreferences(context)
+                .getBoolean(Constants.PREF_TASKBAR_ACTIVE, true),
+        )
         rejectedController.destroy()
     }
 

@@ -22,9 +22,9 @@ class NotificationServiceTest {
     fun setUp() {
         context = ApplicationProvider.getApplicationContext()
         U.getSharedPreferences(context).edit()
-                .putBoolean(Constants.PREF_DESKTOP_SESSION_ACTIVE, true)
-                .putBoolean(Constants.PREF_TASKBAR_ACTIVE, true)
-                .apply()
+            .putBoolean(Constants.PREF_DESKTOP_SESSION_ACTIVE, true)
+            .putBoolean(Constants.PREF_TASKBAR_ACTIVE, true)
+            .apply()
         LauncherHelper.getInstance().setDesktopLauncherOpen(false)
     }
 
@@ -35,14 +35,17 @@ class NotificationServiceTest {
 
         Assert.assertTrue(Shadows.shadowOf(service).isStoppedBySelf)
         Assert.assertFalse(
-                U.getSharedPreferences(context)
-                        .getBoolean(Constants.PREF_DESKTOP_SESSION_ACTIVE, true))
+            U.getSharedPreferences(context)
+                .getBoolean(Constants.PREF_DESKTOP_SESSION_ACTIVE, true),
+        )
         Assert.assertFalse(
-                U.getSharedPreferences(context)
-                        .getBoolean(Constants.PREF_TASKBAR_ACTIVE, true))
+            U.getSharedPreferences(context)
+                .getBoolean(Constants.PREF_TASKBAR_ACTIVE, true),
+        )
         Assert.assertEquals(
-                Service.START_NOT_STICKY,
-                service.onStartCommand(null, 0, 0))
+            Service.START_NOT_STICKY,
+            service.onStartCommand(null, 0, 0),
+        )
 
         controller.destroy()
     }

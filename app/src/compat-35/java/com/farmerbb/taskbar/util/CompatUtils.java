@@ -15,9 +15,8 @@
 
 package com.farmerbb.taskbar.util;
 
-// Utility class meant for compatibility between the Android-x86 version of Taskbar (compiled with SDK 28)
-// and the Play Store version of Taskbar (compiled with SDK 34).
-// TODO Do not make changes to this file without making corresponding changes to the Android-x86 version.
+// Andesk compatibility utilities compiled against Android SDK 35.
+// Keep platform-gated behavior compatible with supported Android versions.
 
 import android.Manifest;
 import android.app.Activity;

@@ -71,7 +71,7 @@ class FavoriteAppTileServiceTest {
     fun testOnTileRemoved() {
         app1.onTileRemoved()
         Assert.assertFalse(
-                prefs.getBoolean(app1.prefix + Constants.PREF_ADDED_SUFFIX, true)
+            prefs.getBoolean(app1.prefix + Constants.PREF_ADDED_SUFFIX, true),
         )
     }
 
@@ -82,15 +82,16 @@ class FavoriteAppTileServiceTest {
         val startedActivityIntent = Shadows.shadowOf(context as Application?).nextStartedActivity
         Assert.assertNotNull(startedActivityIntent)
         Assert.assertEquals(
-                app1.tileNumber().toLong(),
-                startedActivityIntent.getIntExtra(Constants.PREF_QS_TILE, Int.MIN_VALUE)
-                        .toLong())
+            app1.tileNumber().toLong(),
+            startedActivityIntent.getIntExtra(Constants.PREF_QS_TILE, Int.MIN_VALUE)
+                .toLong(),
+        )
         Assert.assertNotNull(startedActivityIntent.component)
         Assert.assertTrue(
-                startedActivityIntent
-                        .component
-                        ?.className
-                        ?.endsWith(PersistentShortcutSelectAppActivity::class.java.simpleName)!!
+            startedActivityIntent
+                .component
+                ?.className
+                ?.endsWith(PersistentShortcutSelectAppActivity::class.java.simpleName)!!,
         )
     }
 
@@ -103,46 +104,46 @@ class FavoriteAppTileServiceTest {
         Shadows.shadowOf(app1).setLocked(false)
         val testPackageName: String = TEST_PACKAGE
         prefs
-                .edit()
-                .putString(app1.prefix + Constants.PREF_PACKAGE_NAME_SUFFIX, testPackageName)
-                .apply()
+            .edit()
+            .putString(app1.prefix + Constants.PREF_PACKAGE_NAME_SUFFIX, testPackageName)
+            .apply()
         val testComponentName: String = TEST_COMPONENT
         prefs
-                .edit()
-                .putString(app1.prefix + Constants.PREF_COMPONENT_NAME_SUFFIX, testComponentName)
-                .apply()
+            .edit()
+            .putString(app1.prefix + Constants.PREF_COMPONENT_NAME_SUFFIX, testComponentName)
+            .apply()
         val testWindowSize: String = TEST_WINDOW_SIZE
         prefs
-                .edit()
-                .putString(app1.prefix + Constants.PREF_WINDOW_SIZE_SUFFIX, testWindowSize)
-                .apply()
+            .edit()
+            .putString(app1.prefix + Constants.PREF_WINDOW_SIZE_SUFFIX, testWindowSize)
+            .apply()
         app1.onClick()
         val startedActivityIntent = Shadows.shadowOf(context as Application?).nextStartedActivity
         Assert.assertNotNull(startedActivityIntent)
         Assert.assertNotNull(startedActivityIntent.component)
         Assert.assertTrue(
-                startedActivityIntent
-                        .component
-                        ?.className
-                        ?.endsWith(PersistentShortcutLaunchActivity::class.java.simpleName)!!
+            startedActivityIntent
+                .component
+                ?.className
+                ?.endsWith(PersistentShortcutLaunchActivity::class.java.simpleName)!!,
         )
         Assert.assertEquals(Intent.ACTION_MAIN, startedActivityIntent.action)
         Assert.assertEquals(
-                testPackageName,
-                startedActivityIntent.getStringExtra(Constants.EXTRA_PACKAGE_NAME)
+            testPackageName,
+            startedActivityIntent.getStringExtra(Constants.EXTRA_PACKAGE_NAME),
         )
         Assert.assertEquals(
-                testComponentName,
-                startedActivityIntent.getStringExtra(Constants.EXTRA_COMPONENT_NAME)
+            testComponentName,
+            startedActivityIntent.getStringExtra(Constants.EXTRA_COMPONENT_NAME),
         )
         Assert.assertEquals(
-                testWindowSize,
-                startedActivityIntent.getStringExtra(Constants.EXTRA_WINDOW_SIZE)
+            testWindowSize,
+            startedActivityIntent.getStringExtra(Constants.EXTRA_WINDOW_SIZE),
         )
         val userManager = context.getSystemService(Context.USER_SERVICE) as UserManager
         Assert.assertEquals(
-                userManager.getSerialNumberForUser(Process.myUserHandle()),
-                startedActivityIntent.getLongExtra(Constants.EXTRA_USER_ID, Long.MIN_VALUE)
+            userManager.getSerialNumberForUser(Process.myUserHandle()),
+            startedActivityIntent.getLongExtra(Constants.EXTRA_USER_ID, Long.MIN_VALUE),
         )
     }
 

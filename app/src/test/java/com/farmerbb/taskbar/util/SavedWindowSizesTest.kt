@@ -33,20 +33,20 @@ class SavedWindowSizesTest {
         val prefs = U.getSharedPreferences(context)
         val defaultWindowSize = prefs.getString(Constants.PREF_WINDOW_SIZE, "standard")
         Assert.assertEquals(
-                defaultWindowSize,
-                savedWindowSizes.getWindowSize(context, context.packageName)
+            defaultWindowSize,
+            savedWindowSizes.getWindowSize(context, context.packageName),
         )
         val newWindowSize = "$defaultWindowSize-new"
         prefs.edit().putString(Constants.PREF_WINDOW_SIZE, newWindowSize).apply()
         Assert.assertEquals(
-                newWindowSize,
-                savedWindowSizes.getWindowSize(context, context.packageName)
+            newWindowSize,
+            savedWindowSizes.getWindowSize(context, context.packageName),
         )
         prefs.edit().remove(Constants.PREF_WINDOW_SIZE).apply()
         savedWindowSizes.setWindowSize(context, context.packageName, CUSTOM_WINDOW_SIZE)
         Assert.assertEquals(
-                CUSTOM_WINDOW_SIZE,
-                savedWindowSizes.getWindowSize(context, context.packageName)
+            CUSTOM_WINDOW_SIZE,
+            savedWindowSizes.getWindowSize(context, context.packageName),
         )
         savedWindowSizes.clear(context)
     }
@@ -56,8 +56,8 @@ class SavedWindowSizesTest {
         savedWindowSizes.setWindowSize(context, context.packageName, CUSTOM_WINDOW_SIZE)
         savedWindowSizes.clear(context)
         org.junit.Assert.assertNotEquals(
-                CUSTOM_WINDOW_SIZE,
-                savedWindowSizes.getWindowSize(context, context.packageName)
+            CUSTOM_WINDOW_SIZE,
+            savedWindowSizes.getWindowSize(context, context.packageName),
         )
     }
 
@@ -65,11 +65,12 @@ class SavedWindowSizesTest {
     fun testSerializable() {
         savedWindowSizes.setWindowSize(context, context.packageName, CUSTOM_WINDOW_SIZE)
         val newSavedWindowSizes =
-                SerializationUtils.deserialize<SavedWindowSizes>(
-                        SerializationUtils.serialize(savedWindowSizes))
+            SerializationUtils.deserialize<SavedWindowSizes>(
+                SerializationUtils.serialize(savedWindowSizes),
+            )
         Assert.assertEquals(
-                CUSTOM_WINDOW_SIZE,
-                newSavedWindowSizes.getWindowSize(context, context.packageName)
+            CUSTOM_WINDOW_SIZE,
+            newSavedWindowSizes.getWindowSize(context, context.packageName),
         )
         savedWindowSizes.clear(context)
     }

@@ -50,10 +50,19 @@ import org.robolectric.shadows.AppWidgetProviderInfoBuilder
 import org.robolectric.shadows.ShadowToast
 
 @RunWith(RobolectricTestRunner::class)
-@PowerMockIgnore("org.mockito.*", "org.robolectric.*", "android.*", "androidx.*",
-        "com.farmerbb.taskbar.shadow.*")
-@PrepareForTest(value = [U::class, TaskbarPosition::class, DashboardController::class,
-    LauncherHelper::class])
+@PowerMockIgnore(
+    "org.mockito.*",
+    "org.robolectric.*",
+    "android.*",
+    "androidx.*",
+    "com.farmerbb.taskbar.shadow.*",
+)
+@PrepareForTest(
+    value = [
+        U::class, TaskbarPosition::class, DashboardController::class,
+        LauncherHelper::class,
+    ],
+)
 class DashboardControllerTest {
     @get:Rule
     val rule = PowerMockRule()
@@ -107,7 +116,7 @@ class DashboardControllerTest {
         val helper = PowerMockito.mock(LauncherHelper::class.java)
         val isOnSecondaryHomeScreenAnswer = BooleanAnswer()
         PowerMockito.`when`(helper.isOnSecondaryHomeScreen(context))
-                .thenAnswer(isOnSecondaryHomeScreenAnswer)
+            .thenAnswer(isOnSecondaryHomeScreenAnswer)
         PowerMockito.mockStatic(LauncherHelper::class.java)
         PowerMockito.`when`(LauncherHelper.getInstance()).thenReturn(helper)
         isOnSecondaryHomeScreenAnswer.answer = true
@@ -133,11 +142,12 @@ class DashboardControllerTest {
         prefs.edit().putString(uiController.generateProviderPlaceholderPrefKey(cellId), "").apply()
         uiController.saveWidgetInfo(context, info, cellId, appWidgetId)
         Assert.assertEquals(
-                appWidgetId.toLong(),
-                prefs.getInt(PREF_DASHBOARD_WIDGET_PREFIX + cellId, -1).toLong())
+            appWidgetId.toLong(),
+            prefs.getInt(PREF_DASHBOARD_WIDGET_PREFIX + cellId, -1).toLong(),
+        )
         Assert.assertEquals(
-                info.provider.flattenToString(),
-                prefs.getString(uiController.generateProviderPrefKey(cellId), "")
+            info.provider.flattenToString(),
+            prefs.getString(uiController.generateProviderPrefKey(cellId), ""),
         )
         Assert.assertFalse(prefs.contains(uiController.generateProviderPlaceholderPrefKey(cellId)))
     }
@@ -157,20 +167,20 @@ class DashboardControllerTest {
     @Test
     fun testGenerateProviderPrefKey() {
         Assert.assertEquals(
-                PREF_DASHBOARD_WIDGET_PREFIX +
-                        DEFAULT_TEST_CELL_ID +
-                        PREF_DASHBOARD_WIDGET_PROVIDER_SUFFIX,
-                uiController.generateProviderPrefKey(DEFAULT_TEST_CELL_ID)
+            PREF_DASHBOARD_WIDGET_PREFIX +
+                DEFAULT_TEST_CELL_ID +
+                PREF_DASHBOARD_WIDGET_PROVIDER_SUFFIX,
+            uiController.generateProviderPrefKey(DEFAULT_TEST_CELL_ID),
         )
     }
 
     @Test
     fun testGenerateProviderPlaceholderPrefKey() {
         Assert.assertEquals(
-                PREF_DASHBOARD_WIDGET_PREFIX +
-                        DEFAULT_TEST_CELL_ID +
-                        PREF_DASHBOARD_WIDGET_PLACEHOLDER_SUFFIX,
-                uiController.generateProviderPlaceholderPrefKey(DEFAULT_TEST_CELL_ID)
+            PREF_DASHBOARD_WIDGET_PREFIX +
+                DEFAULT_TEST_CELL_ID +
+                PREF_DASHBOARD_WIDGET_PLACEHOLDER_SUFFIX,
+            uiController.generateProviderPlaceholderPrefKey(DEFAULT_TEST_CELL_ID),
         )
     }
 
@@ -192,9 +202,9 @@ class DashboardControllerTest {
         uiController.showPlaceholderToast(context, appWidgetManager, cellId, prefs)
         Assert.assertNull(ShadowToast.getLatestToast())
         prefs
-                .edit()
-                .putString(providerPrefKey, info.provider.flattenToString() + UNSUPPORTED)
-                .apply()
+            .edit()
+            .putString(providerPrefKey, info.provider.flattenToString() + UNSUPPORTED)
+            .apply()
         uiController.showPlaceholderToast(context, appWidgetManager, cellId, prefs)
         Assert.assertNull(ShadowToast.getLatestToast())
         prefs.edit().putString(providerPrefKey, info.provider.flattenToString()).apply()

@@ -17,13 +17,13 @@ class TaskbarStyleTest {
     fun setUp() {
         context = ApplicationProvider.getApplicationContext()
         U.getSharedPreferences(context).edit()
-                .remove(Constants.PREF_TASKBAR_STYLE)
-                .remove(Constants.PREF_TASKBAR_SIZE)
-                .remove(Constants.PREF_FULL_LENGTH)
-                .remove(Constants.PREF_CENTERED_ICONS)
-                .remove(Constants.PREF_BACKGROUND_TINT)
-                .remove(Constants.PREF_ACCENT_COLOR)
-                .apply()
+            .remove(Constants.PREF_TASKBAR_STYLE)
+            .remove(Constants.PREF_TASKBAR_SIZE)
+            .remove(Constants.PREF_FULL_LENGTH)
+            .remove(Constants.PREF_CENTERED_ICONS)
+            .remove(Constants.PREF_BACKGROUND_TINT)
+            .remove(Constants.PREF_ACCENT_COLOR)
+            .apply()
     }
 
     @Test
@@ -31,12 +31,12 @@ class TaskbarStyleTest {
         val background = Color.argb(120, 1, 2, 3)
         val accent = Color.rgb(4, 5, 6)
         U.getSharedPreferences(context).edit()
-                .putString(Constants.PREF_TASKBAR_STYLE, Constants.PREF_TASKBAR_STYLE_CLASSIC)
-                .putBoolean(Constants.PREF_FULL_LENGTH, false)
-                .putBoolean(Constants.PREF_CENTERED_ICONS, true)
-                .putInt(Constants.PREF_BACKGROUND_TINT, background)
-                .putInt(Constants.PREF_ACCENT_COLOR, accent)
-                .apply()
+            .putString(Constants.PREF_TASKBAR_STYLE, Constants.PREF_TASKBAR_STYLE_CLASSIC)
+            .putBoolean(Constants.PREF_FULL_LENGTH, false)
+            .putBoolean(Constants.PREF_CENTERED_ICONS, true)
+            .putInt(Constants.PREF_BACKGROUND_TINT, background)
+            .putInt(Constants.PREF_ACCENT_COLOR, accent)
+            .apply()
 
         Assert.assertFalse(U.isTaskbarFullLength(context))
         Assert.assertTrue(U.isTaskbarCentered(context))
@@ -47,10 +47,10 @@ class TaskbarStyleTest {
     @Test
     fun testWindows10Preset() {
         U.getSharedPreferences(context).edit()
-                .putString(Constants.PREF_TASKBAR_STYLE, Constants.PREF_TASKBAR_STYLE_WINDOWS_10)
-                .putBoolean(Constants.PREF_FULL_LENGTH, false)
-                .putBoolean(Constants.PREF_CENTERED_ICONS, true)
-                .apply()
+            .putString(Constants.PREF_TASKBAR_STYLE, Constants.PREF_TASKBAR_STYLE_WINDOWS_10)
+            .putBoolean(Constants.PREF_FULL_LENGTH, false)
+            .putBoolean(Constants.PREF_CENTERED_ICONS, true)
+            .apply()
 
         Assert.assertTrue(U.isTaskbarFullLength(context))
         Assert.assertFalse(U.isTaskbarCentered(context))
@@ -61,10 +61,10 @@ class TaskbarStyleTest {
     @Test
     fun testWindows11Preset() {
         U.getSharedPreferences(context).edit()
-                .putString(Constants.PREF_TASKBAR_STYLE, Constants.PREF_TASKBAR_STYLE_WINDOWS_11)
-                .putBoolean(Constants.PREF_FULL_LENGTH, false)
-                .putBoolean(Constants.PREF_CENTERED_ICONS, false)
-                .apply()
+            .putString(Constants.PREF_TASKBAR_STYLE, Constants.PREF_TASKBAR_STYLE_WINDOWS_11)
+            .putBoolean(Constants.PREF_FULL_LENGTH, false)
+            .putBoolean(Constants.PREF_CENTERED_ICONS, false)
+            .apply()
 
         Assert.assertTrue(U.isTaskbarFullLength(context))
         Assert.assertTrue(U.isTaskbarCentered(context))
@@ -75,12 +75,13 @@ class TaskbarStyleTest {
     @Test
     fun testLegacyWindowsStyleMapsToWindows11() {
         U.getSharedPreferences(context).edit()
-                .putString(Constants.PREF_TASKBAR_STYLE, Constants.PREF_TASKBAR_STYLE_WINDOWS)
-                .apply()
+            .putString(Constants.PREF_TASKBAR_STYLE, Constants.PREF_TASKBAR_STYLE_WINDOWS)
+            .apply()
 
         Assert.assertEquals(
-                Constants.PREF_TASKBAR_STYLE_WINDOWS_11,
-                U.getTaskbarStyle(context))
+            Constants.PREF_TASKBAR_STYLE_WINDOWS_11,
+            U.getTaskbarStyle(context),
+        )
         Assert.assertTrue(U.isTaskbarCentered(context))
     }
 
@@ -90,18 +91,21 @@ class TaskbarStyleTest {
         val prefs = U.getSharedPreferences(context)
 
         prefs.edit().putString(
-                Constants.PREF_TASKBAR_SIZE,
-                Constants.PREF_TASKBAR_SIZE_COMPACT).apply()
+            Constants.PREF_TASKBAR_SIZE,
+            Constants.PREF_TASKBAR_SIZE_COMPACT,
+        ).apply()
         Assert.assertEquals(Math.round(48 * density), U.getTaskbarIconSize(context))
 
         prefs.edit().putString(
-                Constants.PREF_TASKBAR_SIZE,
-                Constants.PREF_TASKBAR_SIZE_STANDARD).apply()
+            Constants.PREF_TASKBAR_SIZE,
+            Constants.PREF_TASKBAR_SIZE_STANDARD,
+        ).apply()
         Assert.assertEquals(Math.round(60 * density), U.getTaskbarIconSize(context))
 
         prefs.edit().putString(
-                Constants.PREF_TASKBAR_SIZE,
-                Constants.PREF_TASKBAR_SIZE_LARGE).apply()
+            Constants.PREF_TASKBAR_SIZE,
+            Constants.PREF_TASKBAR_SIZE_LARGE,
+        ).apply()
         Assert.assertEquals(Math.round(72 * density), U.getTaskbarIconSize(context))
     }
 }

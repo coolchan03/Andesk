@@ -24,16 +24,16 @@ class UIHostServiceNewControllerTest {
     fun setUp() {
         context = ApplicationProvider.getApplicationContext()
         U.getSharedPreferences(context).edit()
-                .putBoolean(Constants.PREF_DESKTOP_SESSION_ACTIVE, true)
-                .apply()
+            .putBoolean(Constants.PREF_DESKTOP_SESSION_ACTIVE, true)
+            .apply()
         LauncherHelper.getInstance().setDesktopLauncherOpen(true)
     }
 
     @After
     fun tearDown() {
         U.getSharedPreferences(context).edit()
-                .remove(Constants.PREF_DESKTOP_SESSION_ACTIVE)
-                .apply()
+            .remove(Constants.PREF_DESKTOP_SESSION_ACTIVE)
+            .apply()
         LauncherHelper.getInstance().setDesktopLauncherOpen(false)
     }
 

@@ -27,9 +27,9 @@ class ToggleFreeformModeReceiverTest {
         application = context as Application
         receiver = ToggleFreeformModeReceiver()
         U.getSharedPreferences(context).edit()
-                .putBoolean(Constants.PREF_DESKTOP_SESSION_ACTIVE, true)
-                .putBoolean(Constants.PREF_TASKBAR_ACTIVE, true)
-                .apply()
+            .putBoolean(Constants.PREF_DESKTOP_SESSION_ACTIVE, true)
+            .putBoolean(Constants.PREF_TASKBAR_ACTIVE, true)
+            .apply()
         LauncherHelper.getInstance().setDesktopLauncherOpen(false)
         Shadows.shadowOf(application).clearStartedServices()
         Shadows.shadowOf(application).clearNextStartedActivities()
@@ -39,9 +39,9 @@ class ToggleFreeformModeReceiverTest {
     fun tearDown() {
         LauncherHelper.getInstance().setDesktopLauncherOpen(false)
         U.getSharedPreferences(context).edit()
-                .remove(Constants.PREF_DESKTOP_SESSION_ACTIVE)
-                .remove(Constants.PREF_TASKBAR_ACTIVE)
-                .apply()
+            .remove(Constants.PREF_DESKTOP_SESSION_ACTIVE)
+            .remove(Constants.PREF_TASKBAR_ACTIVE)
+            .apply()
     }
 
     @Test
@@ -49,11 +49,13 @@ class ToggleFreeformModeReceiverTest {
         receiver.onReceive(context, Intent(Constants.ACTION_TOGGLE_FREEFORM_MODE))
 
         Assert.assertFalse(
-                U.getSharedPreferences(context)
-                        .getBoolean(Constants.PREF_DESKTOP_SESSION_ACTIVE, true))
+            U.getSharedPreferences(context)
+                .getBoolean(Constants.PREF_DESKTOP_SESSION_ACTIVE, true),
+        )
         Assert.assertFalse(
-                U.getSharedPreferences(context)
-                        .getBoolean(Constants.PREF_TASKBAR_ACTIVE, true))
+            U.getSharedPreferences(context)
+                .getBoolean(Constants.PREF_TASKBAR_ACTIVE, true),
+        )
         Assert.assertNull(Shadows.shadowOf(application).peekNextStartedService())
         Assert.assertNull(Shadows.shadowOf(application).peekNextStartedActivity())
     }
@@ -63,10 +65,12 @@ class ToggleFreeformModeReceiverTest {
         receiver.onReceive(context, Intent("st.advisory.andesk.UNRELATED"))
 
         Assert.assertTrue(
-                U.getSharedPreferences(context)
-                        .getBoolean(Constants.PREF_DESKTOP_SESSION_ACTIVE, false))
+            U.getSharedPreferences(context)
+                .getBoolean(Constants.PREF_DESKTOP_SESSION_ACTIVE, false),
+        )
         Assert.assertTrue(
-                U.getSharedPreferences(context)
-                        .getBoolean(Constants.PREF_TASKBAR_ACTIVE, false))
+            U.getSharedPreferences(context)
+                .getBoolean(Constants.PREF_TASKBAR_ACTIVE, false),
+        )
     }
 }
