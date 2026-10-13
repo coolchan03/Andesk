@@ -1,46 +1,96 @@
-﻿<p align="center"><img src="docs/andesk-logo.svg" alt="Andesk" width="620"></p>
+<p align="center"><img src="docs/andesk-logo.svg" alt="Andesk" width="620"></p>
 
 # Andesk
 
-**An Android desktop launcher built for a real session-based desktop experience.**
+**A session-owned Android desktop launcher built from Braden Farmer's Taskbar.**
 
-Andesk turns the Taskbar project into a DeX-style desktop shell for Android without trying to behave like a permanently running overlay utility. Open Andesk to start a desktop session; close the desktop and its taskbar, widgets, menus and overlays shut down with it.
+Andesk provides a desktop, taskbar, Start menu, shortcuts, and Android widgets for as long as you have explicitly opened a desktop session. It is **not** intended to keep a permanently running taskbar overlay after the desktop closes.
 
-## What makes Andesk different
+## Desktop features
 
-- **Desktop-owned lifecycle:** the taskbar and desktop services exist only while the Andesk desktop session is active.
-- **Desktop launcher:** wallpaper, desktop icons, widgets, Start menu, recent apps and system tray in one session.
-- **Safe exit behavior:** Back, Alt+F4, Exit Desktop, force-stop, and swiping the desktop from Recents shut the session down.
-- **No resurrection:** reboot, package update, stale preferences or background service restarts do not silently bring the taskbar back.
-- **Desktop appearance presets:** Classic/customizable, Windows 10-like and Windows 11-like layouts.
-- **Resizable taskbar:** Compact, Standard and Large geometry presets.
-- **Widgets:** add, move and resize Android widgets directly on the desktop.
-- **Control center:** time/date, Wi-Fi, Bluetooth, volume, notifications, settings and Exit Desktop.
-- **Keyboard friendly:** Windows/Meta opens Start; Alt+F4 exits the desktop session.
-- **Freeform support:** retains compatible Taskbar freeform-window functionality where Android allows it.
+- **Desktop-owned lifecycle:** opening an Android app does not end the desktop; returning to Andesk restores the session.
+- **Session exit:** Back from the desktop, Alt+F4, and Control Center → Exit Desktop request a full shutdown of taskbar, menus, notification, and overlay services. Removing the desktop from Recents should also end the session.
+- **No automatic startup:** after reboot, an app update, process death, or force-stop, the desktop must remain closed until Andesk is explicitly opened again. **An app cannot detect its own force-stop**; Android terminates its process.
+- **Desktop controls:** app shortcuts, drag from Start to desktop, files/folders where supported, Android widgets with positioning and resize, and a taskbar with running-app indicators.
+- **Appearance:** Classic and Windows 7/10/11-inspired taskbar presets, color/transparency settings, and Compact/Standard/Large sizing.
+- **Freeform windows:** request platform freeform windowing on compatible Android devices; Android and device manufacturer restrictions may limit this feature.
+- **Control Center:** supported system controls, settings, notification access, and Exit Desktop.
 
-## Session model
+## Install and first launch
 
-Opening another Android app does **not** end Andesk. The desktop remains alive underneath and is restored when you return. Closing the Andesk desktop itself is different: that ends the session and removes all Andesk overlays and services.
+Download the debug APK artifact from [Andesk's GitHub Actions](https://github.com/coolchan03/Andesk/actions) and install it on your Android device. In the workflow run, look for the **andesk-debug-apk** artifact.
 
-## Building
+The current installation ID is `st.advisory.andesk` (debug builds use `.debug`). This installs separately from earlier builds with the Taskbar package ID; their settings and widgets do not automatically migrate.
 
-The GitHub Actions workflow uses JDK 21 and runs:
+Open **Andesk** from the app drawer. Grant the permissions requested for the selected features. The first-run desktop flow may request overlay access, Android 13+ notification permission, and Usage Access in sequence. Android's settings pages vary by manufacturer; return to Andesk after granting each one.
+
+## Permissions and special access
+
+Andesk requests only the system permissions and special access used by its functionality. Some are optional and some require a separate Android Settings screen rather than a normal permission dialog.
+
+| Permission or access | Why Andesk uses it |
+| --- | --- |
+| Display over other apps (`SYSTEM_ALERT_WINDOW`) | Draw the taskbar and desktop-related overlays while a session is open |
+| Notifications (`POST_NOTIFICATIONS`, Android 13+) | Show the desktop-session notification |
+| Foreground service (`FOREGROUND_SERVICE`, `FOREGROUND_SERVICE_SPECIAL_USE`) | Keep the user-initiated desktop overlay session active |
+| Usage Access (`PACKAGE_USAGE_STATS`) | Identify running/recent apps for the taskbar |
+| Notification listener (optional special access) | Display notification counts or related notification indicators |
+| Accessibility service (optional special access) | Perform supported global actions when enabled by the user |
+| Installed apps (`QUERY_ALL_PACKAGES`) | Populate the Start menu and desktop app picker |
+| Shortcuts (`com.android.launcher.permission.INSTALL_SHORTCUT`) | Support legacy shortcut creation on compatible launchers |
+| Wallpaper hints (`SET_WALLPAPER_HINTS`) | Adjust wallpaper layout where supported |
+| Settings (`WRITE_SETTINGS`, `WRITE_SECURE_SETTINGS`) | Request compatible system-setting changes; secure settings require privileged authorization |
+| Network information (`ACCESS_NETWORK_STATE`, `ACCESS_WIFI_STATE`) | Display local network and Wi-Fi state |
+| Legacy Wi-Fi/Bluetooth (`CHANGE_WIFI_STATE`, `BLUETOOTH`, `BLUETOOTH_ADMIN`) | Support older platform system controls, subject to Android version limits |
+| Delete package request (`REQUEST_DELETE_PACKAGES`) | Open Android's user-confirmed uninstall flow |
+| Boot completion (`RECEIVE_BOOT_COMPLETED`) | Reset stale session state and compatibility preferences, **not** automatically start the desktop |
+| Andesk signature-protected actions | Restrict internal desktop start/stop and freeform-control broadcasts |
+
+Andesk **does not request the `INTERNET` permission**. Optional Shizuku integration, if installed and authorized by you, permits advanced system operations on compatible devices. System permissions do not grant unlimited access.
+
+### Enable notification and accessibility access
+
+For **notification access**, open **Android Settings → Apps → Special app access → Device & app notifications / Notification access**, then select Andesk if listed. This is separate from the ordinary **Allow notifications** prompt on Android 13+. You can leave notification-listener access disabled if you do not need its optional indicators.
+
+For **accessibility access**, open **Android Settings → Accessibility → Installed apps / Downloaded apps → Andesk**, then enable its service only if you want the related system actions. Android may display a warning explaining the capabilities of an accessibility service. You can turn it off later in the same menu.
+
+For **overlay permission**, look in **Android Settings → Apps → Special app access → Display over other apps**. For **Usage Access**, open **Special app access → Usage access**. Device manufacturers may use different labels.
+
+## Backups and privacy
+
+Android automatic app-data backup is disabled to avoid restoring incompatible widget IDs and display settings on another device. You can still export and restore backups manually using Andesk's settings.
+
+Read the [Andesk privacy policy](Privacy-Policy.md).
+
+## Device verification checklist
+
+Before reporting an APK as stable, check on your device:
+
+1. Launch Andesk, complete permissions, and confirm the desktop/taskbar appear.
+2. Open another Android app and return to Andesk without losing the desktop layout.
+3. Add, drag, move, and resize shortcuts/widgets; check persistence after reopening the desktop.
+4. Change taskbar theme/size, collapse and expand, and check full-width bottom-edge alignment and gesture navigation.
+5. Launch a freeform-capable app and confirm the title bar is reachable, especially near the upper edge and in landscape.
+6. Exit using Back, Alt+F4, Control Center, and Recents swipe-away separately. The taskbar, overlays, and notification should disappear.
+7. Reboot and force-stop the app separately; neither should launch a fresh desktop without user action.
+
+Device-dependent restrictions may require manual follow-up. In particular, Android 15 edge-to-edge behavior and background activity launch restrictions cannot be confirmed by unit tests alone.
+
+## Building and contributing
+
+CI uses JDK 21 and the Android toolchain on a temporary GitHub Actions runner, so installing an Android SDK on your personal computer is not required to review, contribute, or download a CI-built APK.
+
+The release gates run:
 
 ```text
-./gradlew assembleFreeDebug
 ./gradlew spotlessCheck
+./gradlew assembleFreeDebug
 ./gradlew testFreeDebug
+./gradlew lintFreeDebug
 ```
 
-The debug APK is uploaded as a CI artifact after a successful build.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for development conventions and pull-request requirements.
 
-## Project origin
+## Origin and license
 
-Andesk is a fork of [Taskbar](https://github.com/farmerbb/Taskbar) by Braden Farmer and retains substantial upstream code and history. The goal of this fork is specifically to evolve Taskbar into a session-based Android desktop launcher rather than a persistent standalone taskbar utility.
-
-Andesk is not affiliated with or endorsed by Samsung, Google, or the Android project. "DeX" is referenced only descriptively when discussing the style of desktop experience that inspired this fork.
-
-## License
-
-This project continues under the upstream Apache License 2.0. See `LICENSE` for details.
+Andesk is derived from [Taskbar by Braden Farmer](https://github.com/farmerbb/Taskbar) and retains upstream attribution and Apache License 2.0 terms; see [LICENSE](LICENSE). It is not affiliated with Samsung, Google, or the Android project. References to DeX or Windows describe appearance and workflows, not endorsement.
