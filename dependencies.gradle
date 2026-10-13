@@ -1,8 +1,7 @@
 allprojects {
     ext {
-        // TODO keep version name and version code in sync with Android-x86 manifest
-        VERSION_CODE = 208
-        VERSION_NAME = "6.2.2"
+        VERSION_CODE = 1
+        VERSION_NAME = "0.1.0"
 
         MIN_SDK_VERSION = 21
         COMPILE_SDK_VERSION = 34
@@ -10,7 +9,7 @@ allprojects {
 
         SUPPORT_V4_VERSION = "1.0.0"
         APPCOMPAT_VERSION = "1.7.0"
-        BROWSER_VERSION = "1.0.0" // keeping at 1.0.0 to preserve compatibility with Android-x86
+        BROWSER_VERSION = "1.0.0"
         MATERIAL_VERSION = "1.12.0"
         POWERMOCK_VERSION = "2.0.9"
         AGP_VERSION = "8.5.2"

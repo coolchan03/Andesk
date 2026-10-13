@@ -44,7 +44,6 @@
     <uses-permission-sdk-23 android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
     <uses-permission-sdk-23 android:name="android.permission.POST_NOTIFICATIONS" />
 
-    <uses-permission-sdk-23 android:name="com.farmerbb.taskbar.support.USE_SUPPORT_LIBRARY" />
 
     <uses-sdk
         tools:overrideLibrary="rikka.shizuku.provider,rikka.shizuku.api,rikka.shizuku.shared,rikka.shizuku.aidl"/>
@@ -439,7 +438,7 @@
             android:permission="${applicationId}.START_STOP_TASKBAR"
             android:exported="true">
             <intent-filter>
-                <action android:name="com.farmerbb.taskbar.SHOW_HIDE_TASKBAR"/>
+                <action android:name="st.advisory.andesk.SHOW_HIDE_TASKBAR"/>
             </intent-filter>
         </receiver>
         <receiver
@@ -448,7 +447,7 @@
             android:permission="${applicationId}.START_STOP_TASKBAR"
             android:exported="true">
             <intent-filter>
-                <action android:name="com.farmerbb.taskbar.START"/>
+                <action android:name="st.advisory.andesk.START"/>
             </intent-filter>
         </receiver>
         <receiver
@@ -457,7 +456,7 @@
             android:permission="${applicationId}.START_STOP_TASKBAR"
             android:exported="true">
             <intent-filter>
-                <action android:name="com.farmerbb.taskbar.QUIT"/>
+                <action android:name="st.advisory.andesk.QUIT"/>
             </intent-filter>
         </receiver>
         <receiver
@@ -490,7 +489,7 @@
             android:permission="${applicationId}.START_STOP_TASKBAR"
             android:exported="true">
             <intent-filter>
-                <action android:name="com.farmerbb.taskbar.TOGGLE_FREEFORM_MODE"/>
+                <action android:name="st.advisory.andesk.TOGGLE_FREEFORM_MODE"/>
             </intent-filter>
         </receiver>
         <receiver
@@ -499,7 +498,7 @@
             android:permission="${applicationId}.ENABLE_DISABLE_FREEFORM"
             android:exported="true">
             <intent-filter>
-                <action android:name="com.farmerbb.taskbar.ENABLE_FREEFORM_MODE"/>
+                <action android:name="st.advisory.andesk.ENABLE_FREEFORM_MODE"/>
             </intent-filter>
         </receiver>
         <receiver
@@ -508,7 +507,7 @@
             android:permission="${applicationId}.ENABLE_DISABLE_FREEFORM"
             android:exported="true">
             <intent-filter>
-                <action android:name="com.farmerbb.taskbar.DISABLE_FREEFORM_MODE"/>
+                <action android:name="st.advisory.andesk.DISABLE_FREEFORM_MODE"/>
             </intent-filter>
         </receiver>
 

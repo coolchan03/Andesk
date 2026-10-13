@@ -36,7 +36,7 @@ android {
     namespace "com.farmerbb.taskbar"
 
     defaultConfig {
-        applicationId "com.farmerbb.taskbar"
+        applicationId "st.advisory.andesk"
 
         minSdkVersion MIN_SDK_VERSION
         targetSdkVersion TARGET_SDK_VERSION
@@ -46,7 +46,7 @@ android {
         resConfigs "en", "es", "ja", "ru", "de", "zh-rCN", "tr", "nl", "pl"
         vectorDrawables.generatedDensities = []
 
-        buildConfigField "String", "BASE_APPLICATION_ID", "\"com.farmerbb.taskbar\""
+        buildConfigField "String", "BASE_APPLICATION_ID", "\"st.advisory.andesk\""
 
     }
 
@@ -91,7 +91,7 @@ android {
 
             applicationVariants.all { variant ->
                 variant.outputs.all {
-                    outputFileName = "${project.parent.name}-${defaultConfig.versionName}.apk"
+                    outputFileName = "Andesk-${defaultConfig.versionName}.apk"
                 }
             }
         }
@@ -100,7 +100,7 @@ android {
     flavorDimensions "default"
 
     productFlavors {
-        free { applicationId "com.farmerbb.taskbar" }
+        free { applicationId "st.advisory.andesk" }
     }
 
     sourceSets {

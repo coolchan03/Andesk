@@ -67,7 +67,7 @@ class PackageUpgradeReceiverTest {
                 .putBoolean(Constants.PREF_DESKTOP_SESSION_ACTIVE, true)
                 .putBoolean(Constants.PREF_TASKBAR_ACTIVE, true)
                 .apply()
-        receiver.onReceive(context, Intent("com.farmerbb.taskbar.UNRELATED"))
+        receiver.onReceive(context, Intent("st.advisory.andesk.UNRELATED"))
         Assert.assertTrue(prefs.getBoolean(Constants.PREF_DESKTOP_SESSION_ACTIVE, false))
         Assert.assertTrue(prefs.getBoolean(Constants.PREF_TASKBAR_ACTIVE, false))
     }

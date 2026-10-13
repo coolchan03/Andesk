@@ -60,7 +60,7 @@ class StartReceiverTest {
     fun testOtherActionsAreIgnored() {
         ShadowSettings.setCanDrawOverlays(true)
 
-        receiver.onReceive(context, Intent("com.farmerbb.taskbar.UNSUPPORTED"))
+        receiver.onReceive(context, Intent("st.advisory.andesk.UNSUPPORTED"))
 
         Assert.assertNull(Shadows.shadowOf(application).peekNextStartedActivity())
         Assert.assertNull(Shadows.shadowOf(application).peekNextStartedService())

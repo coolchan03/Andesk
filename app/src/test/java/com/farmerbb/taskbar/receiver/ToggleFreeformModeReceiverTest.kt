@@ -60,7 +60,7 @@ class ToggleFreeformModeReceiverTest {
 
     @Test
     fun testUnrelatedBroadcastIsIgnored() {
-        receiver.onReceive(context, Intent("com.farmerbb.taskbar.UNRELATED"))
+        receiver.onReceive(context, Intent("st.advisory.andesk.UNRELATED"))
 
         Assert.assertTrue(
                 U.getSharedPreferences(context)
