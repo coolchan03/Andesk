@@ -1,5 +1,5 @@
 plugins {
-    id "com.diffplug.spotless" version "5.12.5"
+    id "com.diffplug.spotless" version "8.10.4"
 }
 apply from: '../dependencies.gradle'
 apply plugin: 'com.android.application'
@@ -28,7 +28,7 @@ repositories {
 spotless {
     kotlin {
         target '**/*.kt'
-        ktlint().userData(['max_line_length': '100'])
+        ktlint('1.8.0').userData(['max_line_length': '100'])
     }
 }
 
