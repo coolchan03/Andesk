@@ -52,12 +52,8 @@ public class NotificationService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         if(!DesktopSessionState.isActive(this)) {
-            U.getSharedPreferences(this).edit()
-                    .putBoolean(PREF_DESKTOP_SESSION_ACTIVE, false)
-                    .putBoolean(PREF_TASKBAR_ACTIVE, false)
-                    .apply();
+            DesktopSessionState.close(this);
             stopSelf();
-            return START_NOT_STICKY;
         }
 
         return START_NOT_STICKY;
@@ -104,10 +100,7 @@ public class NotificationService extends Service {
 
         SharedPreferences pref = U.getSharedPreferences(this);
         if(!DesktopSessionState.isActive(this)) {
-            pref.edit()
-                    .putBoolean(PREF_DESKTOP_SESSION_ACTIVE, false)
-                    .putBoolean(PREF_TASKBAR_ACTIVE, false)
-                    .apply();
+            DesktopSessionState.close(this);
             stopSelf();
             return;
         }

@@ -26,8 +26,6 @@ import android.view.WindowManager;
 import com.farmerbb.taskbar.util.DesktopSessionState;
 import com.farmerbb.taskbar.util.U;
 
-import static com.farmerbb.taskbar.util.Constants.PREF_DESKTOP_SESSION_ACTIVE;
-import static com.farmerbb.taskbar.util.Constants.PREF_TASKBAR_ACTIVE;
 
 public abstract class UIHostService extends Service implements UIHost {
 
@@ -43,10 +41,7 @@ public abstract class UIHostService extends Service implements UIHost {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         if(!DesktopSessionState.isActive(this)) {
-            U.getSharedPreferences(this).edit()
-                    .putBoolean(PREF_DESKTOP_SESSION_ACTIVE, false)
-                    .putBoolean(PREF_TASKBAR_ACTIVE, false)
-                    .apply();
+            DesktopSessionState.close(this);
             stopSelf();
         }
 
@@ -58,10 +53,7 @@ public abstract class UIHostService extends Service implements UIHost {
         super.onCreate();
 
         if(!DesktopSessionState.isActive(this)) {
-            U.getSharedPreferences(this).edit()
-                    .putBoolean(PREF_DESKTOP_SESSION_ACTIVE, false)
-                    .putBoolean(PREF_TASKBAR_ACTIVE, false)
-                    .apply();
+            DesktopSessionState.close(this);
             stopSelf();
             return;
         }

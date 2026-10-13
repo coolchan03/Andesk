@@ -19,10 +19,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
-import com.farmerbb.taskbar.util.U;
-
-import static com.farmerbb.taskbar.util.Constants.PREF_DESKTOP_SESSION_ACTIVE;
-import static com.farmerbb.taskbar.util.Constants.PREF_TASKBAR_ACTIVE;
+import com.farmerbb.taskbar.util.DesktopSessionState;
 
 public class PackageUpgradeReceiver extends BroadcastReceiver {
     @Override
@@ -30,9 +27,6 @@ public class PackageUpgradeReceiver extends BroadcastReceiver {
         if(intent == null || !Intent.ACTION_MY_PACKAGE_REPLACED.equals(intent.getAction()))
             return;
 
-        U.getSharedPreferences(context).edit()
-                .putBoolean(PREF_DESKTOP_SESSION_ACTIVE, false)
-                .putBoolean(PREF_TASKBAR_ACTIVE, false)
-                .apply();
+        DesktopSessionState.close(context);
     }
 }

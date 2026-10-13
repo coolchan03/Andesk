@@ -22,6 +22,7 @@ import android.content.SharedPreferences;
 
 import com.farmerbb.taskbar.activity.DummyActivity;
 import com.farmerbb.taskbar.service.NotificationService;
+import com.farmerbb.taskbar.util.DesktopSessionState;
 import com.farmerbb.taskbar.util.ShortcutUtils;
 import com.farmerbb.taskbar.util.U;
 
@@ -36,11 +37,9 @@ public class BootReceiver extends BroadcastReceiver {
             if(U.isAndroidGeneric(context) && !pref.getBoolean(PREF_BLISS_OS_PREFS, false))
                 U.initPrefs(context);
 
-            SharedPreferences.Editor editor = pref.edit()
-                    // This fork is session-scoped: rebooting must never resurrect
-                    // the desktop/taskbar without the user launching the app.
-                    .putBoolean(PREF_DESKTOP_SESSION_ACTIVE, false)
-                    .putBoolean(PREF_TASKBAR_ACTIVE, false);
+            // Reboot must not revive a session without an explicit app launch.
+            DesktopSessionState.close(context);
+            SharedPreferences.Editor editor = pref.edit();
 
             if(!U.hasFreeformSupport(context))
                 editor.putBoolean(PREF_FREEFORM_HACK, false);

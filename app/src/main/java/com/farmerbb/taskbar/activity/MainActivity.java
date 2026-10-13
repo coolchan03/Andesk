@@ -97,10 +97,8 @@ public class MainActivity extends AppCompatActivity {
             setTheme(U.isDarkTheme(this) ? darkTheme : lightTheme);
         }
 
-        if(!DesktopSessionState.isActive(this)) {
-            editor.putBoolean(PREF_DESKTOP_SESSION_ACTIVE, false);
-            editor.putBoolean(PREF_TASKBAR_ACTIVE, false);
-        }
+        if(!DesktopSessionState.isActive(this))
+            DesktopSessionState.close(this);
 
         // The desktop activity alone owns the session; legacy HOME integration is disabled.
         boolean launcherEnabled = false;

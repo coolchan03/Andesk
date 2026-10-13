@@ -62,6 +62,22 @@ class DesktopSessionStateTest {
     }
 
     @Test
+    fun staleSessionPreferenceDoesNotMakeDesktopActiveWithoutOwner() {
+        val prefs = U.getSharedPreferences(context)
+        prefs.edit()
+                .putBoolean(Constants.PREF_DESKTOP_SESSION_ACTIVE, true)
+                .putBoolean(Constants.PREF_TASKBAR_ACTIVE, true)
+                .commit()
+
+        LauncherHelper.getInstance().setDesktopLauncherOpen(false)
+        assertFalse(DesktopSessionState.isActive(context))
+
+        DesktopSessionState.close(context)
+        assertFalse(prefs.getBoolean(Constants.PREF_DESKTOP_SESSION_ACTIVE, true))
+        assertFalse(prefs.getBoolean(Constants.PREF_TASKBAR_ACTIVE, true))
+    }
+
+    @Test
     fun backgroundDoesNotDisableUnrelatedTaskbarSession() {
         val pref = U.getSharedPreferences(context)
         pref.edit().putBoolean(Constants.PREF_TASKBAR_ACTIVE, true).commit()
