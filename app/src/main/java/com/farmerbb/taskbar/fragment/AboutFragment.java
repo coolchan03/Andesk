@@ -26,7 +26,6 @@ import com.farmerbb.taskbar.activity.MainActivity;
 import com.farmerbb.taskbar.util.U;
 
 import java.util.Calendar;
-import java.util.TimeZone;
 
 import static com.farmerbb.taskbar.util.Constants.*;
 
@@ -38,9 +37,7 @@ public class AboutFragment extends SettingsFragment {
         addPreferencesFromResource(R.xml.tb_pref_base);
         addPreferencesFromResource(R.xml.tb_pref_about);
 
-        boolean isLibrary = U.isLibrary(getActivity());
-        if(!isLibrary)
-            getPreferenceScreen().removePreference(findPreference("donate_category"));
+        getPreferenceScreen().removePreference(findPreference("donate_category"));
 
         // Set OnClickListeners for certain preferences
         if(U.canEnableFreeform(getActivity()))
@@ -57,9 +54,8 @@ public class AboutFragment extends SettingsFragment {
         findPreference(PREF_PREF_SCREEN_RECENT_APPS).setOnPreferenceClickListener(this);
         findPreference(PREF_PREF_SCREEN_ADVANCED).setOnPreferenceClickListener(this);
 
-        if(!isLibrary) {
-            Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("America/Denver"));
-            calendar.setTimeInMillis(BuildConfig.TIMESTAMP);
+        {
+            Calendar calendar = Calendar.getInstance();
 
             int year = calendar.get(Calendar.YEAR);
             if(U.isConsumerBuild(getActivity())) {

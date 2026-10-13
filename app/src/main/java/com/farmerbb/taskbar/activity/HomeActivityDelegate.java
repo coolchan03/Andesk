@@ -257,7 +257,7 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
             isTaskVirtualDisplay = display.getName().startsWith("TaskVirtualDisplay");
 
             if(display.getDisplayId() == Display.DEFAULT_DISPLAY
-                    || (!U.isDesktopModeActive(this) && !U.isLibrary(this))) {
+                    || (!U.isDesktopModeActive(this))) {
                 finish();
                 return;
             }
@@ -354,7 +354,7 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
 
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.P 
                 && isDesktopIconsEnabled
-                && !U.isLibrary(this)) {
+               ) {
             detector = new GestureDetector(this, new GestureDetector.OnGestureListener() {
                 @Override
                 public boolean onSingleTapUp(MotionEvent e) {
@@ -428,7 +428,7 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
         if((this instanceof HomeActivity
                 || isSecondaryHome
                 || isDesktopLauncher
-                || U.isLauncherPermanentlyEnabled(this))) {
+               )) {
             setContentView(layout);
 
             if(isWallpaperEnabled) {

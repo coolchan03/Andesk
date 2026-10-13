@@ -258,14 +258,8 @@ public class SelectAppActivity extends AppCompatActivity {
             FrameLayout container = findViewById(R.id.inflate_tabs_here);
             View tabLayout;
 
-            if(getPackageName().equals(BuildConfig.ANDROIDX86_APPLICATION_ID)) {
-                tabLayout = getLayoutInflater().inflate(R.layout.tb_tab_layout, container, false);
-                tabLayout.findViewById(R.id.hidden).setOnClickListener(v -> viewPager.setCurrentItem(U.HIDDEN));
-                tabLayout.findViewById(R.id.top_apps).setOnClickListener(v -> viewPager.setCurrentItem(U.TOP_APPS));
-            } else {
-                tabLayout = new TabLayout(SelectAppActivity.this);
-                ((TabLayout) tabLayout).setupWithViewPager(viewPager);
-            }
+            tabLayout = new TabLayout(SelectAppActivity.this);
+            ((TabLayout) tabLayout).setupWithViewPager(viewPager);
 
             container.addView(tabLayout);
 

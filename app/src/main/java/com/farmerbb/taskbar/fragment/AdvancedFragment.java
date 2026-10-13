@@ -77,35 +77,11 @@ public class AdvancedFragment extends SettingsFragment {
         findPreference(PREF_DASHBOARD_GRID_SIZE).setOnPreferenceClickListener(this);
         findPreference(PREF_KEYBOARD_SHORTCUT).setSummary(DependencyUtils.getKeyboardShortcutSummary(getActivity()));
 
-        boolean isLibrary = U.isLibrary(getActivity());
-        boolean isAndroidx86 = getActivity().getPackageName().equals(BuildConfig.ANDROIDX86_APPLICATION_ID);
-
         SharedPreferences pref = U.getSharedPreferences(getActivity());
-        boolean lockHomeToggle = (pref.getBoolean(PREF_LAUNCHER, false)
-                && U.isLauncherPermanentlyEnabled(getActivity()))
-                || pref.getBoolean(PREF_DESKTOP_MODE, false);
-
-        if(!isLibrary && !isAndroidx86) {
-            pref.edit()
-                    .putBoolean(PREF_LAUNCHER, false)
-                    .putBoolean(PREF_DESKTOP_MODE, false)
-                    .apply();
-        }
-
-        if(isLibrary) {
+        pref.edit().putBoolean(PREF_LAUNCHER, false)
+                .putBoolean(PREF_DESKTOP_MODE, false).apply();
+        {
             getPreferenceScreen().removePreference(findPreference(PREF_LAUNCHER));
-            getPreferenceScreen().removePreference(findPreference(PREF_KEYBOARD_SHORTCUT));
-            getPreferenceScreen().removePreference(findPreference(PREF_NAVIGATION_BAR_BUTTONS));
-            getPreferenceScreen().removePreference(findPreference(PREF_MANAGE_APP_DATA));
-
-            findPreference(PREF_CLEAR_PINNED_APPS).setOnPreferenceClickListener(this);
-        } else {
-            if(isAndroidx86) {
-                findPreference(PREF_LAUNCHER).setEnabled(!lockHomeToggle);
-                findPreference(PREF_LAUNCHER).setOnPreferenceClickListener(this);
-            } else {
-                getPreferenceScreen().removePreference(findPreference(PREF_LAUNCHER));
-            }
             findPreference(PREF_NAVIGATION_BAR_BUTTONS).setOnPreferenceClickListener(this);
             findPreference(PREF_MANAGE_APP_DATA).setOnPreferenceClickListener(this);
 
@@ -117,8 +93,7 @@ public class AdvancedFragment extends SettingsFragment {
             getPreferenceScreen().removePreference(findPreference(PREF_CLEAR_PINNED_APPS));
         }
 
-        if(!isAndroidx86 && !isLibrary
-                && U.isPlayStoreInstalled(getActivity())
+        if(U.isPlayStoreInstalled(getActivity())
                 && U.isPlayStoreRelease(getActivity())) {
             findPreference(PREF_SECONDSCREEN).setOnPreferenceClickListener(this);
             secondScreenPrefEnabled = true;
@@ -131,7 +106,6 @@ public class AdvancedFragment extends SettingsFragment {
         bindPreferenceSummaryToValue(findPreference(PREF_DASHBOARD));
 
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N
-                && !isLibrary
                 && !U.canEnableFreeform(getActivity(), false)) {
             bindPreferenceSummaryToValue(findPreference(PREF_OVERRIDE_FREEFORM_UNSUPPORTED));
         } else

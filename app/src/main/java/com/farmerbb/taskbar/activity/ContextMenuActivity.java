@@ -283,12 +283,9 @@ public class ContextMenuActivity extends PreferenceActivity implements Preferenc
             findPreference(PREF_VOLUME).setOnPreferenceClickListener(this);
             findPreference(PREF_SYSTEM_SETTINGS).setOnPreferenceClickListener(this);
 
-            if(!U.isLibrary(this))
-                findPreference(PREF_POWER_MENU).setOnPreferenceClickListener(this);
-            else
-                getPreferenceScreen().removePreference(findPreference(PREF_POWER_MENU));
+            findPreference(PREF_POWER_MENU).setOnPreferenceClickListener(this);
 
-            if(!U.isLibrary(this) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
                 findPreference(PREF_LOCK_DEVICE).setOnPreferenceClickListener(this);
             else
                 getPreferenceScreen().removePreference(findPreference(PREF_LOCK_DEVICE));

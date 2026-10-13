@@ -89,16 +89,12 @@ public class MainActivity extends AppCompatActivity {
         final SharedPreferences pref = U.getSharedPreferences(this);
         SharedPreferences.Editor editor = pref.edit();
 
-        if(!U.isLibrary(this)) {
+        {
             boolean isRelaunched = getIntent().hasExtra("is_relaunched");
             int lightTheme = isRelaunched ? R.style.Taskbar_Floating : R.style.Taskbar;
             int darkTheme = isRelaunched ? R.style.Taskbar_Dark_Floating : R.style.Taskbar_Dark;
 
             setTheme(U.isDarkTheme(this) ? darkTheme : lightTheme);
-        } else {
-            int theme = getIntent().getIntExtra("theme", -1);
-            if(theme != -1)
-                setTheme(theme);
         }
 
         if(!DesktopSessionState.isActive(this)) {
@@ -106,25 +102,15 @@ public class MainActivity extends AppCompatActivity {
             editor.putBoolean(PREF_TASKBAR_ACTIVE, false);
         }
 
-        // The normal app uses DesktopLauncherActivity as its sole desktop-session owner.
-        // Android-x86 intentionally retains its HOME integration.
-        boolean isLibrary = U.isLibrary(this);
-        boolean isAndroidx86 = getPackageName().equals(BuildConfig.ANDROIDX86_APPLICATION_ID);
-        boolean launcherEnabled = isAndroidx86
-                && ((pref.getBoolean(PREF_LAUNCHER, false) && U.canDrawOverlays(this))
-                || U.isLauncherPermanentlyEnabled(this));
+        // The desktop activity alone owns the session; legacy HOME integration is disabled.
+        boolean launcherEnabled = false;
         boolean desktopModeEnabled = false;
 
         editor.putBoolean(PREF_LAUNCHER, launcherEnabled);
         editor.putBoolean(PREF_DESKTOP_MODE, desktopModeEnabled);
         editor.apply();
 
-        if(!isLibrary) {
-            if(isAndroidx86) {
-                U.setComponentEnabled(this, HomeActivity.class,
-                        launcherEnabled && !U.isDelegatingHomeActivity(this));
-            }
-
+        {
             U.setComponentEnabled(this, KeyboardShortcutActivity.class,
                     pref.getBoolean(PREF_KEYBOARD_SHORTCUT, false));
 
@@ -139,7 +125,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        if(!launcherEnabled && !desktopModeEnabled && !isLibrary) {
+        if(!launcherEnabled && !desktopModeEnabled) {
             U.sendBroadcast(this, ACTION_KILL_HOME_ACTIVITY);
         }
 
@@ -162,7 +148,7 @@ public class MainActivity extends AppCompatActivity {
             setContentView(R.layout.tb_main);
         }
 
-        if(!U.isLibrary(this)) {
+        {
             setSupportActionBar(findViewById(R.id.toolbar));
 
             ActionBar actionBar = getSupportActionBar();
@@ -223,7 +209,7 @@ public class MainActivity extends AppCompatActivity {
             navigateTo(oldFragment.getClass().newInstance());
         } catch (IllegalAccessException | InstantiationException ignored) {}
 
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1 && !U.isLibrary(this)) {
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
             ShortcutManager shortcutManager = getSystemService(ShortcutManager.class);
 
             if(shortcutManager.getDynamicShortcuts().size() == 0) {
@@ -356,18 +342,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public String getAboutFragmentTitle() {
-        if(!U.isLibrary(this))
-            return getString(R.string.tb_app_name);
-
-        String title = getIntent().getStringExtra("title");
-        return title != null ? title : getString(R.string.tb_settings);
+        return getString(R.string.tb_app_name);
     }
 
     public boolean getAboutFragmentBackArrow() {
-        if(!U.isLibrary(this))
-            return false;
-
-        return getIntent().getBooleanExtra("back_arrow", false);
+        return false;
     }
 
     public void updateHelpButton(SettingsFragment fragment) {
