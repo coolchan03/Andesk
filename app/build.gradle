@@ -33,6 +33,9 @@ spotless {
 }
 
 android {
+    androidResources {
+        localeFilters += ["en", "es", "ja", "ru", "de", "zh-rCN", "tr", "nl", "pl"]
+    }
     compileSdk COMPILE_SDK_VERSION
     namespace "com.farmerbb.taskbar"
 
@@ -44,7 +47,6 @@ android {
         versionCode VERSION_CODE
         versionName VERSION_NAME
 
-        resConfigs "en", "es", "ja", "ru", "de", "zh-rCN", "tr", "nl", "pl"
         vectorDrawables.generatedDensities = []
 
         buildConfigField "String", "BASE_APPLICATION_ID", "\"st.advisory.andesk\""
