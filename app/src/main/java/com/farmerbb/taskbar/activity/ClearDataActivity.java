@@ -61,6 +61,7 @@ public class ClearDataActivity extends AppCompatActivity {
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        U.applyActivityTheme(this, R.style.Taskbar_Dialog_Blacklist, R.style.Taskbar_Dialog_Blacklist_Dark);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.tb_clear_data);
         setTitle(R.string.tb_clear_pinned_apps);

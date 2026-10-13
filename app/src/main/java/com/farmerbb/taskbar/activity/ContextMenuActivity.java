@@ -67,6 +67,13 @@ import static com.farmerbb.taskbar.util.Constants.*;
 
 public class ContextMenuActivity extends PreferenceActivity implements Preference.OnPreferenceClickListener {
 
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        U.applyActivityTheme(this, R.style.Taskbar_Dialog, R.style.Taskbar_Dialog_Dark);
+        super.onCreate(savedInstanceState);
+    }
+
+
     private AppEntry entry;
     private DesktopIconInfo desktopIcon;
 

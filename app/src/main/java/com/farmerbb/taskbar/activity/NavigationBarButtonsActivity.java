@@ -28,6 +28,13 @@ import static com.farmerbb.taskbar.util.Constants.*;
 
 public class NavigationBarButtonsActivity extends PreferenceActivity implements Preference.OnPreferenceClickListener {
 
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        U.applyActivityTheme(this, R.style.Taskbar_Dialog_Preference, R.style.Taskbar_Dialog_Preference_Dark);
+        super.onCreate(savedInstanceState);
+    }
+
+
     @SuppressWarnings("deprecation")
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {

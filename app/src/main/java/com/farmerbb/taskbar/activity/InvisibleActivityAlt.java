@@ -36,6 +36,7 @@ public class InvisibleActivityAlt extends InvisibleActivity {
     @SuppressLint("HardwareIds")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        U.applyActivityTheme(this, R.style.Taskbar_Incognito, R.style.Taskbar_Incognito_Dark);
         super.onCreate(savedInstanceState);
 
         boolean powerButtonWarning = getIntent().hasExtra("power_button_warning");

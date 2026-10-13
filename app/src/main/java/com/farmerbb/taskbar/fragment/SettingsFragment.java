@@ -96,7 +96,8 @@ public abstract class SettingsFragment extends PreferenceFragment implements Pre
     public void onStart() {
         super.onStart();
 
-        ((MainActivity) getActivity()).updateHelpButton(this);
+        if(getActivity() instanceof MainActivity)
+            ((MainActivity) getActivity()).updateHelpButton(this);
     }
 
     @Override
@@ -114,6 +115,7 @@ public abstract class SettingsFragment extends PreferenceFragment implements Pre
     private final Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener = new Preference.OnPreferenceChangeListener() {
         @Override
         public boolean onPreferenceChange(Preference preference, Object value) {
+            if(getActivity() == null) return false;
             String stringValue = value.toString();
 
             if(preference instanceof ListPreference) {
@@ -204,7 +206,7 @@ public abstract class SettingsFragment extends PreferenceFragment implements Pre
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if(item.getItemId() == android.R.id.home) {
+        if(item.getItemId() == android.R.id.home && getActivity() != null) {
             // Override default Android "up" behavior to instead mimic the back button
             getActivity().onBackPressed();
             return true;
@@ -217,7 +219,7 @@ public abstract class SettingsFragment extends PreferenceFragment implements Pre
     public void onResume() {
         super.onResume();
 
-        if(restartNotificationService) {
+        if(restartNotificationService && getActivity() != null) {
             restartNotificationService = false;
 
             U.restartNotificationService(getActivity());
@@ -227,6 +229,7 @@ public abstract class SettingsFragment extends PreferenceFragment implements Pre
     @SuppressLint("SetTextI18n")
     @Override
     public boolean onPreferenceClick(final Preference p) {
+        if(getActivity() == null) return false;
         if(p.getKey().equals(PREF_CLEAR_PINNED_APPS)) {
             Intent clearIntent = U.getThemedIntent(getActivity(), ClearDataActivity.class);
             startActivity(clearIntent);
@@ -236,6 +239,7 @@ public abstract class SettingsFragment extends PreferenceFragment implements Pre
     }
 
     protected void navigateTo(SettingsFragment fragment) {
+        if(getActivity() == null || getFragmentManager() == null) return;
         getFragmentManager()
                 .beginTransaction()
                 .replace(R.id.fragmentContainer, fragment, fragment.getClass().getSimpleName())

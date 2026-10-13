@@ -870,6 +870,22 @@ class UTest {
     }
 
     @Test
+    fun testThemedIntentUsesOriginalActivityInBothThemes() {
+        val prefs = U.getSharedPreferences(context)
+        for (theme in listOf("light", "dark")) {
+            prefs.edit().putString(Constants.PREF_THEME, theme).commit()
+            val intent = U.getThemedIntent(
+                context,
+                com.farmerbb.taskbar.activity.ContextMenuActivity::class.java,
+            )
+            Assert.assertEquals(
+                com.farmerbb.taskbar.activity.ContextMenuActivity::class.java.name,
+                intent.component?.className,
+            )
+        }
+    }
+
+    @Test
     fun testWrapContext() {
         val prefs = U.getSharedPreferences(context)
         prefs.edit().putString(Constants.PREF_THEME, "light").apply()

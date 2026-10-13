@@ -86,6 +86,7 @@ public class GeneralFragment extends SettingsFragment {
     @Override
     public void onResume() {
         super.onResume();
+        if(getActivity() == null) return;
 
         int size = Blacklist.getInstance(getActivity()).getBlockedApps().size();
         String summary = size == 1 ? getString(R.string.tb_app_hidden) : getString(R.string.tb_apps_hidden, size);
@@ -102,6 +103,7 @@ public class GeneralFragment extends SettingsFragment {
     @TargetApi(Build.VERSION_CODES.O)
     @Override
     public boolean onPreferenceClick(final Preference p) {
+        if(getActivity() == null) return false;
         switch(p.getKey()) {
             case PREF_BLACKLIST:
                 Intent intent = U.getThemedIntent(getActivity(), SelectAppActivity.class);

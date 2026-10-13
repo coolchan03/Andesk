@@ -123,6 +123,7 @@ public class DashboardActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        U.applyActivityTheme(this, R.style.Taskbar_Incognito, R.style.Taskbar_Incognito_Dark);
         super.onCreate(savedInstanceState);
 
         contextMenuFix = getIntent().hasExtra(EXTRA_CONTEXT_MENU_FIX);
