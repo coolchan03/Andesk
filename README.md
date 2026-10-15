@@ -18,7 +18,7 @@ Andesk provides a desktop, taskbar, Start menu, shortcuts, and Android widgets f
 
 ## Install and first launch
 
-Download the debug APK artifact from [Andesk's GitHub Actions](https://github.com/coolchan03/Andesk/actions) and install it on your Android device. In the workflow run, look for the **andesk-debug-apk** artifact.
+Install the latest signed APK from [Andesk's GitHub Releases](https://github.com/coolchan03/Andesk/releases) after it is published. For testing a signed build before release, open a successful [Signed APK Release workflow run](https://github.com/coolchan03/Andesk/actions/workflows/release.yml) and download the **andesk-signed-release** artifact. The separate CI workflow still offers an **andesk-debug-apk** artifact for development, but debug APKs have a different installation ID and signing key and do not update release installations.
 
 The current installation ID is `st.advisory.andesk` (debug builds use `.debug`). This installs separately from earlier builds with the Taskbar package ID; their settings and widgets do not automatically migrate.
 
@@ -80,13 +80,14 @@ Device-dependent restrictions may require manual follow-up. In particular, Andro
 
 CI uses JDK 21 and the Android toolchain on a temporary GitHub Actions runner, so installing an Android SDK on your personal computer is not required to review, contribute, or download a CI-built APK.
 
-The release gates run:
+The CI workflow checks formatting, builds a debug APK, runs unit tests, and checks Android lint. The separate signed-release workflow repeats quality checks, builds a release APK using the private GitHub Actions keystore secrets, verifies the APK signature, and uploads an artifact. Pushing a version tag such as `v0.1.0` also publishes a GitHub release, provided the tag matches `VERSION_NAME` in `dependencies.gradle`. Keep the release keystore and its passwords backed up privately; future updates must be signed using the same key.
 
 ```text
 ./gradlew spotlessCheck
 ./gradlew assembleFreeDebug
 ./gradlew testFreeDebug
 ./gradlew lintFreeDebug
+./gradlew assembleFreeRelease  # only in the signed-release workflow
 ```
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for development conventions and pull-request requirements.
