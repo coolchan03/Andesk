@@ -11,18 +11,13 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
-    env:
-      KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
-      KSTOREPWD: ${{ secrets.KEYSTORE_PASSWORD }}
-      KEYALIAS: ${{ secrets.KEY_ALIAS }}
-      KEYPWD: ${{ secrets.KEY_PASSWORD }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
         with:
           distribution: temurin
           java-version: '21'
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@4c125117fe7c5aed11272ec4213f602f012f89f2 # v5
       - name: Confirm release version tag
         if: startsWith(github.ref, 'refs/tags/')
         shell: bash
@@ -33,6 +28,11 @@ jobs:
             exit 1
           fi
       - name: Configure permanent release keystore
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KSTOREPWD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEYALIAS: ${{ secrets.KEY_ALIAS }}
+          KEYPWD: ${{ secrets.KEY_PASSWORD }}
         shell: bash
         run: |
           set -euo pipefail
@@ -46,6 +46,10 @@ jobs:
       - name: Quality checks
         run: ./gradlew spotlessCheck testFreeDebug lintFreeDebug
       - name: Assemble signed APK
+        env:
+          KSTOREPWD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEYALIAS: ${{ secrets.KEY_ALIAS }}
+          KEYPWD: ${{ secrets.KEY_PASSWORD }}
         run: ./gradlew assembleFreeRelease
       - name: Verify signature and stage release
         shell: bash
@@ -59,7 +63,7 @@ jobs:
           "$SIGNER" verify --verbose --print-certs "$APK"
           mkdir -p dist
           cp "$APK" "dist/Andesk-$GITHUB_REF_NAME.apk"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: andesk-signed-release
           path: dist/*.apk
