@@ -107,6 +107,7 @@
     <string name="tb_app_info">アプリ情報</string>
     <string name="tb_uninstall">アンインストール</string>
     <string name="tb_open_taskbar_settings">設定を開く</string>
+    <string name="tb_customize_taskbar">タスクバーをカスタマイズ</string>
     <string name="tb_quit_taskbar">終了</string>
 
     <string name="tb_pref_title_keyboard_shortcut">キーボードショートカットを有効にする</string>

@@ -107,6 +107,7 @@
     <string name="tb_app_info">Información de la aplicación</string>
     <string name="tb_uninstall">Desinstalar</string>
     <string name="tb_open_taskbar_settings">Abrir ajustes</string>
+    <string name="tb_customize_taskbar">Personalizar barra de tareas</string>
     <string name="tb_quit_taskbar">Salir</string>
 
     <string name="tb_pref_title_keyboard_shortcut">Activar atajos de teclado</string>

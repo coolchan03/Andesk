@@ -354,6 +354,34 @@ class TaskbarControllerTest {
     }
 
     @Test
+    fun testHideCollapseControlsSupportsEveryTaskbarLayout() {
+        val layoutIds =
+            listOf(
+                R.layout.tb_taskbar_left,
+                R.layout.tb_taskbar_right,
+                R.layout.tb_taskbar_vertical,
+                R.layout.tb_taskbar_top_vertical,
+            )
+        val buttonIds =
+            listOf(
+                R.id.hide_taskbar_button_layout,
+                R.id.hide_taskbar_button_layout_alt,
+                R.id.hide_taskbar_button,
+                R.id.hide_taskbar_button_alt,
+            )
+
+        for (layoutId in layoutIds) {
+            val layout = LayoutInflater.from(context).inflate(layoutId, null)
+            uiController.hideCollapseControls(layout)
+
+            for (buttonId in buttonIds) {
+                val button = layout.findViewById<View>(buttonId) ?: continue
+                Assert.assertEquals(View.GONE.toLong(), button.visibility.toLong())
+            }
+        }
+    }
+
+    @Test
     fun testGetSearchInterval() {
         val permitTimeDeltaMillis: Long = 100
         prefs.edit().remove(PREF_RECENTS_AMOUNT).apply()

@@ -261,8 +261,9 @@ public class TaskbarController extends UIController {
         String taskbarPosition = TaskbarPosition.getTaskbarPosition(context);
         params.gravity = getTaskbarGravity(taskbarPosition);
         boolean desktopSession = DesktopSessionState.isActive(context);
-        // Andesk desktop taskbars always occupy the full horizontal edge.
-        if(!TaskbarPosition.isVertical(taskbarPosition) && desktopSession)
+        // Andesk desktop taskbars span the full horizontal edge unless the user
+        // turned off "Full length" in Appearance settings.
+        if(!TaskbarPosition.isVertical(taskbarPosition) && isDesktopFullLength())
             params.width = WindowManager.LayoutParams.MATCH_PARENT;
         int layoutId = getTaskbarLayoutId(taskbarPosition);
         positionIsVertical = TaskbarPosition.isVertical(taskbarPosition);
@@ -352,12 +353,8 @@ public class TaskbarController extends UIController {
 
         // The large collapse arrow is a legacy Taskbar control, not desktop navigation.
         // Desktop sessions have an explicit Exit action and need no collapse button.
-        if(desktopSession) {
-            layout.findViewById(R.id.hide_taskbar_button_layout).setVisibility(View.GONE);
-            layout.findViewById(R.id.hide_taskbar_button_layout_alt).setVisibility(View.GONE);
-            if(buttonLayout != null) buttonLayout.setVisibility(View.GONE);
-            if(button != null) button.setVisibility(View.GONE);
-        }
+        if(desktopSession)
+            hideCollapseControls(layout);
 
         dashboardButton = layout.findViewById(R.id.dashboard_button);
         navbarButtons = layout.findViewById(R.id.navbar_buttons);
@@ -428,7 +425,7 @@ public class TaskbarController extends UIController {
                         ? params.updateHeight(WindowManager.LayoutParams.MATCH_PARENT)
                         : params.updateHeight(WindowManager.LayoutParams.WRAP_CONTENT);
             } else {
-                newParams = DesktopSessionState.isActive(context)
+                newParams = isDesktopFullLength()
                         ? params.updateWidth(WindowManager.LayoutParams.MATCH_PARENT)
                         : (matchParent ? params.updateWidth(WindowManager.LayoutParams.MATCH_PARENT)
                         : params.updateWidth(WindowManager.LayoutParams.WRAP_CONTENT));
@@ -444,6 +441,30 @@ public class TaskbarController extends UIController {
         host.addView(layout, params);
 
         isFirstStart = false;
+    }
+
+    private boolean isDesktopFullLength() {
+        return DesktopSessionState.isActive(context) && U.isTaskbarFullLength(context);
+    }
+
+    /**
+     * Hides the legacy collapse arrow. Only the vertical layouts wrap the arrow in a
+     * hide_taskbar_button_layout container; the horizontal layouts expose the bare
+     * buttons, so every lookup here must tolerate a missing view.
+     */
+    @VisibleForTesting
+    void hideCollapseControls(View layout) {
+        int[] ids = {
+                R.id.hide_taskbar_button_layout,
+                R.id.hide_taskbar_button_layout_alt,
+                R.id.hide_taskbar_button,
+                R.id.hide_taskbar_button_alt
+        };
+
+        for(int id : ids) {
+            View view = layout.findViewById(id);
+            if(view != null) view.setVisibility(View.GONE);
+        }
     }
 
     @SuppressLint("RtlHardcoded")
@@ -927,7 +948,7 @@ public class TaskbarController extends UIController {
         final List<AppEntry> entries = new ArrayList<>();
         List<LauncherActivityInfo> launcherAppCache = new ArrayList<>();
         int maxNumOfEntries = firstRefresh ? 0 : U.getMaxNumOfEntries(context);
-        boolean fullLength = DesktopSessionState.isActive(context) || U.isTaskbarFullLength(context);
+        boolean fullLength = U.isTaskbarFullLength(context);
 
         PinnedBlockedApps pba = PinnedBlockedApps.getInstance(context);
         List<AppEntry> pinnedApps = pba.getPinnedApps();
@@ -1228,7 +1249,7 @@ public class TaskbarController extends UIController {
             }
         }
 
-        boolean realMatchParent = DesktopSessionState.isActive(context)
+        boolean realMatchParent = isDesktopFullLength()
                 || (maxRecentsSize >= maxScreenSize
                 && pref.getBoolean(PREF_COLLAPSED, false)
                 && !(TaskbarPosition.isVertical(context) && U.isChromeOs(context)));

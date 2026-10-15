@@ -305,6 +305,7 @@ public class ContextMenuActivity extends PreferenceActivity implements Preferenc
             // When running as the desktop launcher, offer settings and a visible way to exit
             if(LauncherHelper.getInstance().isDesktopLauncherOpen()) {
                 addPreferencesFromResource(R.xml.tb_pref_context_menu_desktop_session);
+                findPreference(PREF_CUSTOMIZE_TASKBAR).setOnPreferenceClickListener(this);
                 findPreference(PREF_OPEN_TASKBAR_SETTINGS).setOnPreferenceClickListener(this);
                 findPreference(PREF_QUIT_TASKBAR).setOnPreferenceClickListener(this);
             }
@@ -492,9 +493,13 @@ public class ContextMenuActivity extends PreferenceActivity implements Preferenc
 
                 prepareToClose();
                 break;
+            case PREF_CUSTOMIZE_TASKBAR:
             case PREF_OPEN_TASKBAR_SETTINGS:
+                boolean openAppearance = PREF_CUSTOMIZE_TASKBAR.equals(p.getKey());
                 U.launchApp(this, () -> {
                     Intent intent2 = new Intent(this, MainActivity.class);
+                    // MainActivity opens the Appearance screen when this extra is present.
+                    if(openAppearance) intent2.putExtra("theme_change", true);
                     intent2.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     
                     LauncherHelper helper = LauncherHelper.getInstance();

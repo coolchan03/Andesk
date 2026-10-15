@@ -17,6 +17,10 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
     <Preference
+        android:key="customize_taskbar"
+        android:title="@string/tb_customize_taskbar" />
+
+    <Preference
         android:key="open_taskbar_settings"
         android:title="@string/tb_open_taskbar_settings" />
 

@@ -107,6 +107,7 @@
     <string name="tb_app_info">应用信息</string>
     <string name="tb_uninstall">卸载</string>
     <string name="tb_open_taskbar_settings">打开设置</string>
+    <string name="tb_customize_taskbar">自定义任务栏</string>
     <string name="tb_quit_taskbar">退出</string>
 
     <string name="tb_pref_title_keyboard_shortcut">启用键盘快捷方式</string>

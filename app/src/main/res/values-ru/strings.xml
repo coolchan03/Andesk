@@ -107,6 +107,7 @@
     <string name="tb_app_info">Информация</string>
     <string name="tb_uninstall">Удалить</string>
     <string name="tb_open_taskbar_settings">Настройки</string>
+    <string name="tb_customize_taskbar">Настроить панель задач</string>
     <string name="tb_quit_taskbar">Выход</string>
 
     <string name="tb_pref_title_keyboard_shortcut">Включить управление клавиатурой</string>

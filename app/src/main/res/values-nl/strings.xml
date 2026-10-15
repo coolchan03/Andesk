@@ -107,6 +107,7 @@
     <string name="tb_app_info">App-informatie</string>
     <string name="tb_uninstall">Verwijderen</string>
     <string name="tb_open_taskbar_settings">Instellingen openen</string>
+    <string name="tb_customize_taskbar">Taakbalk aanpassen</string>
     <string name="tb_quit_taskbar">Afsluiten</string>
 
     <string name="tb_pref_title_keyboard_shortcut">Sneltoetsen inschakelen</string>

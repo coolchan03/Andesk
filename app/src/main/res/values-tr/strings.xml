@@ -193,6 +193,7 @@ Daha yüksek değerler performansı düşürebilir."</string>
 <string name="tb_off">Kapalı</string>
 <string name="tb_on">Açık</string>
 <string name="tb_open_taskbar_settings">Ayarları aç</string>
+<string name="tb_customize_taskbar">Görev çubuğunu özelleştir</string>
 <string name="tb_permission_dialog_instructions_phone">Lütfen \"İzin Ver\" e basın ve \"Diğer uygulamaların üzerine çizim izni verme\" özelliğinin etkinleştirildiğinden emin olun.</string>
 <string name="tb_permission_dialog_instructions_tv">Please press \"Open Settings\" to open the Android TV app settings menu. Select \"Special app access\", then select \"Display over other apps\" and ensure that Taskbar is enabled.</string>
 <string name="tb_permission_dialog_message">"%1$s, başlamadan önce diğer uygulamaların üzerine çizim izni gerektirir.

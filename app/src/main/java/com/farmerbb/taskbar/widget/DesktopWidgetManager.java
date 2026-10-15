@@ -16,6 +16,7 @@
 package com.farmerbb.taskbar.widget;
 
 import android.app.Activity;
+import android.app.ActivityOptions;
 import android.app.AlertDialog;
 import android.appwidget.AppWidgetHost;
 import android.appwidget.AppWidgetHostView;
@@ -26,6 +27,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.UserHandle;
+import android.os.UserManager;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -54,6 +60,8 @@ public class DesktopWidgetManager {
     public static final int REQUEST_PICK_WIDGET = 4601;
     public static final int REQUEST_CONFIGURE_WIDGET = 4602;
     public static final int REQUEST_BIND_WIDGET = 4603;
+
+    private static final String TAG = "Andesk";
 
     private static final int HOST_ID = 4242;
     private static final int MIN_SIZE_DP = 56;
@@ -132,10 +140,10 @@ public class DesktopWidgetManager {
     /* Adding widgets */
 
     public void startAddWidget() {
-        List<AppWidgetProviderInfo> providers =
-                new ArrayList<>(appWidgetManager.getInstalledProviders());
+        List<AppWidgetProviderInfo> providers = getInstalledProviders();
 
         if(providers.isEmpty()) {
+            Log.w(TAG, "No widget providers are visible to Andesk");
             U.showToast(activity, R.string.tb_error_creating_widget);
             return;
         }
@@ -154,26 +162,78 @@ public class DesktopWidgetManager {
                 .show();
     }
 
+    /** Providers from every profile (personal and work), not only the current user. */
+    private List<AppWidgetProviderInfo> getInstalledProviders() {
+        List<AppWidgetProviderInfo> providers = new ArrayList<>();
+        UserManager userManager = (UserManager) activity.getSystemService(Context.USER_SERVICE);
+
+        try {
+            if(userManager != null) {
+                for(UserHandle profile : userManager.getUserProfiles())
+                    providers.addAll(appWidgetManager.getInstalledProvidersForProfile(profile));
+            }
+        } catch(RuntimeException e) {
+            Log.w(TAG, "Unable to list widget providers per profile", e);
+        }
+
+        if(providers.isEmpty()) {
+            try {
+                providers.addAll(appWidgetManager.getInstalledProviders());
+            } catch(RuntimeException e) {
+                Log.w(TAG, "Unable to list widget providers", e);
+            }
+        }
+
+        return providers;
+    }
+
     private void bindWidget(AppWidgetProviderInfo info) {
-        int id = appWidgetHost.allocateAppWidgetId();
+        int id;
+        try {
+            id = appWidgetHost.allocateAppWidgetId();
+        } catch(RuntimeException e) {
+            Log.e(TAG, "Unable to allocate a widget ID", e);
+            U.showToast(activity, R.string.tb_error_creating_widget);
+            return;
+        }
+
         pendingId = id;
 
         U.sendBroadcast(activity, ACTION_TEMP_HIDE_TASKBAR);
 
+        UserHandle profile = info.getProfile();
+
         try {
-            if(appWidgetManager.bindAppWidgetIdIfAllowed(id, info.provider)) {
+            if(appWidgetManager.bindAppWidgetIdIfAllowed(id, profile, info.provider, null)) {
                 continueWidgetSetup(id);
                 return;
             }
-        } catch(RuntimeException ignored) {}
+        } catch(RuntimeException e) {
+            Log.w(TAG, "Direct widget bind failed; asking the user for permission", e);
+        }
 
+        // Android asks the user once per app ("Always allow Andesk to create widgets").
         Intent bindIntent = new Intent(AppWidgetManager.ACTION_APPWIDGET_BIND);
         bindIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, id);
         bindIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_PROVIDER, info.provider);
+        bindIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_PROVIDER_PROFILE, profile);
 
         try {
             activity.startActivityForResult(bindIntent, REQUEST_BIND_WIDGET);
+            return;
         } catch(ActivityNotFoundException | SecurityException e) {
+            Log.w(TAG, "Widget bind confirmation unavailable; falling back to system picker", e);
+        }
+
+        // Some vendor builds remove the bind confirmation screen but keep the system
+        // widget picker, which binds the pre-allocated ID with its own privileges.
+        Intent pickIntent = new Intent(AppWidgetManager.ACTION_APPWIDGET_PICK);
+        pickIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, id);
+
+        try {
+            activity.startActivityForResult(pickIntent, REQUEST_PICK_WIDGET);
+        } catch(ActivityNotFoundException | SecurityException e) {
+            Log.e(TAG, "No way to bind widget " + info.provider, e);
             discardPending();
             U.showToast(activity, R.string.tb_error_creating_widget);
         }
@@ -206,20 +266,44 @@ public class DesktopWidgetManager {
     }
 
     private void continueWidgetSetup(int id) {
+        if(id != -1) pendingId = id;
+
         AppWidgetProviderInfo info = id != -1 ? appWidgetManager.getAppWidgetInfo(id) : null;
         if(info == null) {
+            Log.e(TAG, "Widget " + id + " is not bound after setup");
             discardPending();
             U.showToast(activity, R.string.tb_error_creating_widget);
-        } else if(info.configure != null) {
+        } else if(info.configure != null && !isConfigurationOptional(info)) {
             try {
                 appWidgetHost.startAppWidgetConfigureActivityForResult(
-                        activity, id, 0, REQUEST_CONFIGURE_WIDGET, null);
+                        activity, id, 0, REQUEST_CONFIGURE_WIDGET, getConfigureOptions());
             } catch(RuntimeException e) {
+                Log.e(TAG, "Unable to open configuration for " + info.provider, e);
                 discardPending();
                 U.showToast(activity, R.string.tb_error_creating_widget);
             }
         } else
             finishAddingWidget(id);
+    }
+
+    private static boolean isConfigurationOptional(AppWidgetProviderInfo info) {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+                && (info.widgetFeatures & AppWidgetProviderInfo.WIDGET_FEATURE_RECONFIGURABLE) != 0
+                && (info.widgetFeatures & AppWidgetProviderInfo.WIDGET_FEATURE_CONFIGURATION_OPTIONAL) != 0;
+    }
+
+    /**
+     * The configure screen is launched through a system IntentSender. Android 14+
+     * blocks that launch unless the sender explicitly lends its foreground status.
+     */
+    private static Bundle getConfigureOptions() {
+        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+            return null;
+
+        ActivityOptions options = ActivityOptions.makeBasic();
+        options.setPendingIntentBackgroundActivityStartMode(
+                ActivityOptions.MODE_BACKGROUND_ACTIVITY_START_ALLOWED);
+        return options.toBundle();
     }
 
     private void discardPending() {
@@ -232,6 +316,7 @@ public class DesktopWidgetManager {
 
         AppWidgetProviderInfo info = appWidgetManager.getAppWidgetInfo(id);
         if(info == null) {
+            Log.e(TAG, "Widget " + id + " lost its provider during setup");
             appWidgetHost.deleteAppWidgetId(id);
             U.showToast(activity, R.string.tb_error_creating_widget);
             return;

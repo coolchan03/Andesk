@@ -207,6 +207,7 @@ Wyższe wartości mogą zmniejszyć wydajność."</string>
 <string name="tb_off">Wył</string>
 <string name="tb_on">WŁ</string>
 <string name="tb_open_taskbar_settings">Otwórz ustawienia</string>
+<string name="tb_customize_taskbar">Dostosuj pasek zadań</string>
 <string name="tb_permission_dialog_instructions_phone">Proszę nacisnąć \"Udziel uprawnień\" i upewnij się, że \"Zezwalaj na rysowanie nad innymi aplikacjami\" jest włączone.</string>
 <string name="tb_permission_dialog_instructions_tv">Please press \"Open Settings\" to open the Android TV app settings menu. Select \"Special app access\", then select \"Display over other apps\" and ensure that Taskbar is enabled.</string>
 <string name="tb_permission_dialog_message">"%s wymaga uprawnienia do rysowania nad innymi aplikacjami.
