@@ -1063,7 +1063,8 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
 
         boolean taskbarIsVertical = TaskbarPosition.isVertical(this);
         int iconSize = U.getTaskbarIconSize(this);
-        int desktopIconSize = getResources().getDimensionPixelSize(R.dimen.tb_start_menu_grid_width);
+        int desktopIconSize = Math.round(getResources().getDimensionPixelSize(R.dimen.tb_start_menu_grid_width)
+                * U.getAppIconScale(this));
 
         int columns = Math.max(1, (layout.getWidth() - (taskbarIsVertical ? iconSize : 0)) / desktopIconSize);
         int rows = Math.max(1, (layout.getHeight() - (!taskbarIsVertical ? iconSize : 0)) / desktopIconSize);
@@ -1418,6 +1419,13 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
 
         ImageView imageView = icon.findViewById(R.id.icon);
         imageView.setImageDrawable(entry.getIcon(this));
+
+        // Desktop cells grow with the icon size (see refreshDesktopIcons), so widen the
+        // cell's own width to match before applying the icon and label scale.
+        ViewGroup.LayoutParams cellParams = icon.getLayoutParams();
+        if(cellParams != null && cellParams.width > 0)
+            cellParams.width = Math.round(cellParams.width * U.getAppIconScale(this));
+        U.applyAppDisplaySize(this, imageView, textView);
 
         icon.setOnTouchListener(new DesktopIconTouchListener());
         return icon;

@@ -492,4 +492,15 @@
     <string name="tb_override_freeform_unsupported_description">This version of Android does not support freeform mode on displays that do not set their default windowing mode to freeform (such as the built-in device display).\n\nIf you believe this is in error, toggle this setting on to force-enable the \'Freeform mode\" settings page.</string>
 
     <string name="tb_shizuku_successful">Successfully enabled additional settings via Shizuku</string>
+    <string name="tb_pref_title_taskbar_icon_spacing">Pictogramafstand taakbalk</string>
+    <string name="tb_size_none">Geen</string>
+    <string name="tb_size_small">Klein</string>
+    <string name="tb_size_medium">Middel</string>
+    <string name="tb_size_large">Groot</string>
+    <string name="tb_size_default">Standaard</string>
+    <string name="tb_pref_title_taskbar_rounded_corners">Afgeronde hoeken taakbalk</string>
+    <string name="tb_pref_title_show_running_indicator">Indicator voor actieve apps tonen</string>
+    <string name="tb_pref_summary_show_running_indicator">Geldt wanneer de taakbalk alleen actieve apps toont</string>
+    <string name="tb_pref_title_app_icon_size">Grootte app-pictogrammen (startmenu en bureaublad)</string>
+    <string name="tb_pref_title_app_label_size">Grootte app-namen (startmenu en bureaublad)</string>
 </resources>

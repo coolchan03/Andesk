@@ -56,6 +56,26 @@
         android:dependency="full_length"
         android:title="@string/tb_pref_centered_icons"/>
 
+    <ListPreference
+        android:defaultValue="none"
+        android:entries="@array/tb_pref_taskbar_icon_spacing"
+        android:entryValues="@array/tb_pref_taskbar_icon_spacing_values"
+        android:key="taskbar_icon_spacing"
+        android:negativeButtonText="@null"
+        android:positiveButtonText="@null"
+        android:title="@string/tb_pref_title_taskbar_icon_spacing"/>
+
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:key="taskbar_rounded_corners"
+        android:title="@string/tb_pref_title_taskbar_rounded_corners"/>
+
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:key="show_running_indicator"
+        android:title="@string/tb_pref_title_show_running_indicator"
+        android:summary="@string/tb_pref_summary_show_running_indicator"/>
+
     <CheckBoxPreference
         android:defaultValue="@bool/tb_def_sys_tray"
         android:key="sys_tray"
@@ -113,6 +133,24 @@
         android:defaultValue="false"
         android:key="hide_icon_labels"
         android:title="@string/tb_hide_icon_labels"/>
+
+    <ListPreference
+        android:defaultValue="default"
+        android:entries="@array/tb_pref_app_size"
+        android:entryValues="@array/tb_pref_app_size_values"
+        android:key="app_icon_size"
+        android:negativeButtonText="@null"
+        android:positiveButtonText="@null"
+        android:title="@string/tb_pref_title_app_icon_size"/>
+
+    <ListPreference
+        android:defaultValue="default"
+        android:entries="@array/tb_pref_app_size"
+        android:entryValues="@array/tb_pref_app_size_values"
+        android:key="app_label_size"
+        android:negativeButtonText="@null"
+        android:positiveButtonText="@null"
+        android:title="@string/tb_pref_title_app_label_size"/>
 
     <CheckBoxPreference
         android:defaultValue="false"

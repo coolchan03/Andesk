@@ -85,6 +85,14 @@ public class StartMenuAdapter extends ArrayAdapter<AppEntry> implements SectionI
         if(convertView == null) {
             convertView = LayoutInflater.from(getContext()).inflate(isGrid ? R.layout.tb_row_alt : R.layout.tb_row, parent, false);
             convertView.setBackgroundColor(0);
+
+            // Scale once per inflated view; recycled views keep their size.
+            ViewGroup.LayoutParams cellParams = convertView.getLayoutParams();
+            if(isGrid && cellParams != null && cellParams.width > 0)
+                cellParams.width = Math.round(cellParams.width * U.getAppIconScale(getContext()));
+            U.applyAppDisplaySize(getContext(),
+                    convertView.findViewById(R.id.icon),
+                    convertView.findViewById(R.id.name));
         }
 
         final AppEntry entry = getItem(position);

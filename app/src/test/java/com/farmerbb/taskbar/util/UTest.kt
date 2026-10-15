@@ -1106,6 +1106,37 @@ class UTest {
         Assert.assertTrue(receiver.onReceived)
     }
 
+    @Test
+    fun testTaskbarIconSpacingAndAppDisplayScale() {
+        val prefs = U.getSharedPreferences(context)
+        val density = context.resources.displayMetrics.density
+        val large = Constants.PREF_TASKBAR_ICON_SPACING_LARGE
+
+        try {
+            prefs.edit()
+                .remove(Constants.PREF_TASKBAR_ICON_SPACING)
+                .remove(Constants.PREF_APP_ICON_SIZE)
+                .apply()
+            Assert.assertEquals(0, U.getTaskbarIconSpacing(context))
+            Assert.assertEquals(1f, U.getAppIconScale(context), 0f)
+
+            prefs.edit()
+                .putString(Constants.PREF_TASKBAR_ICON_SPACING, large)
+                .putString(Constants.PREF_APP_ICON_SIZE, Constants.PREF_APP_SIZE_LARGE)
+                .putString(Constants.PREF_APP_LABEL_SIZE, Constants.PREF_APP_SIZE_SMALL)
+                .apply()
+            Assert.assertEquals(Math.round(14 * density), U.getTaskbarIconSpacing(context))
+            Assert.assertEquals(1.25f, U.getAppIconScale(context), 0f)
+            Assert.assertEquals(0.85f, U.getAppLabelScale(context), 0f)
+        } finally {
+            prefs.edit()
+                .remove(Constants.PREF_TASKBAR_ICON_SPACING)
+                .remove(Constants.PREF_APP_ICON_SIZE)
+                .remove(Constants.PREF_APP_LABEL_SIZE)
+                .apply()
+        }
+    }
+
     private class TestBroadcastReceiver : BroadcastReceiver() {
         var onReceived = false
         override fun onReceive(context: Context, intent: Intent) {

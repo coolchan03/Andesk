@@ -68,9 +68,12 @@ import androidx.appcompat.view.ContextThemeWrapper;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
+import android.util.TypedValue;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.farmerbb.taskbar.BuildConfig;
@@ -1828,6 +1831,71 @@ public class U {
         }
 
         return Math.round(dp * context.getResources().getDisplayMetrics().density);
+    }
+
+    /** Extra space, in pixels, added on each side of every app button on the taskbar. */
+    public static int getTaskbarIconSpacing(Context context) {
+        String spacing = getSharedPreferences(context).getString(
+                PREF_TASKBAR_ICON_SPACING, PREF_TASKBAR_ICON_SPACING_NONE);
+
+        int dp;
+        switch(spacing) {
+            case PREF_TASKBAR_ICON_SPACING_SMALL:
+                dp = 4;
+                break;
+            case PREF_TASKBAR_ICON_SPACING_MEDIUM:
+                dp = 8;
+                break;
+            case PREF_TASKBAR_ICON_SPACING_LARGE:
+                dp = 14;
+                break;
+            case PREF_TASKBAR_ICON_SPACING_NONE:
+            default:
+                dp = 0;
+                break;
+        }
+
+        return Math.round(dp * context.getResources().getDisplayMetrics().density);
+    }
+
+    /** Scale applied to app icons in the Start menu and on the desktop. */
+    public static float getAppIconScale(Context context) {
+        return getAppSizeScale(context, PREF_APP_ICON_SIZE, 0.8f, 1.25f);
+    }
+
+    /** Scale applied to app labels in the Start menu and on the desktop. */
+    public static float getAppLabelScale(Context context) {
+        return getAppSizeScale(context, PREF_APP_LABEL_SIZE, 0.85f, 1.2f);
+    }
+
+    private static float getAppSizeScale(Context context, String key, float small, float large) {
+        String size = getSharedPreferences(context).getString(key, PREF_APP_SIZE_DEFAULT);
+        switch(size) {
+            case PREF_APP_SIZE_SMALL:
+                return small;
+            case PREF_APP_SIZE_LARGE:
+                return large;
+            case PREF_APP_SIZE_DEFAULT:
+            default:
+                return 1f;
+        }
+    }
+
+    /** Resizes an app's icon and label views according to the app display settings. */
+    public static void applyAppDisplaySize(Context context, ImageView icon, TextView label) {
+        float iconScale = getAppIconScale(context);
+        if(icon != null && iconScale != 1f) {
+            ViewGroup.LayoutParams params = icon.getLayoutParams();
+            if(params != null && params.width > 0 && params.height > 0) {
+                params.width = Math.round(params.width * iconScale);
+                params.height = Math.round(params.height * iconScale);
+                icon.setLayoutParams(params);
+            }
+        }
+
+        float labelScale = getAppLabelScale(context);
+        if(label != null && labelScale != 1f)
+            label.setTextSize(TypedValue.COMPLEX_UNIT_PX, label.getTextSize() * labelScale);
     }
 
     public static String getTaskbarStyle(Context context) {

@@ -6,6 +6,7 @@
 - Make desktop widget setup more robust: list widgets from work profiles, fall back to the system widget picker when the bind confirmation screen is missing, skip optional configuration screens, allow widget configuration screens to open on Android 14+, and log the reason when a widget cannot be added.
 - Respect the Appearance "Full length" setting inside desktop sessions instead of always forcing a full-width taskbar.
 - Add "Customize taskbar" to the Start button's context menu, opening the taskbar Appearance settings directly.
+- New Appearance options: taskbar icon spacing, rounded taskbar corners, a toggle for running-app indicators, and app icon and label sizes for the Start menu and desktop.
 
 ## 0.1.0 - Initial Andesk release (October 12, 2026)
 

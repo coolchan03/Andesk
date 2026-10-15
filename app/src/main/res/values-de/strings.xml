@@ -492,4 +492,15 @@
     <string name="tb_override_freeform_unsupported_description">Diese Version von Android unterstützt den Freiform-Modus auf Displays nicht, deren Standard-Fenstermodus nicht auf Freiform eingestellt ist (wie z. B. das integrierte Gerätedisplay).\n\nWenn Sie glauben, dass dies ein Fehler ist, aktivieren Sie diese Einstellung, um die »Freiform-Modus«-Einstellung zu erzwingen.</string>
 
     <string name="tb_shizuku_successful">Erweiterte Einstellungen über Shizuku erfolgreich aktiviert</string>
+    <string name="tb_pref_title_taskbar_icon_spacing">Symbolabstand in der Taskleiste</string>
+    <string name="tb_size_none">Keiner</string>
+    <string name="tb_size_small">Klein</string>
+    <string name="tb_size_medium">Mittel</string>
+    <string name="tb_size_large">Groß</string>
+    <string name="tb_size_default">Standard</string>
+    <string name="tb_pref_title_taskbar_rounded_corners">Abgerundete Ecken der Taskleiste</string>
+    <string name="tb_pref_title_show_running_indicator">Anzeige für laufende Apps</string>
+    <string name="tb_pref_summary_show_running_indicator">Gilt, wenn die Taskleiste nur laufende Apps zeigt</string>
+    <string name="tb_pref_title_app_icon_size">App-Symbolgröße (Startmenü und Desktop)</string>
+    <string name="tb_pref_title_app_label_size">App-Beschriftungsgröße (Startmenü und Desktop)</string>
 </resources>

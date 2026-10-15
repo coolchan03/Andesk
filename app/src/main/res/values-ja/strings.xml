@@ -492,4 +492,15 @@
     <string name="tb_override_freeform_unsupported_description">This version of Android does not support freeform mode on displays that do not set their default windowing mode to freeform (such as the built-in device display).\n\nIf you believe this is in error, toggle this setting on to force-enable the \'Freeform mode\" settings page.</string>
 
     <string name="tb_shizuku_successful">Successfully enabled additional settings via Shizuku</string>
+    <string name="tb_pref_title_taskbar_icon_spacing">タスクバーのアイコン間隔</string>
+    <string name="tb_size_none">なし</string>
+    <string name="tb_size_small">小</string>
+    <string name="tb_size_medium">中</string>
+    <string name="tb_size_large">大</string>
+    <string name="tb_size_default">デフォルト</string>
+    <string name="tb_pref_title_taskbar_rounded_corners">タスクバーの角を丸くする</string>
+    <string name="tb_pref_title_show_running_indicator">実行中アプリのインジケーターを表示</string>
+    <string name="tb_pref_summary_show_running_indicator">タスクバーに実行中のアプリのみを表示する場合に適用</string>
+    <string name="tb_pref_title_app_icon_size">アプリアイコンのサイズ（スタートメニューとデスクトップ）</string>
+    <string name="tb_pref_title_app_label_size">アプリ名のサイズ（スタートメニューとデスクトップ）</string>
 </resources>

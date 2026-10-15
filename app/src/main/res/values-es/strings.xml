@@ -492,4 +492,15 @@
     <string name="tb_override_freeform_unsupported_description">This version of Android does not support freeform mode on displays that do not set their default windowing mode to freeform (such as the built-in device display).\n\nIf you believe this is in error, toggle this setting on to force-enable the \'Freeform mode\" settings page.</string>
 
     <string name="tb_shizuku_successful">Successfully enabled additional settings via Shizuku</string>
+    <string name="tb_pref_title_taskbar_icon_spacing">Espaciado de iconos de la barra de tareas</string>
+    <string name="tb_size_none">Ninguno</string>
+    <string name="tb_size_small">Pequeño</string>
+    <string name="tb_size_medium">Mediano</string>
+    <string name="tb_size_large">Grande</string>
+    <string name="tb_size_default">Predeterminado</string>
+    <string name="tb_pref_title_taskbar_rounded_corners">Esquinas redondeadas de la barra de tareas</string>
+    <string name="tb_pref_title_show_running_indicator">Mostrar indicador de apps en ejecución</string>
+    <string name="tb_pref_summary_show_running_indicator">Se aplica cuando la barra de tareas solo muestra apps en ejecución</string>
+    <string name="tb_pref_title_app_icon_size">Tamaño de iconos de apps (menú Inicio y escritorio)</string>
+    <string name="tb_pref_title_app_label_size">Tamaño de nombres de apps (menú Inicio y escritorio)</string>
 </resources>

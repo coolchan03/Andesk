@@ -544,7 +544,9 @@ public class StartMenuController extends UIController {
                         if(firstDraw) {
                             SharedPreferences pref = U.getSharedPreferences(context);
                             if(pref.getString(PREF_START_MENU_LAYOUT, "grid").equals("grid")) {
-                                startMenu.setNumColumns(context.getResources().getInteger(R.integer.tb_start_menu_columns));
+                                // Larger app icons need wider cells, so fit fewer columns.
+                                int columns = context.getResources().getInteger(R.integer.tb_start_menu_columns);
+                                startMenu.setNumColumns(Math.max(1, (int) (columns / U.getAppIconScale(context))));
                                 adapter = new StartMenuAdapter(context, R.layout.tb_row_alt, entries);
                             } else
                                 adapter = new StartMenuAdapter(context, R.layout.tb_row, entries);

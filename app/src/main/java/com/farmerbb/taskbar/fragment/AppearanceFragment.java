@@ -107,6 +107,11 @@ public class AppearanceFragment extends SettingsFragment {
         bindPreferenceSummaryToValue(findPreference(PREF_SHORTCUT_ICON));
         bindPreferenceSummaryToValue(findPreference(PREF_TRANSPARENT_START_MENU));
         bindPreferenceSummaryToValue(findPreference(PREF_HIDE_ICON_LABELS));
+        bindPreferenceSummaryToValue(findPreference(PREF_TASKBAR_ICON_SPACING));
+        bindPreferenceSummaryToValue(findPreference(PREF_TASKBAR_ROUNDED_CORNERS));
+        bindPreferenceSummaryToValue(findPreference(PREF_SHOW_RUNNING_INDICATOR));
+        bindPreferenceSummaryToValue(findPreference(PREF_APP_ICON_SIZE));
+        bindPreferenceSummaryToValue(findPreference(PREF_APP_LABEL_SIZE));
 
         findPreference(PREF_BACKGROUND_TINT_PREF).setSummary("#" + String.format("%08x", U.getBackgroundTint(getActivity())).toUpperCase());
         findPreference(PREF_ACCENT_COLOR_PREF).setSummary("#" + String.format("%08x", U.getAccentColor(getActivity())).toUpperCase());

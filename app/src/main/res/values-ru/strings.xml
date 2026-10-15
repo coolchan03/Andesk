@@ -492,4 +492,15 @@
     <string name="tb_override_freeform_unsupported_description">This version of Android does not support freeform mode on displays that do not set their default windowing mode to freeform (such as the built-in device display).\n\nIf you believe this is in error, toggle this setting on to force-enable the \'Freeform mode\" settings page.</string>
 
     <string name="tb_shizuku_successful">Successfully enabled additional settings via Shizuku</string>
+    <string name="tb_pref_title_taskbar_icon_spacing">Интервал значков на панели задач</string>
+    <string name="tb_size_none">Нет</string>
+    <string name="tb_size_small">Маленький</string>
+    <string name="tb_size_medium">Средний</string>
+    <string name="tb_size_large">Большой</string>
+    <string name="tb_size_default">По умолчанию</string>
+    <string name="tb_pref_title_taskbar_rounded_corners">Скруглённые углы панели задач</string>
+    <string name="tb_pref_title_show_running_indicator">Показывать индикатор запущенных приложений</string>
+    <string name="tb_pref_summary_show_running_indicator">Действует, когда на панели задач показаны только запущенные приложения</string>
+    <string name="tb_pref_title_app_icon_size">Размер значков приложений (меню «Пуск» и рабочий стол)</string>
+    <string name="tb_pref_title_app_label_size">Размер подписей приложений (меню «Пуск» и рабочий стол)</string>
 </resources>

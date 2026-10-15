@@ -484,4 +484,15 @@ Bu durumda, bu cihazdaki serbest biçimli modu kullanmak için özel bir ROM fla
     <string name="tb_override_freeform_unsupported_description">This version of Android does not support freeform mode on displays that do not set their default windowing mode to freeform (such as the built-in device display).\n\nIf you believe this is in error, toggle this setting on to force-enable the \'Freeform mode\" settings page.</string>
 
     <string name="tb_shizuku_successful">Successfully enabled additional settings via Shizuku</string>
+    <string name="tb_pref_title_taskbar_icon_spacing">Görev çubuğu simge aralığı</string>
+    <string name="tb_size_none">Yok</string>
+    <string name="tb_size_small">Küçük</string>
+    <string name="tb_size_medium">Orta</string>
+    <string name="tb_size_large">Büyük</string>
+    <string name="tb_size_default">Varsayılan</string>
+    <string name="tb_pref_title_taskbar_rounded_corners">Yuvarlatılmış görev çubuğu köşeleri</string>
+    <string name="tb_pref_title_show_running_indicator">Çalışan uygulama göstergesini göster</string>
+    <string name="tb_pref_summary_show_running_indicator">Görev çubuğu yalnızca çalışan uygulamaları gösterdiğinde geçerlidir</string>
+    <string name="tb_pref_title_app_icon_size">Uygulama simgesi boyutu (Başlat menüsü ve masaüstü)</string>
+    <string name="tb_pref_title_app_label_size">Uygulama adı boyutu (Başlat menüsü ve masaüstü)</string>
 </resources>

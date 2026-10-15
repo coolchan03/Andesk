@@ -177,6 +177,8 @@ public abstract class SettingsFragment extends PreferenceFragment implements Pre
                         shouldRestart = false;
                         break;
                     case PREF_HIDE_ICON_LABELS:
+                    case PREF_APP_ICON_SIZE:
+                    case PREF_APP_LABEL_SIZE:
                         U.sendBroadcast(getActivity(), ACTION_REFRESH_DESKTOP_ICONS);
                         break;
                     case PREF_DASHBOARD:

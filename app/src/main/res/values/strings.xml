@@ -515,4 +515,26 @@
     <string name="tb_bluetooth">Bluetooth</string>
     <string name="tb_notifications">Notifications</string>
 
+    <string name="tb_pref_title_taskbar_icon_spacing">Taskbar icon spacing</string>
+    <string name="tb_size_none">None</string>
+    <string name="tb_size_small">Small</string>
+    <string name="tb_size_medium">Medium</string>
+    <string name="tb_size_large">Large</string>
+    <string name="tb_size_default">Default</string>
+    <string name="tb_pref_title_taskbar_rounded_corners">Rounded taskbar corners</string>
+    <string name="tb_pref_title_show_running_indicator">Show running app indicators</string>
+    <string name="tb_pref_summary_show_running_indicator">Applies when the taskbar shows running apps only</string>
+    <string name="tb_pref_title_app_icon_size">App icon size (Start menu and desktop)</string>
+    <string name="tb_pref_title_app_label_size">App label size (Start menu and desktop)</string>
+    <string-array name="tb_pref_taskbar_icon_spacing">
+        <item>@string/tb_size_none</item>
+        <item>@string/tb_size_small</item>
+        <item>@string/tb_size_medium</item>
+        <item>@string/tb_size_large</item>
+    </string-array>
+    <string-array name="tb_pref_app_size">
+        <item>@string/tb_size_small</item>
+        <item>@string/tb_size_default</item>
+        <item>@string/tb_size_large</item>
+    </string-array>
 </resources>

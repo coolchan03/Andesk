@@ -378,7 +378,13 @@ public class TaskbarController extends UIController {
                             backgroundTint});
             aero.setStroke(Math.max(1, Math.round(context.getResources().getDisplayMetrics().density)),
                     androidx.core.graphics.ColorUtils.setAlphaComponent(android.graphics.Color.WHITE, 95));
+            aero.setCornerRadius(getTaskbarCornerRadius(pref));
             layout.setBackground(aero);
+        } else if(pref.getBoolean(PREF_TASKBAR_ROUNDED_CORNERS, false)) {
+            android.graphics.drawable.GradientDrawable rounded = new android.graphics.drawable.GradientDrawable();
+            rounded.setColor(backgroundTint);
+            rounded.setCornerRadius(getTaskbarCornerRadius(pref));
+            layout.setBackground(rounded);
         } else
             layout.setBackgroundColor(backgroundTint);
         layout.findViewById(R.id.divider).setBackgroundColor(
@@ -441,6 +447,12 @@ public class TaskbarController extends UIController {
         host.addView(layout, params);
 
         isFirstStart = false;
+    }
+
+    private float getTaskbarCornerRadius(SharedPreferences pref) {
+        return pref.getBoolean(PREF_TASKBAR_ROUNDED_CORNERS, false)
+                ? 16 * context.getResources().getDisplayMetrics().density
+                : 0;
     }
 
     private boolean isDesktopFullLength() {
@@ -1455,12 +1467,15 @@ public class TaskbarController extends UIController {
         for(AppEntry entry : usageStatsList)
             runningPackageList.add(entry.getPackageName());
 
+        boolean showIndicators = U.getSharedPreferences(context).getBoolean(PREF_SHOW_RUNNING_INDICATOR, true);
+
         for(int i = 0; i < taskbar.getChildCount(); i++) {
             View convertView = taskbar.getChildAt(i);
             String packageName = entries.get(i).getPackageName();
 
             ImageView runningAppIndicator = convertView.findViewById(R.id.running_app_indicator);
-            if(pinnedPackageList.contains(packageName) && !runningPackageList.contains(packageName))
+            if(!showIndicators
+                    || (pinnedPackageList.contains(packageName) && !runningPackageList.contains(packageName)))
                 runningAppIndicator.setVisibility(View.GONE);
             else {
                 runningAppIndicator.setVisibility(View.VISIBLE);
@@ -1755,6 +1770,14 @@ public class TaskbarController extends UIController {
     private View getView(List<AppEntry> list, int position) {
         View convertView = View.inflate(context, R.layout.tb_icon, null);
         applyTaskbarSize(convertView);
+
+        int spacing = U.getTaskbarIconSpacing(context);
+        if(spacing > 0) {
+            if(positionIsVertical)
+                convertView.setPadding(0, spacing, 0, spacing);
+            else
+                convertView.setPadding(spacing, 0, spacing, 0);
+        }
 
         final AppEntry entry = list.get(position);
         final SharedPreferences pref = U.getSharedPreferences(context);

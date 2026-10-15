@@ -492,4 +492,15 @@
     <string name="tb_override_freeform_unsupported_description">This version of Android does not support freeform mode on displays that do not set their default windowing mode to freeform (such as the built-in device display).\n\nIf you believe this is in error, toggle this setting on to force-enable the \'Freeform mode\" settings page.</string>
 
     <string name="tb_shizuku_successful">Successfully enabled additional settings via Shizuku</string>
+    <string name="tb_pref_title_taskbar_icon_spacing">任务栏图标间距</string>
+    <string name="tb_size_none">无</string>
+    <string name="tb_size_small">小</string>
+    <string name="tb_size_medium">中</string>
+    <string name="tb_size_large">大</string>
+    <string name="tb_size_default">默认</string>
+    <string name="tb_pref_title_taskbar_rounded_corners">任务栏圆角</string>
+    <string name="tb_pref_title_show_running_indicator">显示运行中应用指示器</string>
+    <string name="tb_pref_summary_show_running_indicator">任务栏仅显示运行中应用时生效</string>
+    <string name="tb_pref_title_app_icon_size">应用图标大小（开始菜单和桌面）</string>
+    <string name="tb_pref_title_app_label_size">应用名称大小（开始菜单和桌面）</string>
 </resources>
