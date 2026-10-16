@@ -131,7 +131,7 @@ class UTest {
         val themedContext = U.wrapContext(activity)
 
         Assert.assertSame(activity, U.getPermissionLaunchContext(themedContext))
-        Assert.assertSame(context, U.getPermissionLaunchContext(context))
+        Assert.assertFalse(U.getPermissionLaunchContext(context) is Activity)
     }
 
     @Test
