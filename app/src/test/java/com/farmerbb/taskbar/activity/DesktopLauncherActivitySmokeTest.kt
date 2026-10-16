@@ -39,7 +39,10 @@ class DesktopLauncherActivitySmokeTest {
             Assert.assertNotNull("The desktop must contain its own Start button", startButton)
             Assert.assertNotNull("The desktop must contain its own taskbar", appArea)
             Assert.assertEquals(View.VISIBLE, startButton.visibility)
-            Assert.assertTrue("The taskbar must not remain collapsed", appArea.visibility != View.GONE)
+            Assert.assertTrue(
+                "The taskbar must not remain collapsed",
+                appArea.visibility != View.GONE,
+            )
         } finally {
             controller.pause().stop().destroy()
             LauncherHelper.getInstance().setDesktopLauncherOpen(false)

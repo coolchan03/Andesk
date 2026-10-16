@@ -27,7 +27,10 @@ class ViewParamsTest {
 
         val defaultGravity = ViewParams(250, 30, -1, 0, -1)
             .toFrameLayoutParams()
-        Assert.assertEquals((Gravity.TOP or Gravity.START).toLong(), defaultGravity.gravity.toLong())
+        Assert.assertEquals(
+            (Gravity.TOP or Gravity.START).toLong(),
+            defaultGravity.gravity.toLong(),
+        )
     }
 
     @Test
