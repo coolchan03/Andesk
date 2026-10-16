@@ -16,7 +16,9 @@
 package com.farmerbb.taskbar.ui;
 
 import android.graphics.PixelFormat;
+import android.view.Gravity;
 import android.view.WindowManager;
+import android.widget.FrameLayout;
 
 import com.farmerbb.taskbar.util.U;
 
@@ -67,6 +69,19 @@ public class ViewParams {
         } catch (Exception ignored) {}
 
         return wmParams;
+    }
+
+    /** Position an on-screen desktop view within its Activity, without an overlay. */
+    public FrameLayout.LayoutParams toFrameLayoutParams() {
+        FrameLayout.LayoutParams frameParams = new FrameLayout.LayoutParams(width, height);
+        frameParams.gravity = gravity >= 0 ? gravity : Gravity.TOP | Gravity.START;
+        if(bottomMargin > 0) {
+            if((frameParams.gravity & Gravity.VERTICAL_GRAVITY_MASK) == Gravity.BOTTOM)
+                frameParams.bottomMargin = bottomMargin;
+            else
+                frameParams.topMargin = bottomMargin;
+        }
+        return frameParams;
     }
 
     public ViewParams updateWidth(int width) {

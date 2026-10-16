@@ -11,6 +11,26 @@ import org.robolectric.RobolectricTestRunner
 @RunWith(RobolectricTestRunner::class)
 class ViewParamsTest {
     @Test
+    fun testToFrameLayoutParamsPositionsTaskbarInsideActivity() {
+        val bottom = ViewParams(400, 52, Gravity.BOTTOM or Gravity.START, 0, 12)
+            .toFrameLayoutParams()
+        Assert.assertEquals(400, bottom.width)
+        Assert.assertEquals(52, bottom.height)
+        Assert.assertEquals((Gravity.BOTTOM or Gravity.START).toLong(), bottom.gravity.toLong())
+        Assert.assertEquals(12, bottom.bottomMargin)
+        Assert.assertEquals(0, bottom.topMargin)
+
+        val top = ViewParams(300, 110, Gravity.TOP or Gravity.END, 0, 8)
+            .toFrameLayoutParams()
+        Assert.assertEquals(8, top.topMargin)
+        Assert.assertEquals(0, top.bottomMargin)
+
+        val defaultGravity = ViewParams(250, 30, -1, 0, -1)
+            .toFrameLayoutParams()
+        Assert.assertEquals((Gravity.TOP or Gravity.START).toLong(), defaultGravity.gravity.toLong())
+    }
+
+    @Test
     fun testToWindowManagerParams() {
         val width = 100
         val height = 101

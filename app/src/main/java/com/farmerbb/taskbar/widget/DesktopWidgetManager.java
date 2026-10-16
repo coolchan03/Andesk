@@ -26,6 +26,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
+import android.os.UserHandle;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.GestureDetector;
@@ -125,6 +126,24 @@ public class DesktopWidgetManager {
         container.setLayoutParams(params);
     }
 
+    private void showWidgetError(String detail, Throwable error) {
+        if(error != null)
+            Log.e(TAG, detail, error);
+        else
+            Log.w(TAG, detail);
+
+        try {
+            new AlertDialog.Builder(activity)
+                    .setTitle(R.string.tb_error_creating_widget)
+                    .setMessage(detail)
+                    .setPositiveButton(R.string.tb_action_ok, null)
+                    .show();
+        } catch(RuntimeException displayError) {
+            Log.w(TAG, "Unable to show widget failure dialog", displayError);
+            U.showToast(activity, R.string.tb_error_creating_widget);
+        }
+    }
+
     /** Keep interactive widget frames above the desktop shortcut grid. */
     public void bringToFront() {
         container.bringToFront();
@@ -133,7 +152,9 @@ public class DesktopWidgetManager {
     public void startListening() {
         try {
             appWidgetHost.startListening();
-        } catch(RuntimeException ignored) {}
+        } catch(RuntimeException error) {
+            Log.w(TAG, "Unable to start listening to widget updates", error);
+        }
     }
 
     public void stopListening() {
@@ -149,13 +170,12 @@ public class DesktopWidgetManager {
         try {
             providers = new ArrayList<>(appWidgetManager.getInstalledProviders());
         } catch(RuntimeException error) {
-            Log.e(TAG, "Unable to load widget providers", error);
-            U.showToast(activity, R.string.tb_error_creating_widget);
+            showWidgetError("Android could not list the installed widget providers.", error);
             return;
         }
 
         if(providers.isEmpty()) {
-            U.showToast(activity, R.string.tb_error_creating_widget);
+            showWidgetError("No available Android widget providers were found on this device.", null);
             return;
         }
 
@@ -178,16 +198,19 @@ public class DesktopWidgetManager {
         try {
             id = appWidgetHost.allocateAppWidgetId();
         } catch(RuntimeException error) {
-            Log.e(TAG, "Unable to allocate widget ID", error);
-            U.showToast(activity, R.string.tb_error_creating_widget);
+            showWidgetError("Android could not allocate a new widget ID.", error);
             return;
         }
         pendingId = id;
 
         U.sendBroadcast(activity, ACTION_TEMP_HIDE_TASKBAR);
 
+        UserHandle profile = info.getProfile();
         try {
-            if(appWidgetManager.bindAppWidgetIdIfAllowed(id, info.provider)) {
+            boolean bound = profile == null
+                    ? appWidgetManager.bindAppWidgetIdIfAllowed(id, info.provider)
+                    : appWidgetManager.bindAppWidgetIdIfAllowed(id, profile, info.provider, null);
+            if(bound) {
                 continueWidgetSetup(id);
                 return;
             }
@@ -198,13 +221,14 @@ public class DesktopWidgetManager {
         Intent bindIntent = new Intent(AppWidgetManager.ACTION_APPWIDGET_BIND);
         bindIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, id);
         bindIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_PROVIDER, info.provider);
+        if(profile != null)
+            bindIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_PROVIDER_PROFILE, profile);
 
         try {
             activity.startActivityForResult(bindIntent, REQUEST_BIND_WIDGET);
         } catch(RuntimeException error) {
-            Log.e(TAG, "Android widget approval activity unavailable", error);
             discardPending();
-            U.showToast(activity, R.string.tb_error_creating_widget);
+            showWidgetError("Android could not open the widget approval screen.", error);
         }
     }
 
@@ -230,7 +254,7 @@ public class DesktopWidgetManager {
         if(id == -1 || (pendingId != -1 && id != pendingId)) {
             Log.w(TAG, "Ignoring widget result with an unexpected ID: " + id);
             discardPending();
-            U.showToast(activity, R.string.tb_error_creating_widget);
+            showWidgetError("The widget approval screen returned an unexpected widget ID.", null);
             return true;
         }
 
@@ -247,15 +271,14 @@ public class DesktopWidgetManager {
         if(info == null) {
             Log.w(TAG, "Widget was not bound after system approval: " + id);
             discardPending();
-            U.showToast(activity, R.string.tb_error_creating_widget);
+            showWidgetError("Android did not grant access to this widget. Try a different provider.", null);
         } else if(info.configure != null) {
             try {
                 appWidgetHost.startAppWidgetConfigureActivityForResult(
                         activity, id, 0, REQUEST_CONFIGURE_WIDGET, null);
             } catch(RuntimeException error) {
-                Log.e(TAG, "Widget configuration activity failed to open", error);
                 discardPending();
-                U.showToast(activity, R.string.tb_error_creating_widget);
+                showWidgetError("The widget's configuration screen could not be opened.", error);
             }
         } else
             finishAddingWidget(id);
@@ -275,7 +298,7 @@ public class DesktopWidgetManager {
         AppWidgetProviderInfo info = appWidgetManager.getAppWidgetInfo(id);
         if(info == null) {
             appWidgetHost.deleteAppWidgetId(id);
-            U.showToast(activity, R.string.tb_error_creating_widget);
+            showWidgetError("The widget provider was unavailable after setup.", null);
             return;
         }
 
@@ -292,13 +315,12 @@ public class DesktopWidgetManager {
             addEntry(entry);
             saveWidgets();
         } catch(RuntimeException error) {
-            Log.e(TAG, "Widget view could not be created", error);
             if(entry.frame != null) container.removeView(entry.frame);
             entries.remove(id);
             try { appWidgetHost.deleteAppWidgetId(id); }
             catch(RuntimeException cleanupError) { Log.w(TAG, "Widget cleanup failed", cleanupError); }
             saveWidgets();
-            U.showToast(activity, R.string.tb_error_creating_widget);
+            showWidgetError("The widget provider failed to render its view.", error);
         }
     }
 
