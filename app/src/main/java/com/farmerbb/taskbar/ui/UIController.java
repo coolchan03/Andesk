@@ -22,6 +22,7 @@ import android.view.View;
 
 import com.farmerbb.taskbar.BuildConfig;
 import com.farmerbb.taskbar.R;
+import com.farmerbb.taskbar.activity.DesktopLauncherActivity;
 import com.farmerbb.taskbar.activity.SecondaryHomeActivity;
 import com.farmerbb.taskbar.helper.LauncherHelper;
 import com.farmerbb.taskbar.util.CompatUtils;
@@ -54,7 +55,9 @@ public abstract class UIController {
 
         if(shouldProceed && (pref.getBoolean(PREF_TASKBAR_ACTIVE, false)
                 || helper.isOnHomeScreen(context))) {
-            if(U.canDrawOverlays(context))
+            // The desktop hosts its views directly inside its own Activity. It
+            // does not need permission to draw external overlay windows.
+            if(host instanceof DesktopLauncherActivity || U.canDrawOverlays(context))
                 runnable.run();
             else {
                 pref.edit().putBoolean(PREF_TASKBAR_ACTIVE, false).apply();

@@ -15,7 +15,6 @@
 
 package com.farmerbb.taskbar.activity;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
@@ -28,7 +27,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.LauncherApps;
-import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Build;
@@ -60,7 +58,6 @@ import com.farmerbb.taskbar.R;
 import com.farmerbb.taskbar.helper.DisplayHelper;
 import com.farmerbb.taskbar.helper.GlobalHelper;
 import com.farmerbb.taskbar.util.Callbacks;
-import com.farmerbb.taskbar.util.CompatUtils;
 import com.farmerbb.taskbar.util.TaskbarPosition;
 import com.farmerbb.taskbar.service.DashboardService;
 import com.farmerbb.taskbar.service.NotificationService;
@@ -120,8 +117,6 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
     private DesktopWidgetManager desktopWidgets;
     private TextView desktopAddButton;
     private boolean waitingForPermission;
-    private boolean desktopServicesStarted;
-    private boolean taskbarRecoveryAttempted;
     private boolean isWallpaperEnabled;
     private boolean isTaskVirtualDisplay;
 
@@ -647,25 +642,15 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
 
         U.sendBroadcast(this, ACTION_HIDE_START_MENU);
         if(desktopWidgets != null) desktopWidgets.startListening();
-        // Permission screens can resume this Activity before overlay access is settled.
-        // Only start desktop services once the Activity is actually foregrounded.
+        // Reattach in-Activity desktop controllers on resume, not from onStart().
         if(!isDesktopLauncher) init();
     }
 
     private void init() {
-        if(U.canDrawOverlays(this)) {
+        // The desktop taskbar is drawn inside Andesk itself; external overlay
+        // access is optional and must never block the on-screen desktop.
+        if(isDesktopLauncher || U.canDrawOverlays(this)) {
             SharedPreferences pref = U.getSharedPreferences(this);
-            if(isDesktopLauncher
-                    && pref.getBoolean(PREF_FIRST_RUN, true)
-                    && !pref.getBoolean("andesk_notification_permission_requested", false)
-                    && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
-                    && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS)
-                    != PackageManager.PERMISSION_GRANTED) {
-                pref.edit().putBoolean("andesk_notification_permission_requested", true).apply();
-                CompatUtils.grantNotificationPermissionIfNeeded(this);
-                return;
-            }
-
             if(!canBootToFreeform()) {
                 setOnHomeScreen(true);
 
@@ -686,16 +671,12 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
     }
 
     private void startTaskbar() {
-        // The Settings overlay-permission screen may trigger multiple resume callbacks.
-        // Do not schedule duplicate service startups within one foreground session.
-        if(isDesktopLauncher
-                && desktopServicesStarted
-                && U.isServiceRunning(this, TaskbarService.class)
-                && U.isServiceRunning(this, StartMenuService.class))
+        // Direct Activity-hosted views stay alive until onStop(). Do not create
+        // duplicate taskbars when returning from widget/system Settings screens.
+        if(isDesktopLauncher && taskbarController != null && startMenuController != null)
             return;
-        if(isDesktopLauncher) desktopServicesStarted = true;
         // Ensure that the freeform hack is started whenever Taskbar starts
-        if(U.hasFreeformSupport(this)
+        if(!isDesktopLauncher && U.hasFreeformSupport(this)
                 && U.isFreeformModeEnabled(this)
                 && !FreeformHackHelper.getInstance().isFreeformHackActive()) {
             U.startFreeformHack(this, true);
@@ -726,42 +707,83 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
             taskbarController.onCreateHost(this);
             startMenuController.onCreateHost(this);
             dashboardController.onCreateHost(this);
-        } else {
-            if(isDesktopLauncher) {
-                // The desktop task is retained in Recents while overlays are only
-                // active when the launcher itself is foregrounded.
-                DesktopSessionState.foreground(this);
-                SharedPreferences.Editor editor = pref.edit()
-                        .putBoolean(PREF_IS_HIDDEN, false)
-                        .putBoolean(PREF_COLLAPSED, false)
-                        .putLong(PREF_TIME_OF_SERVICE_START, System.currentTimeMillis());
+        } else if(isDesktopLauncher) {
+            // The desktop is an ordinary foreground Activity. Host its UI in
+            // the Activity's own FrameLayout instead of a TYPE_APPLICATION_OVERLAY
+            // service, which Android/OEMs may reject even when permission is granted.
+            DesktopSessionState.foreground(this);
+            SharedPreferences.Editor editor = pref.edit()
+                    .putBoolean(PREF_IS_HIDDEN, false)
+                    .putBoolean(PREF_COLLAPSED, false)
+                    .putLong(PREF_TIME_OF_SERVICE_START, System.currentTimeMillis());
 
-                // Large-screen Android uses a centered system taskbar/dock. We cannot
-                // inject into SystemUI, but default our desktop taskbar to the same
-                // centered-dock layout unless the user has already chosen otherwise.
-                if(getResources().getConfiguration().smallestScreenWidthDp >= 600
-                        && !pref.contains(PREF_CENTERED_ICONS))
-                    editor.putBoolean(PREF_CENTERED_ICONS, true);
+            if(getResources().getConfiguration().smallestScreenWidthDp >= 600
+                    && !pref.contains(PREF_CENTERED_ICONS))
+                editor.putBoolean(PREF_CENTERED_ICONS, true);
+            editor.apply();
 
-                editor.apply();
+            // A v0.1.1 overlay service may still be running after an upgrade.
+            // Never leave a second, detached taskbar over other Android apps.
+            stopService(new Intent(this, TaskbarService.class));
+            stopService(new Intent(this, StartMenuService.class));
+            stopService(new Intent(this, DashboardService.class));
+            stopService(new Intent(this, NotificationService.class));
+
+            try {
+                if(taskbarController == null) {
+                    taskbarController = new TaskbarController(this);
+                    taskbarController.onCreateHost(this);
+                }
+            } catch(RuntimeException error) {
+                android.util.Log.e("Andesk", "Taskbar could not attach to desktop Activity", error);
+                if(taskbarController != null) {
+                    try { taskbarController.onDestroyHost(this); }
+                    catch(RuntimeException cleanupError) {
+                        android.util.Log.w("Andesk", "Taskbar cleanup failed", cleanupError);
+                    }
+                    taskbarController = null;
+                }
+                new AlertDialog.Builder(this)
+                        .setTitle("Taskbar startup failed")
+                        .setMessage("Could not draw the taskbar: " + error.getClass().getSimpleName()
+                                + ". Please report this error.")
+                        .setPositiveButton(R.string.tb_action_ok, null)
+                        .show();
             }
 
-            // We always start the Taskbar and Start Menu services, even if the app isn't normally running
+            try {
+                if(startMenuController == null) {
+                    startMenuController = new StartMenuController(this);
+                    startMenuController.onCreateHost(this);
+                }
+            } catch(RuntimeException error) {
+                android.util.Log.e("Andesk", "Start menu could not attach to desktop Activity", error);
+                if(startMenuController != null) {
+                    try { startMenuController.onDestroyHost(this); }
+                    catch(RuntimeException cleanupError) {
+                        android.util.Log.w("Andesk", "Start menu cleanup failed", cleanupError);
+                    }
+                    startMenuController = null;
+                }
+            }
+
+            try {
+                if(dashboardController == null) {
+                    dashboardController = new DashboardController(this);
+                    dashboardController.onCreateHost(this);
+                }
+            } catch(RuntimeException error) {
+                android.util.Log.w("Andesk", "Dashboard unavailable", error);
+                dashboardController = null;
+            }
+        } else {
+            // Legacy background and secondary-launcher modes still use overlay services.
             try {
                 startService(new Intent(this, TaskbarService.class));
                 startService(new Intent(this, StartMenuService.class));
-                if(!isDesktopLauncher)
-                    startService(new Intent(this, DashboardService.class));
-
-                if(isDesktopLauncher)
-                    startService(new Intent(this, NotificationService.class));
-            } catch (RuntimeException error) {
-                if(isDesktopLauncher) desktopServicesStarted = false;
-                android.util.Log.e("Andesk", "Desktop overlay services failed to start", error);
-                if(isDesktopLauncher) {
-                    pref.edit().putBoolean(PREF_TASKBAR_ACTIVE, false).apply();
-                    android.widget.Toast.makeText(this, "Desktop service startup failed; reopen Andesk or check overlay permission", android.widget.Toast.LENGTH_LONG).show();
-                }
+                startService(new Intent(this, DashboardService.class));
+            } catch(RuntimeException error) {
+                android.util.Log.e("Andesk", "Legacy overlay service startup failed", error);
             }
         }
 
@@ -776,31 +798,6 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
         // Show the Taskbar temporarily, as nothing else will be visible on screen
         U.newHandler().postDelayed(() ->
                 U.sendBroadcast(this, ACTION_TEMP_SHOW_TASKBAR), 100);
-
-        // Some devices reject an overlay window asynchronously even when
-        // startService() returned successfully. Recover once, then display an
-        // actionable failure rather than leaving an invisible taskbar.
-        if(isDesktopLauncher)
-            U.newHandler().postDelayed(this::checkTaskbarStartup, 1300);
-    }
-
-    private void checkTaskbarStartup() {
-        if(isDestroyed() || isFinishing() || !DesktopSessionState.isActive(this)
-                || !U.canDrawOverlays(this)
-                || U.isServiceRunning(this, TaskbarService.class))
-            return;
-
-        if(!taskbarRecoveryAttempted) {
-            taskbarRecoveryAttempted = true;
-            desktopServicesStarted = false;
-            android.util.Log.w("Andesk", "Taskbar service stopped after startup; retrying once");
-            startTaskbar();
-        } else {
-            android.util.Log.e("Andesk", "Taskbar overlay unavailable after retry");
-            android.widget.Toast.makeText(this,
-                    "Taskbar could not start. Check Display over other apps permission.",
-                    android.widget.Toast.LENGTH_LONG).show();
-        }
     }
 
     private boolean canBootToFreeform() {
@@ -844,14 +841,17 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
                     startService(new Intent(this, DashboardService.class));
                 }
             } else {
-                // Andesk owns these overlays for the lifetime of the desktop task.
-                // Opening another Android app is not an exit: keep the taskbar and
-                // Start menu services alive until the desktop task itself is closed.
-                if(isDesktopLauncher)
-                    DesktopSessionState.foreground(this);
-
-                // Stop the Taskbar and Start Menu services if they should normally not be active
-                if(!isDesktopLauncher && (!pref.getBoolean(PREF_TASKBAR_ACTIVE, false) || pref.getBoolean(PREF_IS_HIDDEN, false))) {
+                if(isDesktopLauncher) {
+                    // Opening another app must not end the desktop session, but
+                    // no taskbar, Start menu or notification should remain over it.
+                    destroyDesktopControllers();
+                    DesktopSessionState.background(this);
+                    stopService(new Intent(this, TaskbarService.class));
+                    stopService(new Intent(this, StartMenuService.class));
+                    stopService(new Intent(this, DashboardService.class));
+                    stopService(new Intent(this, NotificationService.class));
+                } else if(!pref.getBoolean(PREF_TASKBAR_ACTIVE, false)
+                        || pref.getBoolean(PREF_IS_HIDDEN, false)) {
                     stopService(new Intent(this, TaskbarService.class));
                     stopService(new Intent(this, StartMenuService.class));
 
@@ -1016,7 +1016,32 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
         });
     }
 
+    private void destroyDesktopControllers() {
+        if(dashboardController != null) {
+            try { dashboardController.onDestroyHost(this); }
+            catch(RuntimeException error) {
+                android.util.Log.w("Andesk", "Dashboard cleanup failed", error);
+            }
+            dashboardController = null;
+        }
+        if(startMenuController != null) {
+            try { startMenuController.onDestroyHost(this); }
+            catch(RuntimeException error) {
+                android.util.Log.w("Andesk", "Start menu cleanup failed", error);
+            }
+            startMenuController = null;
+        }
+        if(taskbarController != null) {
+            try { taskbarController.onDestroyHost(this); }
+            catch(RuntimeException error) {
+                android.util.Log.w("Andesk", "Taskbar cleanup failed", error);
+            }
+            taskbarController = null;
+        }
+    }
+
     private void stopDesktopSession() {
+        destroyDesktopControllers();
         LauncherHelper.getInstance().setDesktopLauncherOpen(false);
 
         DesktopSessionState.close(this);
@@ -1035,6 +1060,12 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
 
     private void updateWindowFlags() {
         int flags = WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
+        if(isDesktopLauncher) {
+            // The real desktop must always remain touchable. The upstream
+            // freeform touch absorber is unrelated to this on-screen host.
+            getWindow().clearFlags(flags);
+            return;
+        }
         if(FreeformHackHelper.getInstance().isTouchAbsorberActive() && U.isOverridingFreeformHack(this))
             getWindow().setFlags(flags, flags);
         else
@@ -1044,13 +1075,20 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
     @Override
     public void addView(View view, ViewParams params) {
         if(isTaskVirtualDisplay) return;
-        windowManager.addView(view, params.toWindowManagerParams());
+        if(isDesktopLauncher) {
+            layout.addView(view, params.toFrameLayoutParams());
+            view.bringToFront();
+        } else
+            windowManager.addView(view, params.toWindowManagerParams());
     }
 
     @Override
     public void removeView(View view) {
         if(isTaskVirtualDisplay) return;
-        windowManager.removeView(view);
+        if(isDesktopLauncher) {
+            if(view.getParent() == layout) layout.removeView(view);
+        } else
+            windowManager.removeView(view);
     }
 
     @Override
@@ -1061,7 +1099,11 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
     @Override
     public void updateViewLayout(View view, ViewParams params) {
         if(isTaskVirtualDisplay) return;
-        windowManager.updateViewLayout(view, params.toWindowManagerParams());
+        if(isDesktopLauncher) {
+            if(view.getParent() == layout)
+                view.setLayoutParams(params.toFrameLayoutParams());
+        } else
+            windowManager.updateViewLayout(view, params.toWindowManagerParams());
     }
 
     private void initDesktopIcons() {
