@@ -21,11 +21,12 @@ import android.appwidget.AppWidgetHost;
 import android.appwidget.AppWidgetHostView;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProviderInfo;
-import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
+import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -55,6 +56,8 @@ public class DesktopWidgetManager {
     public static final int REQUEST_CONFIGURE_WIDGET = 4602;
     public static final int REQUEST_BIND_WIDGET = 4603;
 
+    private static final String TAG = "AndeskWidget";
+    private static final String STATE_PENDING_ID = "andesk_pending_widget_id";
     private static final int HOST_ID = 4242;
     private static final int MIN_SIZE_DP = 56;
     private static final int HANDLE_SIZE_DP = 40;
@@ -103,6 +106,16 @@ public class DesktopWidgetManager {
         restoreWidgets();
     }
 
+    /** Preserve the widget binding/configuration ID across Activity recreation. */
+    public void restorePendingState(Bundle state) {
+        if(state != null)
+            pendingId = state.getInt(STATE_PENDING_ID, -1);
+    }
+
+    public void savePendingState(Bundle state) {
+        state.putInt(STATE_PENDING_ID, pendingId);
+    }
+
     /** Keeps widgets clear of the taskbar. */
     public void setMargins(int left, int top, int right, int bottom) {
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
@@ -132,8 +145,14 @@ public class DesktopWidgetManager {
     /* Adding widgets */
 
     public void startAddWidget() {
-        List<AppWidgetProviderInfo> providers =
-                new ArrayList<>(appWidgetManager.getInstalledProviders());
+        List<AppWidgetProviderInfo> providers;
+        try {
+            providers = new ArrayList<>(appWidgetManager.getInstalledProviders());
+        } catch(RuntimeException error) {
+            Log.e(TAG, "Unable to load widget providers", error);
+            U.showToast(activity, R.string.tb_error_creating_widget);
+            return;
+        }
 
         if(providers.isEmpty()) {
             U.showToast(activity, R.string.tb_error_creating_widget);
@@ -155,7 +174,14 @@ public class DesktopWidgetManager {
     }
 
     private void bindWidget(AppWidgetProviderInfo info) {
-        int id = appWidgetHost.allocateAppWidgetId();
+        final int id;
+        try {
+            id = appWidgetHost.allocateAppWidgetId();
+        } catch(RuntimeException error) {
+            Log.e(TAG, "Unable to allocate widget ID", error);
+            U.showToast(activity, R.string.tb_error_creating_widget);
+            return;
+        }
         pendingId = id;
 
         U.sendBroadcast(activity, ACTION_TEMP_HIDE_TASKBAR);
@@ -165,7 +191,9 @@ public class DesktopWidgetManager {
                 continueWidgetSetup(id);
                 return;
             }
-        } catch(RuntimeException ignored) {}
+        } catch(RuntimeException error) {
+            Log.w(TAG, "Widget binding requires system approval", error);
+        }
 
         Intent bindIntent = new Intent(AppWidgetManager.ACTION_APPWIDGET_BIND);
         bindIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, id);
@@ -173,7 +201,8 @@ public class DesktopWidgetManager {
 
         try {
             activity.startActivityForResult(bindIntent, REQUEST_BIND_WIDGET);
-        } catch(ActivityNotFoundException | SecurityException e) {
+        } catch(RuntimeException error) {
+            Log.e(TAG, "Android widget approval activity unavailable", error);
             discardPending();
             U.showToast(activity, R.string.tb_error_creating_widget);
         }
@@ -192,8 +221,16 @@ public class DesktopWidgetManager {
         if(id == -1) id = pendingId;
 
         if(resultCode != RESULT_OK) {
-            if(id != -1) appWidgetHost.deleteAppWidgetId(id);
-            pendingId = -1;
+            // Only release the ID allocated by this host. A cancelled system
+            // result must not delete an arbitrary ID returned by another app.
+            discardPending();
+            return true;
+        }
+
+        if(id == -1 || (pendingId != -1 && id != pendingId)) {
+            Log.w(TAG, "Ignoring widget result with an unexpected ID: " + id);
+            discardPending();
+            U.showToast(activity, R.string.tb_error_creating_widget);
             return true;
         }
 
@@ -208,13 +245,15 @@ public class DesktopWidgetManager {
     private void continueWidgetSetup(int id) {
         AppWidgetProviderInfo info = id != -1 ? appWidgetManager.getAppWidgetInfo(id) : null;
         if(info == null) {
+            Log.w(TAG, "Widget was not bound after system approval: " + id);
             discardPending();
             U.showToast(activity, R.string.tb_error_creating_widget);
         } else if(info.configure != null) {
             try {
                 appWidgetHost.startAppWidgetConfigureActivityForResult(
                         activity, id, 0, REQUEST_CONFIGURE_WIDGET, null);
-            } catch(RuntimeException e) {
+            } catch(RuntimeException error) {
+                Log.e(TAG, "Widget configuration activity failed to open", error);
                 discardPending();
                 U.showToast(activity, R.string.tb_error_creating_widget);
             }
@@ -223,7 +262,10 @@ public class DesktopWidgetManager {
     }
 
     private void discardPending() {
-        if(pendingId != -1) appWidgetHost.deleteAppWidgetId(pendingId);
+        if(pendingId != -1) {
+            try { appWidgetHost.deleteAppWidgetId(pendingId); }
+            catch(RuntimeException error) { Log.w(TAG, "Widget ID cleanup failed", error); }
+        }
         pendingId = -1;
     }
 
@@ -246,8 +288,18 @@ public class DesktopWidgetManager {
         entry.x = dp(48) + offset;
         entry.y = dp(96) + offset;
 
-        addEntry(entry);
-        saveWidgets();
+        try {
+            addEntry(entry);
+            saveWidgets();
+        } catch(RuntimeException error) {
+            Log.e(TAG, "Widget view could not be created", error);
+            if(entry.frame != null) container.removeView(entry.frame);
+            entries.remove(id);
+            try { appWidgetHost.deleteAppWidgetId(id); }
+            catch(RuntimeException cleanupError) { Log.w(TAG, "Widget cleanup failed", cleanupError); }
+            saveWidgets();
+            U.showToast(activity, R.string.tb_error_creating_widget);
+        }
     }
 
     /* Widget views */
@@ -536,11 +588,19 @@ public class DesktopWidgetManager {
         }
 
         for(Entry entry : restored) {
-            // Widgets whose provider has been uninstalled are dropped
-            if(appWidgetManager.getAppWidgetInfo(entry.id) == null)
-                appWidgetHost.deleteAppWidgetId(entry.id);
-            else
-                addEntry(entry);
+            try {
+                // A broken or removed widget must never crash the entire desktop.
+                if(appWidgetManager.getAppWidgetInfo(entry.id) == null)
+                    appWidgetHost.deleteAppWidgetId(entry.id);
+                else
+                    addEntry(entry);
+            } catch(RuntimeException error) {
+                Log.w(TAG, "Dropping widget that failed to restore: " + entry.id, error);
+                if(entry.frame != null) container.removeView(entry.frame);
+                entries.remove(entry.id);
+                try { appWidgetHost.deleteAppWidgetId(entry.id); }
+                catch(RuntimeException cleanupError) { Log.w(TAG, "Widget cleanup failed", cleanupError); }
+            }
         }
 
         saveWidgets();

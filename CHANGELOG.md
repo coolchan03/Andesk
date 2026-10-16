@@ -1,5 +1,13 @@
 # Andesk changelog
 
+## 0.1.1 - Widget and taskbar startup fixes (October 15, 2026)
+
+- Return from overlay permission Settings to the owning Andesk activity rather than launching a separate task.
+- Retry a taskbar service that stops immediately after startup once, and explain persistent failures.
+- Preserve pending widget approval/configuration IDs across activity recreation.
+- Handle broken widget providers without crashing the desktop or losing other widgets.
+- Improve widget binding error handling and diagnostic logs.
+
 ## 0.1.0 - Initial Andesk release (October 12, 2026)
 
 Andesk is a session-owned Android desktop launcher developed from Braden Farmer's Taskbar.

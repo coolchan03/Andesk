@@ -29,6 +29,7 @@ import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -160,6 +161,20 @@ public class U {
         return dialog;
     }
 
+    // A themed dialog wraps its owning Activity in a ContextThemeWrapper. Launch
+    // permission Settings from that Activity, not a detached NEW_TASK, so Android
+    // returns to Andesk after the user grants the overlay permission.
+    @VisibleForTesting
+    static Context getPermissionLaunchContext(Context context) {
+        Context current = context;
+        while(current instanceof ContextWrapper && !(current instanceof Activity)) {
+            Context base = ((ContextWrapper) current).getBaseContext();
+            if(base == null || base == current) break;
+            current = base;
+        }
+        return current;
+    }
+
     @TargetApi(Build.VERSION_CODES.M)
     private static AlertDialog.Builder buildPermissionDialogStandard(Context context, Callbacks callbacks) {
         String message = context.getString(R.string.tb_permission_dialog_message, getAppName(context))
@@ -173,9 +188,10 @@ public class U {
                         Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + context.getPackageName()));
                         // Keep the overlay permission screen in the requesting Activity task.
                         // NEW_TASK can return to the system home rather than Andesk.
-                        if(!(context instanceof android.app.Activity))
+                        Context launchContext = getPermissionLaunchContext(context);
+                        if(!(launchContext instanceof Activity))
                             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        context.startActivity(intent);
+                        launchContext.startActivity(intent);
 
                         callbacks.onFinish.run();
                     } catch (ActivityNotFoundException e) {
@@ -196,9 +212,10 @@ public class U {
                         Intent intent = new Intent(Settings.ACTION_MANAGE_APPLICATIONS_SETTINGS);
                         // Keep the overlay permission screen in the requesting Activity task.
                         // NEW_TASK can return to the system home rather than Andesk.
-                        if(!(context instanceof android.app.Activity))
+                        Context launchContext = getPermissionLaunchContext(context);
+                        if(!(launchContext instanceof Activity))
                             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        context.startActivity(intent);
+                        launchContext.startActivity(intent);
 
                         callbacks.onFinish.run();
                     } catch (ActivityNotFoundException e) {

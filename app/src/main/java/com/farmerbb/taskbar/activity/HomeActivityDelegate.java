@@ -121,6 +121,7 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
     private TextView desktopAddButton;
     private boolean waitingForPermission;
     private boolean desktopServicesStarted;
+    private boolean taskbarRecoveryAttempted;
     private boolean isWallpaperEnabled;
     private boolean isTaskVirtualDisplay;
 
@@ -441,6 +442,7 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
 
             if(isDesktopLauncher) {
                 desktopWidgets = new DesktopWidgetManager(this, layout);
+                desktopWidgets.restorePendingState(savedInstanceState);
                 updateMargins();
                 TextView addDesktopItem = new TextView(this);
                 addDesktopItem.setText("+ Add to desktop");
@@ -774,6 +776,31 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
         // Show the Taskbar temporarily, as nothing else will be visible on screen
         U.newHandler().postDelayed(() ->
                 U.sendBroadcast(this, ACTION_TEMP_SHOW_TASKBAR), 100);
+
+        // Some devices reject an overlay window asynchronously even when
+        // startService() returned successfully. Recover once, then display an
+        // actionable failure rather than leaving an invisible taskbar.
+        if(isDesktopLauncher)
+            U.newHandler().postDelayed(this::checkTaskbarStartup, 1300);
+    }
+
+    private void checkTaskbarStartup() {
+        if(isDestroyed() || isFinishing() || !DesktopSessionState.isActive(this)
+                || !U.canDrawOverlays(this)
+                || U.isServiceRunning(this, TaskbarService.class))
+            return;
+
+        if(!taskbarRecoveryAttempted) {
+            taskbarRecoveryAttempted = true;
+            desktopServicesStarted = false;
+            android.util.Log.w("Andesk", "Taskbar service stopped after startup; retrying once");
+            startTaskbar();
+        } else {
+            android.util.Log.e("Andesk", "Taskbar overlay unavailable after retry");
+            android.widget.Toast.makeText(this,
+                    "Taskbar could not start. Check Display over other apps permission.",
+                    android.widget.Toast.LENGTH_LONG).show();
+        }
     }
 
     private boolean canBootToFreeform() {
@@ -885,6 +912,7 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         outState.putBoolean("icon_arrange_mode", iconArrangeMode);
+        if(desktopWidgets != null) desktopWidgets.savePendingState(outState);
         super.onSaveInstanceState(outState);
     }
 

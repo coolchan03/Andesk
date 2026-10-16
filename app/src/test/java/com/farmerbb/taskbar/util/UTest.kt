@@ -2,6 +2,7 @@ package com.farmerbb.taskbar.util
 
 import android.Manifest
 import android.accessibilityservice.AccessibilityService
+import android.app.Activity
 import android.app.ActivityOptions
 import android.app.AlertDialog
 import android.app.Application
@@ -35,6 +36,7 @@ import org.powermock.api.mockito.PowerMockito
 import org.powermock.core.classloader.annotations.PowerMockIgnore
 import org.powermock.core.classloader.annotations.PrepareForTest
 import org.powermock.modules.junit4.rule.PowerMockRule
+import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows
 import org.robolectric.annotation.Config
@@ -121,6 +123,15 @@ class UTest {
         positiveButton.performClick()
         Assert.assertTrue(onFinish.hasRun())
         Assert.assertFalse(onError.hasRun())
+    }
+
+    @Test
+    fun testOverlayPermissionSettingsUsesOwningActivityEvenWhenThemed() {
+        val activity = Robolectric.buildActivity(Activity::class.java).setup().get()
+        val themedContext = U.wrapContext(activity)
+
+        Assert.assertSame(activity, U.getPermissionLaunchContext(themedContext))
+        Assert.assertSame(context, U.getPermissionLaunchContext(context))
     }
 
     @Test
