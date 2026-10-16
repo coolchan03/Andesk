@@ -70,8 +70,14 @@ class DesktopLauncherActivitySmokeTest {
             LauncherHelper.getInstance().setDesktopLauncherOpen(false)
             LauncherHelper.getInstance().setOnPrimaryHomeScreen(false)
             LauncherHelper.getInstance().setOnSecondaryHomeScreen(false, -1)
-            ReflectionHelpers.setStaticField(TaskbarPosition::class.java, "cachedRotation", priorRotation)
-            GlobalHelper.getInstance().setReflectionAllowed(Build.VERSION.SDK_INT < Build.VERSION_CODES.P)
+            ReflectionHelpers.setStaticField(
+                TaskbarPosition::class.java,
+                "cachedRotation",
+                priorRotation,
+            )
+            GlobalHelper.getInstance().setReflectionAllowed(
+                Build.VERSION.SDK_INT < Build.VERSION_CODES.P,
+            )
             pref.edit().clear().apply()
             ShadowSettings.setCanDrawOverlays(true)
         }
