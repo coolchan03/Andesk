@@ -352,9 +352,9 @@ public class TaskbarController extends UIController {
 
         // The large collapse arrow is a legacy Taskbar control, not desktop navigation.
         // Desktop sessions have an explicit Exit action and need no collapse button.
+        // Only the vertical layouts wrap the button in a *_layout container, so the
+        // horizontal (default bottom) layouts must not dereference those IDs.
         if(desktopSession) {
-            layout.findViewById(R.id.hide_taskbar_button_layout).setVisibility(View.GONE);
-            layout.findViewById(R.id.hide_taskbar_button_layout_alt).setVisibility(View.GONE);
             if(buttonLayout != null) buttonLayout.setVisibility(View.GONE);
             if(button != null) button.setVisibility(View.GONE);
         }

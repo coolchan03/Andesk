@@ -1292,6 +1292,13 @@ public class U {
     public static void restartTaskbar(Context context) {
         SharedPreferences pref = getSharedPreferences(context);
         boolean desktopSession = DesktopSessionState.isActive(context);
+        if(desktopSession) {
+            // The desktop Activity hosts its own taskbar and redraws it on ACTION_RESTART.
+            // Never start overlay services that would float over other Android apps.
+            sendBroadcast(context, ACTION_RESTART);
+            return;
+        }
+
         if(pref.getBoolean(PREF_TASKBAR_ACTIVE, false)
                 && !pref.getBoolean(PREF_IS_HIDDEN, false)) {
             pref.edit()

@@ -96,6 +96,8 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
     private DashboardController dashboardController;
 
     private FrameLayout layout;
+    // Taskbar, Start menu and dashboard views hosted directly in the desktop layout.
+    private final List<View> hostedViews = new ArrayList<>();
     private GridLayout desktopIcons;
     private FABWrapper fab;
     private ImageView wallpaper;
@@ -149,6 +151,14 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
     private final BroadcastReceiver restartReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+            if(isDesktopLauncher) {
+                // Appearance changes redraw the Activity-hosted taskbar in place
+                // rather than starting the legacy overlay services.
+                boolean wasHosting = taskbarController != null;
+                destroyDesktopControllers();
+                if(wasHosting) startTaskbar();
+                return;
+            }
             if(taskbarController != null) taskbarController.onRecreateHost(HomeActivityDelegate.this);
             if(startMenuController != null) startMenuController.onRecreateHost(HomeActivityDelegate.this);
             if(dashboardController != null) dashboardController.onRecreateHost(HomeActivityDelegate.this);
@@ -347,6 +357,17 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
         }
 
         layout.setFitsSystemWindows(true);
+        if(isDesktopLauncher && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            // With gesture navigation the bottom inset holds only the gesture handle,
+            // which is not tappable. Let the desktop taskbar reach the bottom edge like
+            // a real desktop taskbar; only reserve space for tappable 3-button bars.
+            layout.setOnApplyWindowInsetsListener((v, insets) -> {
+                android.graphics.Insets system = insets.getSystemWindowInsets();
+                android.graphics.Insets tappable = insets.getTappableElementInsets();
+                v.setPadding(system.left, system.top, system.right, tappable.bottom);
+                return insets.consumeSystemWindowInsets();
+            });
+        }
 
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.P 
                 && isDesktopIconsEnabled
@@ -497,7 +518,7 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
                 ACTION_TOUCH_ABSORBER_STATE_CHANGED,
                 ACTION_FREEFORM_PREF_CHANGED);
 
-        if(isSecondaryHome)
+        if(isSecondaryHome || isDesktopLauncher)
             U.registerReceiver(this, restartReceiver, ACTION_RESTART);
 
         if(isDesktopLauncher)
@@ -890,7 +911,7 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
         U.unregisterReceiver(this, forceTaskbarStartReceiver);
         U.unregisterReceiver(this, freeformToggleReceiver);
 
-        if(isSecondaryHome)
+        if(isSecondaryHome || isDesktopLauncher)
             U.unregisterReceiver(this, restartReceiver);
 
         if(isWallpaperEnabled) {
@@ -1077,6 +1098,7 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
         if(isTaskVirtualDisplay) return;
         if(isDesktopLauncher) {
             layout.addView(view, params.toFrameLayoutParams());
+            hostedViews.add(view);
             view.bringToFront();
         } else
             windowManager.addView(view, params.toWindowManagerParams());
@@ -1086,6 +1108,7 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
     public void removeView(View view) {
         if(isTaskVirtualDisplay) return;
         if(isDesktopLauncher) {
+            hostedViews.remove(view);
             if(view.getParent() == layout) layout.removeView(view);
         } else
             windowManager.removeView(view);
@@ -1126,6 +1149,14 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
         layout.addView(fab.view);
         if(desktopWidgets != null) desktopWidgets.bringToFront();
         if(desktopAddButton != null) desktopAddButton.bringToFront();
+        bringHostedViewsToFront();
+    }
+
+    /** The taskbar and Start menu must stay above icons and widgets added later. */
+    private void bringHostedViewsToFront() {
+        for(View view : new ArrayList<>(hostedViews)) {
+            if(view.getParent() == layout) view.bringToFront();
+        }
     }
 
     private void refreshDesktopIcons() {

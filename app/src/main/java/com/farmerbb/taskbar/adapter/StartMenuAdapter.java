@@ -119,7 +119,12 @@ public class StartMenuAdapter extends ArrayAdapter<AppEntry> implements SectionI
                         started = view.startDragAndDrop(data, new View.DragShadowBuilder(view), null, flags);
                     else
                         started = view.startDrag(data, new View.DragShadowBuilder(view), null, 0);
-                    if(started) return true;
+                    if(started) {
+                        // The Start menu shares the desktop window; reveal the
+                        // desktop grid so the shortcut can be dropped onto it.
+                        U.sendBroadcast(getContext(), ACTION_HIDE_START_MENU);
+                        return true;
+                    }
                 } catch(RuntimeException ignored) {
                     // The regular app context menu remains available as a fallback.
                 }

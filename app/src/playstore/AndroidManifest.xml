@@ -27,8 +27,9 @@
     <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS" tools:ignore="ProtectedPermissions" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
-    <!-- Required for Android widget hosting; each third-party widget still needs user consent. -->
-    <uses-permission android:name="android.permission.BIND_APPWIDGET" tools:ignore="ProtectedPermissions" />
+    <!-- BIND_APPWIDGET is intentionally not requested: it is signature|privileged and
+         is never granted to Andesk. Widgets are bound through the user-approved
+         AppWidgetManager.ACTION_APPWIDGET_BIND screen instead. -->
     <uses-permission android:name="${applicationId}.START_STOP_TASKBAR" />
     <uses-permission-sdk-23 android:name="com.android.launcher.permission.INSTALL_SHORTCUT" />
     <uses-permission-sdk-23 android:name="android.permission.WRITE_SETTINGS" />
