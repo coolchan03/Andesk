@@ -21,9 +21,11 @@ import android.provider.CalendarContract;
 import android.provider.Settings;
 import android.text.format.DateFormat;
 import android.view.Gravity;
+import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.CalendarView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -113,9 +115,22 @@ public class SystemTrayActivity extends Activity {
         date.setTextColor(accentColor);
         date.setTextSize(15);
         date.setPadding(dp(4), 0, dp(4), dp(10));
-        date.setOnClickListener(v -> openCalendar());
         root.addView(date, new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+
+        // A compact month view expands from the date; long-press opens the calendar app.
+        CalendarView calendar = new CalendarView(this);
+        calendar.setId(R.id.control_center_calendar);
+        calendar.setVisibility(View.GONE);
+        root.addView(calendar, new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, dp(300)));
+
+        date.setOnClickListener(v -> calendar.setVisibility(
+                calendar.getVisibility() == View.VISIBLE ? View.GONE : View.VISIBLE));
+        date.setOnLongClickListener(v -> {
+            openCalendar();
+            return true;
+        });
     }
 
     private TextView makeTile(String text, android.view.View.OnClickListener listener) {

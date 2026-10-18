@@ -352,9 +352,9 @@ public class TaskbarController extends UIController {
 
         // The large collapse arrow is a legacy Taskbar control, not desktop navigation.
         // Desktop sessions have an explicit Exit action and need no collapse button.
+        // Only the vertical layouts wrap the button in a *_layout container, so the
+        // horizontal (default bottom) layouts must not dereference those IDs.
         if(desktopSession) {
-            layout.findViewById(R.id.hide_taskbar_button_layout).setVisibility(View.GONE);
-            layout.findViewById(R.id.hide_taskbar_button_layout_alt).setVisibility(View.GONE);
             if(buttonLayout != null) buttonLayout.setVisibility(View.GONE);
             if(button != null) button.setVisibility(View.GONE);
         }
@@ -391,7 +391,14 @@ public class TaskbarController extends UIController {
 
         applyMarginFix(host, layout, params);
 
-        if(isFirstStart && FreeformHackHelper.getInstance().isInFreeformWorkspace())
+        if(desktopSession) {
+            // XML starts with the Start button visible but the app area hidden.
+            // Desktop mode disables toggleTaskbar(), so the legacy toggle left
+            // the entire app area hidden on every launch. Expand explicitly
+            // before attaching the view, without any visible flicker.
+            startButton.setVisibility(View.GONE);
+            showTaskbar(false);
+        } else if(isFirstStart && FreeformHackHelper.getInstance().isInFreeformWorkspace())
             showTaskbar(false);
         else if(!pref.getBoolean(PREF_COLLAPSED, false) && pref.getBoolean(PREF_TASKBAR_ACTIVE, false))
             toggleTaskbar(false);

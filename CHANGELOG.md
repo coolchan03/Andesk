@@ -1,5 +1,21 @@
 # Andesk changelog
 
+## 0.1.2 - Desktop taskbar and widget-host corrections (October 15, 2026)
+
+- Render the taskbar, Start menu and dashboard inside the desktop Activity instead of depending on an external overlay service to draw the desktop.
+- Explicitly expand the desktop taskbar at startup (its legacy toggle returned early and left the app area hidden).
+- Remove desktop overlay views when switching to another Android app, preserving the open desktop task without a lingering taskbar or background notification.
+- Stop launching the upstream freeform workaround automatically during desktop startup.
+- Fix a NullPointerException that prevented the desktop taskbar from being drawn with the default (horizontal) taskbar layouts.
+- Keep the taskbar and Start menu above desktop shortcuts and widgets so they remain visible and tappable.
+- Do not request the system-only BIND_APPWIDGET permission; widgets continue to use Android's user-approved binding screen.
+- Redraw the Activity-hosted taskbar in place after appearance changes instead of starting legacy overlay services.
+- With gesture navigation, extend the desktop taskbar to the bottom edge; space is only reserved for tappable 3-button navigation bars.
+- Hide the Start menu when an app is dragged out of it so it can be dropped onto the desktop.
+- Add a compact month calendar to the Control Center (tap the date; long-press opens the calendar app).
+- Add regression tests for desktop startup, leaving/returning, session shutdown, appearance restarts, z-order and widget permissions.
+- Bind widgets using the provider's Android user profile and show the specific error stage when widget setup fails.
+
 ## 0.1.1 - Widget and taskbar startup fixes (October 15, 2026)
 
 - Return from overlay permission Settings to the owning Andesk activity rather than launching a separate task.

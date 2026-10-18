@@ -8,7 +8,7 @@ Andesk provides a desktop, taskbar, Start menu, shortcuts, and Android widgets f
 
 ## Desktop features
 
-- **Desktop-owned lifecycle:** opening an Android app does not end the desktop; returning to Andesk restores the session.
+- **Desktop-owned lifecycle:** opening an Android app does not end the desktop; returning to Andesk restores the session. Desktop taskbar and Start menu views are hosted directly in the foreground desktop Activity, not by permanent background overlays.
 - **Session exit:** Back from the desktop, Alt+F4, and Control Center → Exit Desktop request a full shutdown of taskbar, menus, notification, and overlay services. Removing the desktop from Recents should also end the session.
 - **No automatic startup:** after reboot, an app update, process death, or force-stop, the desktop must remain closed until Andesk is explicitly opened again. **An app cannot detect its own force-stop**; Android terminates its process.
 - **Desktop controls:** app shortcuts, drag from Start to desktop, files/folders where supported, Android widgets with positioning and resize, and a taskbar with running-app indicators.
@@ -22,7 +22,7 @@ Install the latest signed APK from [Andesk's GitHub Releases](https://github.com
 
 The current installation ID is `st.advisory.andesk` (debug builds use `.debug`). This installs separately from earlier builds with the Taskbar package ID; their settings and widgets do not automatically migrate.
 
-Open **Andesk** from the app drawer. Grant the permissions requested for the selected features. The first-run desktop flow may request overlay access, Android 13+ notification permission, and Usage Access in sequence. Android's settings pages vary by manufacturer; return to Andesk after granting each one.
+Open **Andesk** from the app drawer. The desktop taskbar itself no longer requires overlay or notification permission. Android may request Usage Access for running-app indicators. Display-over-other-apps access is optional for advanced freeform and other external overlays. Widget binding may require a separate Android approval dialog for each provider. Settings screens vary by device manufacturer; return to Andesk after granting access.
 
 ## Permissions and special access
 
@@ -30,9 +30,9 @@ Andesk requests only the system permissions and special access used by its funct
 
 | Permission or access | Why Andesk uses it |
 | --- | --- |
-| Display over other apps (`SYSTEM_ALERT_WINDOW`) | Draw the taskbar and desktop-related overlays while a session is open |
-| Notifications (`POST_NOTIFICATIONS`, Android 13+) | Show the desktop-session notification |
-| Foreground service (`FOREGROUND_SERVICE`, `FOREGROUND_SERVICE_SPECIAL_USE`) | Keep the user-initiated desktop overlay session active |
+| Display over other apps (`SYSTEM_ALERT_WINDOW`) | Optional external overlays and advanced freeform tools; the desktop's own taskbar no longer requires this permission |
+| Notifications (`POST_NOTIFICATIONS`, Android 13+) | Optional notifications for legacy taskbar integrations; no notification permission is needed for the core desktop |
+| Foreground service (`FOREGROUND_SERVICE`, `FOREGROUND_SERVICE_SPECIAL_USE`) | Legacy external-overlay compatibility; the foreground desktop now hosts its views directly and stops background overlays on leaving |
 | Usage Access (`PACKAGE_USAGE_STATS`) | Identify running/recent apps for the taskbar |
 | Notification listener (optional special access) | Display notification counts or related notification indicators |
 | Accessibility service (optional special access) | Perform supported global actions when enabled by the user |
@@ -44,6 +44,7 @@ Andesk requests only the system permissions and special access used by its funct
 | Legacy Wi-Fi/Bluetooth (`CHANGE_WIFI_STATE`, `BLUETOOTH`, `BLUETOOTH_ADMIN`) | Support older platform system controls, subject to Android version limits |
 | Delete package request (`REQUEST_DELETE_PACKAGES`) | Open Android's user-confirmed uninstall flow |
 | Boot completion (`RECEIVE_BOOT_COMPLETED`) | Reset stale session state and compatibility preferences, **not** automatically start the desktop |
+| Widgets (no permission requested) | Andesk hosts widgets through Android's user-approved widget binding screen; `BIND_APPWIDGET` is a system-only permission and is deliberately not requested |
 | Andesk signature-protected actions | Restrict internal desktop start/stop and freeform-control broadcasts |
 
 Andesk **does not request the `INTERNET` permission**. Optional Shizuku integration, if installed and authorized by you, permits advanced system operations on compatible devices. System permissions do not grant unlimited access.
