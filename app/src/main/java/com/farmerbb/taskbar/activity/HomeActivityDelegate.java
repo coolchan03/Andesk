@@ -119,6 +119,9 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
     private DesktopWidgetManager desktopWidgets;
     private TextView desktopAddButton;
     private boolean waitingForPermission;
+    // In freeform mode the taskbar floats above app windows as an overlay for the session.
+    private boolean floatingTaskbar;
+    private boolean desktopStarted;
     private boolean isWallpaperEnabled;
     private boolean isTaskVirtualDisplay;
 
@@ -154,8 +157,9 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
             if(isDesktopLauncher) {
                 // Appearance changes redraw the Activity-hosted taskbar in place
                 // rather than starting the legacy overlay services.
-                boolean wasHosting = taskbarController != null;
+                boolean wasHosting = taskbarController != null || (floatingTaskbar && desktopStarted);
                 destroyDesktopControllers();
+                if(floatingTaskbar) stopFloatingTaskbar();
                 if(wasHosting) startTaskbar();
                 return;
             }
@@ -660,6 +664,7 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
     @Override
     protected void onStart() {
         super.onStart();
+        desktopStarted = true;
 
         U.sendBroadcast(this, ACTION_HIDE_START_MENU);
         if(desktopWidgets != null) desktopWidgets.startListening();
@@ -696,6 +701,14 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
         // duplicate taskbars when returning from widget/system Settings screens.
         if(isDesktopLauncher && taskbarController != null && startMenuController != null)
             return;
+        if(isDesktopLauncher && floatingTaskbar) {
+            if(shouldUseFloatingTaskbar() && U.isServiceRunning(this, TaskbarService.class)) {
+                DesktopSessionState.foreground(this);
+                U.sendBroadcast(this, ACTION_DESKTOP_TASKBAR_EXPAND);
+                return;
+            }
+            stopFloatingTaskbar();
+        }
         // Ensure that the freeform hack is started whenever Taskbar starts
         if(!isDesktopLauncher && U.hasFreeformSupport(this)
                 && U.isFreeformModeEnabled(this)
@@ -745,58 +758,17 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
 
             // A v0.1.1 overlay service may still be running after an upgrade.
             // Never leave a second, detached taskbar over other Android apps.
-            stopService(new Intent(this, TaskbarService.class));
-            stopService(new Intent(this, StartMenuService.class));
+            if(!shouldUseFloatingTaskbar()) {
+                stopService(new Intent(this, TaskbarService.class));
+                stopService(new Intent(this, StartMenuService.class));
+            }
             stopService(new Intent(this, DashboardService.class));
             stopService(new Intent(this, NotificationService.class));
 
-            try {
-                if(taskbarController == null) {
-                    taskbarController = new TaskbarController(this);
-                    taskbarController.onCreateHost(this);
-                }
-            } catch(RuntimeException error) {
-                android.util.Log.e("Andesk", "Taskbar could not attach to desktop Activity", error);
-                if(taskbarController != null) {
-                    try { taskbarController.onDestroyHost(this); }
-                    catch(RuntimeException cleanupError) {
-                        android.util.Log.w("Andesk", "Taskbar cleanup failed", cleanupError);
-                    }
-                    taskbarController = null;
-                }
-                new AlertDialog.Builder(this)
-                        .setTitle("Taskbar startup failed")
-                        .setMessage("Could not draw the taskbar: " + error.getClass().getSimpleName()
-                                + ". Please report this error.")
-                        .setPositiveButton(R.string.tb_action_ok, null)
-                        .show();
-            }
-
-            try {
-                if(startMenuController == null) {
-                    startMenuController = new StartMenuController(this);
-                    startMenuController.onCreateHost(this);
-                }
-            } catch(RuntimeException error) {
-                android.util.Log.e("Andesk", "Start menu could not attach to desktop Activity", error);
-                if(startMenuController != null) {
-                    try { startMenuController.onDestroyHost(this); }
-                    catch(RuntimeException cleanupError) {
-                        android.util.Log.w("Andesk", "Start menu cleanup failed", cleanupError);
-                    }
-                    startMenuController = null;
-                }
-            }
-
-            try {
-                if(dashboardController == null) {
-                    dashboardController = new DashboardController(this);
-                    dashboardController.onCreateHost(this);
-                }
-            } catch(RuntimeException error) {
-                android.util.Log.w("Andesk", "Dashboard unavailable", error);
-                dashboardController = null;
-            }
+            // In freeform mode, overlay services draw the taskbar and Start menu above
+            // app windows; otherwise they are hosted inside this Activity.
+            if(!startFloatingTaskbar())
+                attachDesktopControllers();
         } else {
             // Legacy background and secondary-launcher modes still use overlay services.
             try {
@@ -821,6 +793,99 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
                 U.sendBroadcast(this, ACTION_TEMP_SHOW_TASKBAR), 100);
     }
 
+    private void attachDesktopControllers() {
+        try {
+            if(taskbarController == null) {
+                taskbarController = new TaskbarController(this);
+                taskbarController.onCreateHost(this);
+            }
+        } catch(RuntimeException error) {
+            android.util.Log.e("Andesk", "Taskbar could not attach to desktop Activity", error);
+            if(taskbarController != null) {
+                try { taskbarController.onDestroyHost(this); }
+                catch(RuntimeException cleanupError) {
+                    android.util.Log.w("Andesk", "Taskbar cleanup failed", cleanupError);
+                }
+                taskbarController = null;
+            }
+            new AlertDialog.Builder(this)
+                    .setTitle("Taskbar startup failed")
+                    .setMessage("Could not draw the taskbar: " + error.getClass().getSimpleName()
+                            + ". Please report this error.")
+                    .setPositiveButton(R.string.tb_action_ok, null)
+                    .show();
+        }
+
+        try {
+            if(startMenuController == null) {
+                startMenuController = new StartMenuController(this);
+                startMenuController.onCreateHost(this);
+            }
+        } catch(RuntimeException error) {
+            android.util.Log.e("Andesk", "Start menu could not attach to desktop Activity", error);
+            if(startMenuController != null) {
+                try { startMenuController.onDestroyHost(this); }
+                catch(RuntimeException cleanupError) {
+                    android.util.Log.w("Andesk", "Start menu cleanup failed", cleanupError);
+                }
+                startMenuController = null;
+            }
+        }
+
+        try {
+            if(dashboardController == null) {
+                dashboardController = new DashboardController(this);
+                dashboardController.onCreateHost(this);
+            }
+        } catch(RuntimeException error) {
+            android.util.Log.w("Andesk", "Dashboard unavailable", error);
+            dashboardController = null;
+        }
+    }
+
+    /** Freeform windows sit above this Activity, so only an overlay taskbar can stay usable. */
+    private boolean shouldUseFloatingTaskbar() {
+        return isDesktopLauncher
+                && U.hasFreeformSupport(this)
+                && U.isFreeformModeEnabled(this)
+                && U.canDrawOverlays(this);
+    }
+
+    private boolean startFloatingTaskbar() {
+        if(!shouldUseFloatingTaskbar()) return false;
+
+        destroyDesktopControllers();
+        try {
+            startService(new Intent(this, TaskbarService.class));
+            startService(new Intent(this, StartMenuService.class));
+        } catch(RuntimeException error) {
+            android.util.Log.e("Andesk", "Floating taskbar could not start", error);
+            stopFloatingTaskbar();
+            return false;
+        }
+
+        floatingTaskbar = true;
+        U.sendBroadcast(this, ACTION_DESKTOP_TASKBAR_EXPAND);
+
+        // Some devices reject overlay windows after the service starts. Fall back to the
+        // in-Activity taskbar rather than leaving the desktop without one.
+        U.newHandler().postDelayed(() -> {
+            if(floatingTaskbar && desktopStarted && !isFinishing()
+                    && !U.isServiceRunning(this, TaskbarService.class)) {
+                android.util.Log.w("Andesk", "Floating taskbar unavailable; using desktop taskbar");
+                stopFloatingTaskbar();
+                attachDesktopControllers();
+            }
+        }, 1500);
+        return true;
+    }
+
+    private void stopFloatingTaskbar() {
+        floatingTaskbar = false;
+        stopService(new Intent(this, TaskbarService.class));
+        stopService(new Intent(this, StartMenuService.class));
+    }
+
     private boolean canBootToFreeform() {
         // The desktop launcher is never the system home screen, so it can't boot to freeform
         return !isDesktopLauncher && U.canBootToFreeform(this);
@@ -836,6 +901,7 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
     @Override
     protected void onStop() {
         super.onStop();
+        desktopStarted = false;
 
         if(desktopWidgets != null) {
             desktopWidgets.exitEditMode();
@@ -862,7 +928,12 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
                     startService(new Intent(this, DashboardService.class));
                 }
             } else {
-                if(isDesktopLauncher) {
+                if(isDesktopLauncher && floatingTaskbar && !isFinishing()) {
+                    // Freeform mode: shrink the floating taskbar to its Start button so
+                    // more apps can be opened without covering the current one. It is
+                    // removed when the desktop session ends.
+                    U.sendBroadcast(this, ACTION_DESKTOP_TASKBAR_COMPACT);
+                } else if(isDesktopLauncher) {
                     // Opening another app must not end the desktop session, but
                     // no taskbar, Start menu or notification should remain over it.
                     destroyDesktopControllers();
@@ -1063,6 +1134,7 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
 
     private void stopDesktopSession() {
         destroyDesktopControllers();
+        floatingTaskbar = false;
         LauncherHelper.getInstance().setDesktopLauncherOpen(false);
 
         DesktopSessionState.close(this);

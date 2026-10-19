@@ -161,6 +161,11 @@ public class TaskbarController extends UIController {
     private boolean matchParent;
     private Runnable updateParamsRunnable;
 
+    // Floating desktop taskbar: shrinks to the Start button while the desktop is not shown.
+    private boolean compact = false;
+    private UIHost currentHost;
+    private ViewParams currentParams;
+
     private final Map<Integer, Boolean> sysTrayIconStates = new HashMap<>();
 
     private final View.OnClickListener ocl = view ->
@@ -208,6 +213,20 @@ public class TaskbarController extends UIController {
         public void onReceive(Context context, Intent intent) {
             if(startButton.getVisibility() == View.GONE)
                 layout.setVisibility(View.VISIBLE);
+        }
+    };
+
+    private final BroadcastReceiver compactReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            setCompact(true);
+        }
+    };
+
+    private final BroadcastReceiver expandReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            setCompact(false);
         }
     };
 
@@ -425,7 +444,16 @@ public class TaskbarController extends UIController {
         }
 
         matchParent = false;
+        compact = false;
+        currentHost = host;
+        currentParams = params;
+        if(desktopSession) {
+            U.registerReceiver(context, compactReceiver, ACTION_DESKTOP_TASKBAR_COMPACT);
+            U.registerReceiver(context, expandReceiver, ACTION_DESKTOP_TASKBAR_EXPAND);
+        }
+
         updateParamsRunnable = () -> {
+            if(compact) return;
             ViewParams newParams;
             if(TaskbarPosition.isVertical(context)) {
                 newParams = matchParent
@@ -1438,6 +1466,47 @@ public class TaskbarController extends UIController {
         }
     }
 
+    /**
+     * While a floating desktop session is in the background, keep only the Start button
+     * on screen so the overlay never covers other apps' content.
+     */
+    @VisibleForTesting
+    void setCompact(boolean value) {
+        if(layout == null || compact == value) return;
+        compact = value;
+
+        int visibility = value ? View.GONE : View.VISIBLE;
+        space.setVisibility(visibility);
+        if(dashboardEnabled) dashboardButton.setVisibility(visibility);
+        if(navbarButtonsEnabled) navbarButtons.setVisibility(visibility);
+        if(sysTrayEnabled) sysTrayParentLayout.setVisibility(visibility);
+
+        if(value) {
+            shouldRefreshRecents = false;
+            if(thread != null) thread.interrupt();
+            scrollView.setVisibility(View.GONE);
+            U.sendBroadcast(context, ACTION_HIDE_START_MENU);
+
+            if(currentHost != null && currentParams != null) {
+                ViewParams compactParams = positionIsVertical
+                        ? currentParams.updateHeight(WindowManager.LayoutParams.WRAP_CONTENT)
+                        : currentParams.updateWidth(WindowManager.LayoutParams.WRAP_CONTENT);
+                try {
+                    currentHost.updateViewLayout(layout, compactParams);
+                } catch(IllegalArgumentException ignored) {}
+            }
+        } else {
+            shouldRefreshRecents = true;
+            startRefreshingRecents();
+            if(updateParamsRunnable != null) U.newHandler().post(updateParamsRunnable);
+        }
+    }
+
+    @VisibleForTesting
+    boolean isCompact() {
+        return compact;
+    }
+
     private void toggleTaskbar(boolean userInitiated) {
         if(DesktopSessionState.isActive(context)) return;
         if(userInitiated && Build.BRAND.equalsIgnoreCase("essential")) {
@@ -1639,6 +1708,8 @@ public class TaskbarController extends UIController {
         U.unregisterReceiver(context, tempHideReceiver);
         U.unregisterReceiver(context, startMenuAppearReceiver);
         U.unregisterReceiver(context, startMenuDisappearReceiver);
+        U.unregisterReceiver(context, compactReceiver);
+        U.unregisterReceiver(context, expandReceiver);
 
         if(sysTrayEnabled) {
             TelephonyManager manager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
