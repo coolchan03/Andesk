@@ -1536,6 +1536,27 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
         U.startContextMenuActivity(this, args);
     }
 
+    private void openDesktopIconMenu(int index, View anchor) {
+        if(desktopIcons == null || index < 0) return;
+        DesktopIconInfo slot = getDesktopIconInfo(index);
+        try {
+            JSONArray jsonIcons = new JSONArray(
+                    U.getSharedPreferences(this).getString(PREF_DESKTOP_ICONS, "[]"));
+            for(int i = 0; i < jsonIcons.length(); i++) {
+                DesktopIconInfo info = DesktopIconInfo.fromJson(jsonIcons.getJSONObject(i));
+                if(info != null && info.entry != null
+                        && info.column == slot.column && info.row == slot.row) {
+                    int[] location = new int[2];
+                    anchor.getLocationOnScreen(location);
+                    openContextMenu(info, location);
+                    return;
+                }
+            }
+        } catch(JSONException e) {
+            android.util.Log.w("Andesk", "Unable to read desktop shortcuts", e);
+        }
+    }
+
     private final class DesktopIconTouchListener implements View.OnTouchListener {
         @Override
         public boolean onTouch(View view, MotionEvent motionEvent) {
@@ -1587,6 +1608,11 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
                     if(endDragIndex >= 0 && endDragIndex != startDragIndex) {
                         reassignDroppedIcon();
                         refreshDesktopIcons();
+                    } else if(endDragIndex >= 0 && isDesktopLauncher && !iconArrangeMode) {
+                        // Long-press released without moving: show the icon's menu
+                        // (open settings, remove from desktop, app info, uninstall).
+                        int menuIndex = endDragIndex;
+                        v.post(() -> openDesktopIconMenu(menuIndex, v));
                     }
                     return true;
             }

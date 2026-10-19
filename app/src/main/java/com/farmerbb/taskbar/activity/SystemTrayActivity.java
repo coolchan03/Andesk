@@ -12,12 +12,9 @@ import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
-import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.AlarmClock;
-import android.provider.CalendarContract;
 import android.provider.Settings;
 import android.text.format.DateFormat;
 import android.view.Gravity;
@@ -36,6 +33,7 @@ import com.farmerbb.taskbar.R;
 import com.farmerbb.taskbar.util.Constants;
 import com.farmerbb.taskbar.util.U;
 
+import java.util.Calendar;
 import java.util.Date;
 
 public class SystemTrayActivity extends Activity {
@@ -110,26 +108,47 @@ public class SystemTrayActivity extends Activity {
         root.addView(time, new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
+        LinearLayout dateRow = new LinearLayout(this);
+        dateRow.setOrientation(LinearLayout.HORIZONTAL);
+        dateRow.setPadding(0, 0, 0, dp(10));
+
         TextView date = new TextView(this);
         date.setText(DateFormat.getDateFormat(this).format(new Date()));
         date.setTextColor(accentColor);
         date.setTextSize(15);
-        date.setPadding(dp(4), 0, dp(4), dp(10));
-        root.addView(date, new LinearLayout.LayoutParams(
+        date.setPadding(dp(4), 0, dp(4), 0);
+        date.setOnClickListener(v -> openCalendar(System.currentTimeMillis()));
+        dateRow.addView(date, new LinearLayout.LayoutParams(
+                0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+
+        // A compact month view expands from the chevron beside the date.
+        TextView toggle = new TextView(this);
+        toggle.setId(R.id.control_center_calendar_toggle);
+        toggle.setText("\u25BE");
+        toggle.setContentDescription(getString(R.string.tb_show_month));
+        toggle.setTextColor(accentColor);
+        toggle.setTextSize(15);
+        toggle.setPadding(dp(12), 0, dp(4), 0);
+        dateRow.addView(toggle, new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        root.addView(dateRow, new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
-        // A compact month view expands from the date; long-press opens the calendar app.
         CalendarView calendar = new CalendarView(this);
         calendar.setId(R.id.control_center_calendar);
         calendar.setVisibility(View.GONE);
+        calendar.setOnDateChangeListener((view, year, month, day) -> {
+            Calendar selected = Calendar.getInstance();
+            selected.set(year, month, day, 9, 0, 0);
+            openCalendar(selected.getTimeInMillis());
+        });
         root.addView(calendar, new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, dp(300)));
 
-        date.setOnClickListener(v -> calendar.setVisibility(
-                calendar.getVisibility() == View.VISIBLE ? View.GONE : View.VISIBLE));
-        date.setOnLongClickListener(v -> {
-            openCalendar();
-            return true;
+        toggle.setOnClickListener(v -> {
+            boolean show = calendar.getVisibility() != View.VISIBLE;
+            calendar.setVisibility(show ? View.VISIBLE : View.GONE);
+            toggle.setText(show ? "\u25B4" : "\u25BE");
         });
     }
 
@@ -229,15 +248,17 @@ public class SystemTrayActivity extends Activity {
     }
 
     private void openClock() {
-        startActivitySafely(new Intent(AlarmClock.ACTION_SHOW_ALARMS));
+        if(U.openClockApp(this))
+            finish();
+        else
+            U.showToast(this, R.string.tb_no_clock_app);
     }
 
-    private void openCalendar() {
-        Uri uri = CalendarContract.CONTENT_URI.buildUpon()
-                .appendPath("time")
-                .appendPath(Long.toString(System.currentTimeMillis()))
-                .build();
-        startActivitySafely(new Intent(Intent.ACTION_VIEW, uri));
+    private void openCalendar(long timeMillis) {
+        if(U.openCalendarApp(this, timeMillis))
+            finish();
+        else
+            U.showToast(this, R.string.tb_no_calendar_app);
     }
 
     private void startActivitySafely(Intent intent) {

@@ -2315,4 +2315,50 @@ public class U {
     public static boolean needsInvisibleActivityHacks() {
         return getCurrentApiVersion() < 32.0f;
     }
+
+    private static final String[] CLOCK_PACKAGES = {
+            "com.google.android.deskclock",
+            "com.sec.android.app.clockpackage",
+            "com.android.deskclock",
+            "com.oneplus.deskclock",
+            "com.coloros.alarmclock",
+            "com.android.BBKClock"
+    };
+
+    private static boolean startExternalActivity(Context context, Intent intent) {
+        if(intent == null) return false;
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        try {
+            context.startActivity(intent);
+            return true;
+        } catch(ActivityNotFoundException | SecurityException e) {
+            return false;
+        }
+    }
+
+    /** Opens the device's Clock app; not every Clock app handles ACTION_SHOW_ALARMS. */
+    public static boolean openClockApp(Context context) {
+        if(startExternalActivity(context, new Intent(android.provider.AlarmClock.ACTION_SHOW_ALARMS)))
+            return true;
+
+        PackageManager pm = context.getPackageManager();
+        for(String packageName : CLOCK_PACKAGES) {
+            if(startExternalActivity(context, pm.getLaunchIntentForPackage(packageName)))
+                return true;
+        }
+        return false;
+    }
+
+    /** Opens the device's Calendar app at the given time, or its main screen as a fallback. */
+    public static boolean openCalendarApp(Context context, long timeMillis) {
+        Uri uri = android.provider.CalendarContract.CONTENT_URI.buildUpon()
+                .appendPath("time")
+                .appendPath(Long.toString(timeMillis))
+                .build();
+        if(startExternalActivity(context, new Intent(Intent.ACTION_VIEW, uri)))
+            return true;
+
+        return startExternalActivity(context,
+                Intent.makeMainSelectorActivity(Intent.ACTION_MAIN, Intent.CATEGORY_APP_CALENDAR));
+    }
 }

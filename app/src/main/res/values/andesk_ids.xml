@@ -7,4 +7,5 @@
 -->
 <resources>
     <item name="control_center_calendar" type="id" />
+    <item name="control_center_calendar_toggle" type="id" />
 </resources>

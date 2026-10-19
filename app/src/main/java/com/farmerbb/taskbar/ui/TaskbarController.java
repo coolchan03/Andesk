@@ -41,7 +41,6 @@ import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.Uri;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.BatteryManager;
@@ -53,8 +52,6 @@ import android.os.Process;
 import android.os.SystemClock;
 import android.os.UserHandle;
 import android.os.UserManager;
-import android.provider.AlarmClock;
-import android.provider.CalendarContract;
 import android.provider.Settings;
 import android.speech.RecognizerIntent;
 
@@ -762,9 +759,11 @@ public class TaskbarController extends UIController {
             View batteryView = sysTrayLayout.findViewById(R.id.battery);
             batteryView.setOnClickListener(v -> openBatterySettings());
 
-            time.setOnClickListener(v -> openControlCenter());
+            // The date/time opens the Calendar app; long-press opens the Control Center,
+            // which also links to the Clock app.
+            time.setOnClickListener(v -> openCalendar());
             time.setOnLongClickListener(v -> {
-                openCalendar();
+                openControlCenter();
                 return true;
             });
 
@@ -850,25 +849,9 @@ public class TaskbarController extends UIController {
         } catch(ActivityNotFoundException ignored) {}
     }
 
-    private void openClock() {
-        Intent intent = new Intent(AlarmClock.ACTION_SHOW_ALARMS);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        try {
-            context.startActivity(intent);
-        } catch(ActivityNotFoundException ignored) {}
-    }
-
     private void openCalendar() {
-        Uri uri = CalendarContract.CONTENT_URI.buildUpon()
-                .appendPath("time")
-                .appendPath(Long.toString(System.currentTimeMillis()))
-                .build();
-
-        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        try {
-            context.startActivity(intent);
-        } catch(ActivityNotFoundException ignored) {}
+        if(!U.openCalendarApp(context, System.currentTimeMillis()))
+            openControlCenter();
     }
 
     private void startRefreshingRecents() {
@@ -1952,11 +1935,30 @@ public class TaskbarController extends UIController {
             } else
                 sysTrayIconStates.put(R.id.notification_count, false);
 
+            updateBatteryPercent(sysTrayIconStates.get(R.id.battery));
+
             time.setText(context.getString(R.string.tb_systray_clock,
                     DateFormat.getTimeFormat(context).format(new Date()),
                     DateFormat.getDateFormat(context).format(new Date())));
             time.setTextColor(U.getTaskbarAccentColor(context));
         });
+    }
+
+    private void updateBatteryPercent(Boolean batteryShown) {
+        TextView percent = sysTrayLayout.findViewById(R.id.battery_percent);
+        if(percent == null) return;
+
+        BatteryManager bm = (BatteryManager) context.getSystemService(Context.BATTERY_SERVICE);
+        int level = bm == null ? Integer.MIN_VALUE
+                : bm.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY);
+        if(level == Integer.MIN_VALUE || level < 0 || batteryShown == null || !batteryShown) {
+            percent.setVisibility(View.GONE);
+            return;
+        }
+
+        percent.setText(context.getString(R.string.tb_battery_percent, level));
+        percent.setTextColor(U.getTaskbarAccentColor(context));
+        percent.setVisibility(View.VISIBLE);
     }
 
     @TargetApi(Build.VERSION_CODES.M)
