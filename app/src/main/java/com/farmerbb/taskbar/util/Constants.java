@@ -40,6 +40,8 @@ public class Constants {
     public static final String ACTION_HIDE_START_MENU_SPACE = "st.advisory.andesk.HIDE_START_MENU_SPACE";
     public static final String ACTION_HIDE_TASKBAR = "st.advisory.andesk.HIDE_TASKBAR";
     public static final String ACTION_EXIT_DESKTOP_LAUNCHER = "st.advisory.andesk.EXIT_DESKTOP_LAUNCHER";
+    public static final String ACTION_DESKTOP_TASKBAR_COMPACT = "st.advisory.andesk.DESKTOP_TASKBAR_COMPACT";
+    public static final String ACTION_DESKTOP_TASKBAR_EXPAND = "st.advisory.andesk.DESKTOP_TASKBAR_EXPAND";
     public static final String ACTION_KILL_HOME_ACTIVITY = "st.advisory.andesk.KILL_HOME_ACTIVITY";
     public static final String ACTION_LAUNCHER_PREF_CHANGED = "st.advisory.andesk.LAUNCHER_PREF_CHANGED";
     public static final String ACTION_NOTIFICATION_COUNT_CHANGED = "st.advisory.andesk.NOTIFICATION_COUNT_CHANGED";

@@ -12,6 +12,8 @@ import androidx.test.core.app.ApplicationProvider
 import com.farmerbb.taskbar.R
 import com.farmerbb.taskbar.helper.GlobalHelper
 import com.farmerbb.taskbar.helper.LauncherHelper
+import com.farmerbb.taskbar.util.Constants.ACTION_DESKTOP_TASKBAR_COMPACT
+import com.farmerbb.taskbar.util.Constants.ACTION_DESKTOP_TASKBAR_EXPAND
 import com.farmerbb.taskbar.util.Constants.PREF_DESKTOP_SESSION_ACTIVE
 import com.farmerbb.taskbar.util.Constants.PREF_DESKTOP_WIDGETS
 import com.farmerbb.taskbar.util.Constants.PREF_FIRST_RUN
@@ -136,6 +138,36 @@ class DesktopLauncherActivitySmokeTest {
             "The redrawn desktop must contain exactly one taskbar",
             1,
             countViews(activity.window.decorView, R.id.start_button),
+        )
+    }
+
+    @Test
+    fun floatingTaskbarShrinksToStartButtonAndExpandsAgain() {
+        val activity = launchDesktop()
+        val startButton = activity.findViewById<View>(R.id.start_button)
+        val root = startButton.desktopChild(activity)
+
+        U.sendBroadcast(activity, ACTION_DESKTOP_TASKBAR_COMPACT)
+        idleMainLooper()
+
+        Assert.assertEquals(View.VISIBLE, startButton.visibility)
+        Assert.assertEquals(
+            "Only the Start button may remain while compact",
+            View.GONE,
+            activity.findViewById<View>(R.id.taskbar_scrollview).visibility,
+        )
+        Assert.assertEquals(
+            "A compact taskbar must not span the screen",
+            ViewGroup.LayoutParams.WRAP_CONTENT,
+            root.layoutParams.width,
+        )
+
+        U.sendBroadcast(activity, ACTION_DESKTOP_TASKBAR_EXPAND)
+        idleMainLooper()
+
+        Assert.assertEquals(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            root.layoutParams.width,
         )
     }
 

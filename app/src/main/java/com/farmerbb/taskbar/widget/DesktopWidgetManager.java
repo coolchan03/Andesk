@@ -25,6 +25,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.UserHandle;
 import android.util.Log;
@@ -37,6 +38,8 @@ import android.widget.ImageView;
 
 import com.farmerbb.taskbar.R;
 import com.farmerbb.taskbar.util.U;
+
+import androidx.annotation.VisibleForTesting;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -272,16 +275,30 @@ public class DesktopWidgetManager {
             Log.w(TAG, "Widget was not bound after system approval: " + id);
             discardPending();
             showWidgetError("Android did not grant access to this widget. Try a different provider.", null);
-        } else if(info.configure != null) {
+        } else if(needsConfiguration(info)) {
             try {
                 appWidgetHost.startAppWidgetConfigureActivityForResult(
                         activity, id, 0, REQUEST_CONFIGURE_WIDGET, null);
             } catch(RuntimeException error) {
-                discardPending();
-                showWidgetError("The widget's configuration screen could not be opened.", error);
+                // Some providers (e.g. Google's At a Glance) declare a setup screen that
+                // only their own launcher may open. The widget is already bound, so
+                // place it with its defaults instead of failing.
+                Log.w(TAG, "Widget configuration screen unavailable; adding with defaults", error);
+                finishAddingWidget(id);
             }
         } else
             finishAddingWidget(id);
+    }
+
+    /** Android 12+ widgets may mark their setup screen as optional; launchers skip it. */
+    @VisibleForTesting
+    static boolean needsConfiguration(AppWidgetProviderInfo info) {
+        if(info.configure == null)
+            return false;
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+                && (info.widgetFeatures & AppWidgetProviderInfo.WIDGET_FEATURE_CONFIGURATION_OPTIONAL) != 0)
+            return false;
+        return true;
     }
 
     private void discardPending() {

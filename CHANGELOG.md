@@ -13,6 +13,8 @@
 - With gesture navigation, extend the desktop taskbar to the bottom edge; space is only reserved for tappable 3-button navigation bars.
 - Hide the Start menu when an app is dragged out of it so it can be dropped onto the desktop.
 - Add a compact month calendar to the Control Center (tap the date; long-press opens the calendar app).
+- Freeform mode: the taskbar floats above app windows while the desktop is open, so several freeform apps can be opened and kept on screen. When you leave the desktop it shrinks to just the Start button, and it is removed when the desktop session ends (Exit, Back, Alt+F4 or swiping Andesk from Recents). Requires "Display over other apps"; without it the in-desktop taskbar is used.
+- Widgets whose setup screen is optional (such as Google's At a Glance) are added without opening it, and a setup screen that cannot be opened no longer cancels an already-approved widget.
 - Add regression tests for desktop startup, leaving/returning, session shutdown, appearance restarts, z-order and widget permissions.
 - Bind widgets using the provider's Android user profile and show the specific error stage when widget setup fails.
 
