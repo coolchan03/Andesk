@@ -514,4 +514,8 @@
     <string name="tb_bluetooth">Bluetooth</string>
     <string name="tb_notifications">Notifications</string>
 
+    <string name="tb_battery_percent" translatable="false">%1$d%%</string>
+    <string name="tb_show_month" translatable="false">Show month</string>
+    <string name="tb_no_clock_app" translatable="false">No clock app found</string>
+    <string name="tb_no_calendar_app" translatable="false">No calendar app found</string>
 </resources>
