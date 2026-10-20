@@ -29,6 +29,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.UserHandle;
 import android.util.Log;
+import android.view.ContextThemeWrapper;
 import android.view.Gravity;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -86,6 +87,7 @@ public class DesktopWidgetManager {
     private final FrameLayout container;
     private final float density;
     private final Map<Integer, Entry> entries = new LinkedHashMap<>();
+    private final Context widgetContext;
 
     private int pendingId = -1;
     private int editingId = -1;
@@ -95,6 +97,7 @@ public class DesktopWidgetManager {
         this.density = activity.getResources().getDisplayMetrics().density;
         this.appWidgetManager = AppWidgetManager.getInstance(activity);
         this.appWidgetHost = new AppWidgetHost(activity, HOST_ID);
+        this.widgetContext = createWidgetContext(activity);
 
         container = new FrameLayout(activity);
         parent.addView(container, new FrameLayout.LayoutParams(
@@ -108,6 +111,20 @@ public class DesktopWidgetManager {
         });
 
         restoreWidgets();
+    }
+
+    /**
+     * Widget layouts must be inflated without the Activity's AppCompat view factory.
+     * AppCompat swaps in AppCompatImageView/TextView, whose overridden setters are not
+     * allowed by RemoteViews, so widgets such as Google's At a Glance fail with
+     * Android's "Couldn't add widget" error view.
+     */
+    @VisibleForTesting
+    static Context createWidgetContext(Context context) {
+        int theme = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
+                ? android.R.style.Theme_DeviceDefault_DayNight
+                : android.R.style.Theme_DeviceDefault;
+        return new ContextThemeWrapper(context.getApplicationContext(), theme);
     }
 
     /** Preserve the widget binding/configuration ID across Activity recreation. */
@@ -347,7 +364,7 @@ public class DesktopWidgetManager {
         AppWidgetProviderInfo info = appWidgetManager.getAppWidgetInfo(entry.id);
         if(info == null) return;
 
-        entry.hostView = appWidgetHost.createView(activity, entry.id, info);
+        entry.hostView = appWidgetHost.createView(widgetContext, entry.id, info);
         entry.frame = new WidgetFrame(activity, entry);
         entry.frame.addView(entry.hostView, new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT,
@@ -476,6 +493,8 @@ public class DesktopWidgetManager {
         private float downRawY;
         private int startX;
         private int startY;
+        private boolean longPressed;
+        private boolean childTouchCancelled;
 
         WidgetFrame(Context context, Entry entry) {
             super(context);
@@ -484,15 +503,34 @@ public class DesktopWidgetManager {
             detector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
                 @Override
                 public void onLongPress(MotionEvent e) {
-                    enterEditMode(entry);
+                    longPressed = true;
+                    showMenu(entry);
                 }
             });
         }
 
         @Override
         public boolean dispatchTouchEvent(MotionEvent ev) {
-            if(editingId != entry.id)
+            if(editingId != entry.id) {
+                if(ev.getActionMasked() == MotionEvent.ACTION_DOWN) {
+                    longPressed = false;
+                    childTouchCancelled = false;
+                }
                 detector.onTouchEvent(ev);
+
+                // After a long-press opens the widget menu, the rest of the gesture must
+                // not reach the widget as a tap.
+                if(longPressed) {
+                    if(!childTouchCancelled) {
+                        childTouchCancelled = true;
+                        MotionEvent cancel = MotionEvent.obtain(ev);
+                        cancel.setAction(MotionEvent.ACTION_CANCEL);
+                        super.dispatchTouchEvent(cancel);
+                        cancel.recycle();
+                    }
+                    return true;
+                }
+            }
             return super.dispatchTouchEvent(ev);
         }
 
