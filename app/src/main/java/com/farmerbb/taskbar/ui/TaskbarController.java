@@ -73,6 +73,7 @@ import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 
 import java.lang.reflect.Field;
@@ -277,6 +278,7 @@ public class TaskbarController extends UIController {
         String taskbarPosition = TaskbarPosition.getTaskbarPosition(context);
         params.gravity = getTaskbarGravity(taskbarPosition);
         boolean desktopSession = DesktopSessionState.isActive(context);
+        params.extendIntoGestureArea = desktopSession;
         // Andesk desktop taskbars always occupy the full horizontal edge.
         if(!TaskbarPosition.isVertical(taskbarPosition) && desktopSession)
             params.width = WindowManager.LayoutParams.MATCH_PARENT;
@@ -291,6 +293,13 @@ public class TaskbarController extends UIController {
         applyTaskbarSize(layout);
         taskbar = layout.findViewById(R.id.taskbar);
         scrollView = layout.findViewById(R.id.taskbar_scrollview);
+        if(desktopSession && !positionIsVertical
+                && scrollView.getLayoutParams() instanceof LinearLayout.LayoutParams) {
+            LinearLayout.LayoutParams scrollParams =
+                    (LinearLayout.LayoutParams) scrollView.getLayoutParams();
+            applyDesktopScrollViewParams(context, scrollParams);
+            scrollView.setLayoutParams(scrollParams);
+        }
 
         View divider = layout.findViewById(R.id.divider);
         ViewGroup.LayoutParams dividerParams = divider.getLayoutParams();
@@ -395,9 +404,20 @@ public class TaskbarController extends UIController {
                             androidx.core.graphics.ColorUtils.blendARGB(backgroundTint, android.graphics.Color.WHITE, 0.36f),
                             androidx.core.graphics.ColorUtils.blendARGB(backgroundTint, android.graphics.Color.WHITE, 0.14f),
                             backgroundTint});
-            aero.setStroke(Math.max(1, Math.round(context.getResources().getDisplayMetrics().density)),
-                    androidx.core.graphics.ColorUtils.setAlphaComponent(android.graphics.Color.WHITE, 95));
-            layout.setBackground(aero);
+            int highlightSize = Math.max(1, Math.round(context.getResources().getDisplayMetrics().density));
+            int highlightColor = androidx.core.graphics.ColorUtils.setAlphaComponent(android.graphics.Color.WHITE, 95);
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !positionIsVertical) {
+                // Windows 7 glass has a highlight on its inner edge only; a full border
+                // draws a stray line along the screen edge under the taskbar.
+                android.graphics.drawable.LayerDrawable glass = new android.graphics.drawable.LayerDrawable(
+                        new Drawable[] { aero, new android.graphics.drawable.ColorDrawable(highlightColor) });
+                glass.setLayerGravity(1, TaskbarPosition.isBottom(context) ? Gravity.TOP : Gravity.BOTTOM);
+                glass.setLayerHeight(1, highlightSize);
+                layout.setBackground(glass);
+            } else {
+                aero.setStroke(highlightSize, highlightColor);
+                layout.setBackground(aero);
+            }
         } else
             layout.setBackgroundColor(backgroundTint);
         layout.findViewById(R.id.divider).setBackgroundColor(
@@ -1204,6 +1224,13 @@ public class TaskbarController extends UIController {
                     }
                 } catch (NullPointerException ignored) {}
             }
+        } else if(DesktopSessionState.isActive(context)
+                && params instanceof LinearLayout.LayoutParams) {
+            // Desktop taskbars span the screen: let the app area take the remaining width
+            // so the clock and tray stay pinned to the end, independent of pixel estimates
+            // for insets, tray contents or start button styling.
+            maxScreenSize = 0;
+            applyDesktopScrollViewParams(context, (LinearLayout.LayoutParams) params);
         } else {
             maxScreenSize = Math.max(0, display.width - baseTotal);
 
@@ -1254,6 +1281,35 @@ public class TaskbarController extends UIController {
         if(realMatchParent != matchParent) {
             matchParent = realMatchParent;
             U.newHandler().post(updateParamsRunnable);
+        }
+    }
+
+    private void applyDesktopScrollViewParams(Context context, LinearLayout.LayoutParams params) {
+        params.width = 0;
+        params.weight = 1;
+
+        if(scrollView instanceof HorizontalScrollView)
+            ((HorizontalScrollView) scrollView).setFillViewport(true);
+
+        View whitespaceStart = layout.findViewById(R.id.whitespace_start);
+        View whitespaceEnd = layout.findViewById(R.id.whitespace_end);
+        for(View whitespace : new View[] { whitespaceStart, whitespaceEnd }) {
+            if(whitespace == null) continue;
+            ViewGroup.LayoutParams spaceParams = whitespace.getLayoutParams();
+            spaceParams.width = 0;
+            whitespace.setLayoutParams(spaceParams);
+        }
+
+        if(taskbar.getParent() instanceof LinearLayout) {
+            String position = TaskbarPosition.getTaskbarPosition(context);
+            int gravity;
+            if(U.isTaskbarCentered(context))
+                gravity = Gravity.CENTER_HORIZONTAL;
+            else if(POSITION_BOTTOM_RIGHT.equals(position) || POSITION_TOP_RIGHT.equals(position))
+                gravity = Gravity.END;
+            else
+                gravity = Gravity.START;
+            ((LinearLayout) taskbar.getParent()).setGravity(gravity | Gravity.CENTER_VERTICAL);
         }
     }
 

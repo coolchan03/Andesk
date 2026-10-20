@@ -17,6 +17,9 @@
 - Widgets whose setup screen is optional (such as Google's At a Glance) are added without opening it, and a setup screen that cannot be opened no longer cancels an already-approved widget.
 - Long-pressing a widget opens its menu again (Move / resize, Remove widget); before, it went straight to move mode and widgets could not be removed. The long-press no longer also taps the widget.
 - Fix widgets showing Android's "Couldn't add widget" error (e.g. Google's At a Glance): widget layouts are now inflated without AppCompat's view substitutions, which RemoteViews reject.
+- Keep the clock and system tray pinned to the far end of the desktop taskbar: the app area now fills the remaining width instead of relying on pixel estimates that the battery percentage, screen insets and Windows-style start button threw off.
+- Windows 7 style: draw the glass highlight only along the taskbar's inner edge instead of a border around it, which left a stray line along the bottom of the screen.
+- The floating (freeform) taskbar and Start menu extend over the gesture-navigation strip at the bottom of the screen instead of floating above it; tappable 3-button navigation bars are still avoided.
 - Add regression tests for desktop startup, leaving/returning, session shutdown, appearance restarts, z-order and widget permissions.
 - Bind widgets using the provider's Android user profile and show the specific error stage when widget setup fails.
 

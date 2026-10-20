@@ -16,7 +16,9 @@
 package com.farmerbb.taskbar.ui;
 
 import android.graphics.PixelFormat;
+import android.os.Build;
 import android.view.Gravity;
+import android.view.WindowInsets;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 
@@ -30,6 +32,8 @@ public class ViewParams {
     public int gravity;
     public int flags;
     public int bottomMargin;
+    // Desktop overlays may extend over the non-tappable gesture navigation area.
+    public boolean extendIntoGestureArea;
 
     public ViewParams(int width, int height, int gravity, int flags, int bottomMargin) {
         this.width = width;
@@ -53,6 +57,9 @@ public class ViewParams {
 
         if(bottomMargin > -1)
             wmParams.y = bottomMargin;
+
+        if(extendIntoGestureArea && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
+            wmParams.setFitInsetsTypes(WindowInsets.Type.tappableElement());
 
         U.allowReflection();
         try {
@@ -85,14 +92,20 @@ public class ViewParams {
     }
 
     public ViewParams updateWidth(int width) {
-        return new ViewParams(width, height, gravity, flags, bottomMargin);
+        return copyWith(width, height, bottomMargin);
     }
 
     public ViewParams updateHeight(int height) {
-        return new ViewParams(width, height, gravity, flags, bottomMargin);
+        return copyWith(width, height, bottomMargin);
     }
 
     public ViewParams updateBottomMargin(int bottomMargin) {
-        return new ViewParams(width, height, gravity, flags, bottomMargin);
+        return copyWith(width, height, bottomMargin);
+    }
+
+    private ViewParams copyWith(int width, int height, int bottomMargin) {
+        ViewParams copy = new ViewParams(width, height, gravity, flags, bottomMargin);
+        copy.extendIntoGestureArea = extendIntoGestureArea;
+        return copy;
     }
 }
