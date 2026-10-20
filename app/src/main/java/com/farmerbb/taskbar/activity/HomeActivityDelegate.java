@@ -763,7 +763,8 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
                 stopService(new Intent(this, StartMenuService.class));
             }
             stopService(new Intent(this, DashboardService.class));
-            stopService(new Intent(this, NotificationService.class));
+            if(!shouldUseFloatingTaskbar())
+                stopService(new Intent(this, NotificationService.class));
 
             // In freeform mode, overlay services draw the taskbar and Start menu above
             // app windows; otherwise they are hosted inside this Activity.
@@ -858,6 +859,10 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
         try {
             startService(new Intent(this, TaskbarService.class));
             startService(new Intent(this, StartMenuService.class));
+            // A foreground notification keeps the floating taskbar alive after leaving the
+            // desktop (Android stops background services) and lets the user close it.
+            requestNotificationPermissionOnce();
+            U.startForegroundService(this, new Intent(this, NotificationService.class));
         } catch(RuntimeException error) {
             android.util.Log.e("Andesk", "Floating taskbar could not start", error);
             stopFloatingTaskbar();
@@ -884,6 +889,21 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
         floatingTaskbar = false;
         stopService(new Intent(this, TaskbarService.class));
         stopService(new Intent(this, StartMenuService.class));
+        stopService(new Intent(this, NotificationService.class));
+    }
+
+    private void requestNotificationPermissionOnce() {
+        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU
+                || checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS)
+                == android.content.pm.PackageManager.PERMISSION_GRANTED)
+            return;
+
+        SharedPreferences pref = U.getSharedPreferences(this);
+        if(pref.getBoolean("andesk_notification_permission_requested", false))
+            return;
+
+        pref.edit().putBoolean("andesk_notification_permission_requested", true).apply();
+        requestPermissions(new String[] { android.Manifest.permission.POST_NOTIFICATIONS }, 43);
     }
 
     private boolean canBootToFreeform() {

@@ -114,8 +114,11 @@ public class NotificationService extends Service {
                 receiverIntent2.setPackage(getPackageName());
                 receiverIntent2.putExtra(EXTRA_DESKTOP_SESSION, true);
 
-                PendingIntent contentIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+                PendingIntent settingsIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_IMMUTABLE);
                 PendingIntent receiverPendingIntent2 = PendingIntent.getBroadcast(this, 0, receiverIntent2, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+                // The floating desktop taskbar stays over other apps until the session ends;
+                // tapping this notification is the quick way to close it.
+                PendingIntent contentIntent = receiverPendingIntent2;
 
                 String id = "taskbar_notification_channel";
 
@@ -135,7 +138,7 @@ public class NotificationService extends Service {
                                 : R.drawable.tb_allapps)
                         .setContentIntent(contentIntent)
                         .setContentTitle(getString(R.string.tb_taskbar_is_active))
-                        .setContentText(getString(R.string.tb_click_to_open_settings))
+                        .setContentText(getString(R.string.tb_tap_to_close_desktop))
                         .setColor(ContextCompat.getColor(this, R.color.tb_colorPrimary))
                         .setPriority(Notification.PRIORITY_MIN)
                         .setShowWhen(false)
@@ -153,6 +156,7 @@ public class NotificationService extends Service {
 
                 }
 
+                mBuilder.addAction(0, getString(R.string.tb_settings), settingsIntent);
                 mBuilder.addAction(0, getString(R.string.tb_action_quit), receiverPendingIntent2);
 
                 startForeground(8675309, mBuilder.build());

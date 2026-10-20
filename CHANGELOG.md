@@ -20,6 +20,9 @@
 - Keep the clock and system tray pinned to the far end of the desktop taskbar: the app area now fills the remaining width instead of relying on pixel estimates that the battery percentage, screen insets and Windows-style start button threw off.
 - Windows 7 style: draw the glass highlight only along the taskbar's inner edge instead of a border around it, which left a stray line along the bottom of the screen.
 - The floating (freeform) taskbar and Start menu extend over the gesture-navigation strip at the bottom of the screen instead of floating above it; tappable 3-button navigation bars are still avoided.
+- Redesigned Control Center: a translucent, rounded panel in the taskbar's colors with icon tiles (Wi-Fi and Bluetooth highlight when on), a larger clock and a full date header.
+- The Calendar and Clock apps opened from the taskbar or Control Center launch like other taskbar apps, i.e. in a freeform window when freeform mode is on.
+- While the floating (freeform) taskbar is running, Andesk shows an ongoing notification; tapping it closes the desktop taskbar. This also keeps the floating Start button from being stopped by Android after you leave the desktop.
 - Add regression tests for desktop startup, leaving/returning, session shutdown, appearance restarts, z-order and widget permissions.
 - Bind widgets using the provider's Android user profile and show the specific error stage when widget setup fails.
 
