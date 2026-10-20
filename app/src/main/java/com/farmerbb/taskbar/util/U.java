@@ -2325,28 +2325,40 @@ public class U {
             "com.android.BBKClock"
     };
 
-    private static boolean startExternalActivity(Context context, Intent intent) {
-        if(intent == null) return false;
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+    private static Intent resolvable(Context context, Intent intent) {
+        if(intent == null) return null;
         try {
-            context.startActivity(intent);
-            return true;
-        } catch(ActivityNotFoundException | SecurityException e) {
-            return false;
+            return intent.resolveActivity(context.getPackageManager()) != null ? intent : null;
+        } catch(RuntimeException e) {
+            return null;
         }
+    }
+
+    /** Launches another app the same way as taskbar apps, i.e. windowed in freeform mode. */
+    private static void launchExternalApp(Context context, Intent intent) {
+        Context appContext = context.getApplicationContext();
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        launchApp(appContext, () -> {
+            Bundle options = getActivityOptionsBundle(appContext, ApplicationType.APP_PORTRAIT, null);
+            try {
+                appContext.startActivity(intent, options);
+            } catch(ActivityNotFoundException | SecurityException | IllegalArgumentException e) {
+                Log.w("Andesk", "Unable to open " + intent, e);
+            }
+        });
     }
 
     /** Opens the device's Clock app; not every Clock app handles ACTION_SHOW_ALARMS. */
     public static boolean openClockApp(Context context) {
-        if(startExternalActivity(context, new Intent(android.provider.AlarmClock.ACTION_SHOW_ALARMS)))
-            return true;
+        Intent intent = resolvable(context, new Intent(android.provider.AlarmClock.ACTION_SHOW_ALARMS));
 
         PackageManager pm = context.getPackageManager();
-        for(String packageName : CLOCK_PACKAGES) {
-            if(startExternalActivity(context, pm.getLaunchIntentForPackage(packageName)))
-                return true;
-        }
-        return false;
+        for(int i = 0; intent == null && i < CLOCK_PACKAGES.length; i++)
+            intent = pm.getLaunchIntentForPackage(CLOCK_PACKAGES[i]);
+
+        if(intent == null) return false;
+        launchExternalApp(context, intent);
+        return true;
     }
 
     /** Opens the device's Calendar app at the given time, or its main screen as a fallback. */
@@ -2355,10 +2367,13 @@ public class U {
                 .appendPath("time")
                 .appendPath(Long.toString(timeMillis))
                 .build();
-        if(startExternalActivity(context, new Intent(Intent.ACTION_VIEW, uri)))
-            return true;
+        Intent intent = resolvable(context, new Intent(Intent.ACTION_VIEW, uri));
+        if(intent == null)
+            intent = resolvable(context, Intent.makeMainSelectorActivity(
+                    Intent.ACTION_MAIN, Intent.CATEGORY_APP_CALENDAR));
 
-        return startExternalActivity(context,
-                Intent.makeMainSelectorActivity(Intent.ACTION_MAIN, Intent.CATEGORY_APP_CALENDAR));
+        if(intent == null) return false;
+        launchExternalApp(context, intent);
+        return true;
     }
 }

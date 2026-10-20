@@ -8,6 +8,7 @@ import android.os.Looper
 import android.view.View
 import android.view.ViewGroup
 import android.widget.GridLayout
+import android.widget.LinearLayout
 import androidx.test.core.app.ApplicationProvider
 import com.farmerbb.taskbar.R
 import com.farmerbb.taskbar.helper.GlobalHelper
@@ -139,6 +140,16 @@ class DesktopLauncherActivitySmokeTest {
             1,
             countViews(activity.window.decorView, R.id.start_button),
         )
+    }
+
+    @Test
+    fun desktopClockStaysPinnedToTheEnd() {
+        val activity = launchDesktop()
+        val params = activity.findViewById<View>(R.id.taskbar_scrollview).layoutParams
+            as LinearLayout.LayoutParams
+
+        Assert.assertEquals("The app area must fill the remaining width", 1f, params.weight, 0f)
+        Assert.assertEquals(0, params.width)
     }
 
     @Test

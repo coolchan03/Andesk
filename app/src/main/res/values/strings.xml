@@ -518,4 +518,5 @@
     <string name="tb_show_month" translatable="false">Show month</string>
     <string name="tb_no_clock_app" translatable="false">No clock app found</string>
     <string name="tb_no_calendar_app" translatable="false">No calendar app found</string>
+    <string name="tb_tap_to_close_desktop" translatable="false">Tap to close the desktop taskbar</string>
 </resources>

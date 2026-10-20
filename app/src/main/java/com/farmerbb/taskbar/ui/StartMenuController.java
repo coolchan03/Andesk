@@ -67,6 +67,7 @@ import com.farmerbb.taskbar.util.IconCache;
 import com.farmerbb.taskbar.helper.LauncherHelper;
 import com.farmerbb.taskbar.helper.MenuHelper;
 import com.farmerbb.taskbar.util.TopApps;
+import com.farmerbb.taskbar.util.DesktopSessionState;
 import com.farmerbb.taskbar.util.U;
 import com.farmerbb.taskbar.widget.StartMenuLayout;
 
@@ -191,6 +192,7 @@ public class StartMenuController extends UIController {
         String taskbarPosition = TaskbarPosition.getTaskbarPosition(context);
         int layoutId = getStartMenuLayoutId(taskbarPosition);
         params.gravity = getStartMenuGravity(taskbarPosition);
+        params.extendIntoGestureArea = DesktopSessionState.isActive(context);
 
         // Initialize views
         layout = (StartMenuLayout) LayoutInflater.from(U.wrapContext(context)).inflate(layoutId, null);

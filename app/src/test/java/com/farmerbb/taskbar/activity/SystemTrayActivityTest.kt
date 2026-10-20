@@ -1,8 +1,13 @@
 package com.farmerbb.taskbar.activity
 
+import android.app.Application
+import android.content.ComponentName
 import android.content.Intent
+import android.content.IntentFilter
+import android.os.Looper
 import android.view.View
 import android.view.ViewGroup
+import androidx.test.core.app.ApplicationProvider
 import com.farmerbb.taskbar.R
 import com.farmerbb.taskbar.util.Constants
 import org.junit.Assert
@@ -11,6 +16,7 @@ import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows
+import java.time.Duration
 
 @RunWith(RobolectricTestRunner::class)
 class SystemTrayActivityTest {
@@ -41,15 +47,26 @@ class SystemTrayActivityTest {
     @Test
     fun testTappingDateOpensCalendarApp() {
         val activity = Robolectric.buildActivity(SystemTrayActivity::class.java).setup().get()
+        val calendarApp = ComponentName("com.example.calendar", "com.example.calendar.Main")
+        val packageManager = Shadows.shadowOf(activity.packageManager)
+        packageManager.addActivityIfNotPresent(calendarApp)
+        packageManager.addIntentFilterForActivity(
+            calendarApp,
+            IntentFilter(Intent.ACTION_VIEW).apply {
+                addCategory(Intent.CATEGORY_DEFAULT)
+                addDataScheme("content")
+                addDataAuthority("com.android.calendar", null)
+            },
+        )
+
         val toggle = activity.findViewById<View>(R.id.control_center_calendar_toggle)
         val row = toggle.parent as ViewGroup
         row.getChildAt(0).performClick()
+        Shadows.shadowOf(Looper.getMainLooper()).idleFor(Duration.ofSeconds(1))
 
-        val started = Shadows.shadowOf(activity).nextStartedActivity
+        val application = ApplicationProvider.getApplicationContext<Application>()
+        val started = Shadows.shadowOf(application).nextStartedActivity
         Assert.assertNotNull("Tapping the date must open a calendar app", started)
-        Assert.assertTrue(
-            started.action == Intent.ACTION_VIEW ||
-                started.selector?.hasCategory(Intent.CATEGORY_APP_CALENDAR) == true,
-        )
+        Assert.assertEquals(Intent.ACTION_VIEW, started.action)
     }
 }
