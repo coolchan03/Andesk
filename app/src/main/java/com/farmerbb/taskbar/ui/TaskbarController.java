@@ -57,11 +57,11 @@ import android.speech.RecognizerIntent;
 
 import androidx.annotation.VisibleForTesting;
 import androidx.core.content.ContextCompat;
+import android.util.Log;
 import androidx.core.graphics.ColorUtils;
 import android.telephony.PhoneStateListener;
 import android.telephony.SignalStrength;
 import android.telephony.TelephonyManager;
-import android.text.format.DateFormat;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -89,6 +89,7 @@ import android.widget.Space;
 import android.widget.TextView;
 
 import com.farmerbb.taskbar.BuildConfig;
+import com.farmerbb.taskbar.activity.DesktopLauncherActivity;
 import com.farmerbb.taskbar.activity.SystemTrayActivity;
 import com.farmerbb.taskbar.activity.HomeActivityDelegate;
 import com.farmerbb.taskbar.activity.MainActivity;
@@ -164,6 +165,7 @@ public class TaskbarController extends UIController {
 
     // Floating desktop taskbar: shrinks to the Start button while the desktop is not shown.
     private boolean compact = false;
+    private View showDesktopSliver;
     private UIHost currentHost;
     private ViewParams currentParams;
 
@@ -538,6 +540,11 @@ public class TaskbarController extends UIController {
 
         startRefreshingRecents();
 
+        // Floating (overlay) desktop taskbars get a thin "show desktop" strip at the far end.
+        showDesktopSliver = null;
+        if(desktopSession && !(host instanceof android.app.Activity))
+            addShowDesktopSliver(accentColor);
+
         host.addView(layout, params);
 
         isFirstStart = false;
@@ -830,7 +837,7 @@ public class TaskbarController extends UIController {
         }
 
         time.setVisibility(View.VISIBLE);
-        if(DesktopSessionState.isActive(context)) {
+        if(DesktopSessionState.isActive(context) || U.hasCustomClockFormat(context)) {
             // The fixed 84dp box centered the text and left a gap before the screen edge.
             // Size it to the text and align it to the end instead.
             ViewGroup.LayoutParams timeParams = time.getLayoutParams();
@@ -1594,6 +1601,7 @@ public class TaskbarController extends UIController {
         if(dashboardEnabled) dashboardButton.setVisibility(visibility);
         if(navbarButtonsEnabled) navbarButtons.setVisibility(visibility);
         if(sysTrayEnabled) sysTrayParentLayout.setVisibility(visibility);
+        if(showDesktopSliver != null) showDesktopSliver.setVisibility(visibility);
 
         if(value) {
             shouldRefreshRecents = false;
@@ -1619,6 +1627,36 @@ public class TaskbarController extends UIController {
     @VisibleForTesting
     boolean isCompact() {
         return compact;
+    }
+
+    /** A thin strip at the end of the taskbar, like Windows, that brings the desktop forward. */
+    private void addShowDesktopSliver(int accentColor) {
+        View sliver = new View(context);
+        sliver.setId(R.id.show_desktop_sliver);
+        sliver.setBackgroundColor(ColorUtils.setAlphaComponent(accentColor, 60));
+        sliver.setContentDescription(context.getString(R.string.tb_show_desktop));
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+            sliver.setTooltipText(context.getString(R.string.tb_show_desktop));
+        sliver.setOnClickListener(v -> showDesktop());
+
+        int thickness = Math.round(10 * context.getResources().getDisplayMetrics().density);
+        layout.addView(sliver, positionIsVertical
+                ? new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, thickness)
+                : new LinearLayout.LayoutParams(thickness, ViewGroup.LayoutParams.MATCH_PARENT));
+        showDesktopSliver = sliver;
+    }
+
+    private void showDesktop() {
+        Intent intent = new Intent(context, DesktopLauncherActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+                | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
+                | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+
+        try {
+            context.startActivity(intent);
+        } catch(RuntimeException e) {
+            Log.w("Andesk", "Unable to show the desktop", e);
+        }
     }
 
     private void toggleTaskbar(boolean userInitiated) {
@@ -2122,9 +2160,7 @@ public class TaskbarController extends UIController {
 
             updateBatteryPercent(sysTrayIconStates.get(R.id.battery));
 
-            time.setText(context.getString(R.string.tb_systray_clock,
-                    DateFormat.getTimeFormat(context).format(new Date()),
-                    DateFormat.getDateFormat(context).format(new Date())));
+            time.setText(U.getTaskbarClockText(context, new Date()));
             time.setTextColor(U.getTaskbarAccentColor(context));
         });
     }
@@ -2136,13 +2172,21 @@ public class TaskbarController extends UIController {
         BatteryManager bm = (BatteryManager) context.getSystemService(Context.BATTERY_SERVICE);
         int level = bm == null ? Integer.MIN_VALUE
                 : bm.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY);
-        if(level == Integer.MIN_VALUE || level < 0 || batteryShown == null || !batteryShown) {
+        if(!U.getSharedPreferences(context).getBoolean(PREF_BATTERY_PERCENT, true)
+                || level == Integer.MIN_VALUE || level < 0 || batteryShown == null || !batteryShown) {
             percent.setVisibility(View.GONE);
             return;
         }
 
+        Intent status = context.registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+        int state = status == null ? -1 : status.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
+        boolean charging = state == BatteryManager.BATTERY_STATUS_CHARGING
+                || state == BatteryManager.BATTERY_STATUS_FULL;
+
         percent.setText(context.getString(R.string.tb_battery_percent, level));
-        percent.setTextColor(U.getTaskbarAccentColor(context));
+        percent.setTextColor(level <= 15 && !charging
+                ? Color.rgb(255, 82, 82)
+                : U.getTaskbarAccentColor(context));
         percent.setVisibility(View.VISIBLE);
     }
 

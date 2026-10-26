@@ -438,14 +438,18 @@ public class DesktopWidgetManager {
     /* Menu and edit mode */
 
     private void showMenu(Entry entry) {
-        CharSequence[] items = {
-                activity.getString(R.string.tb_move_resize_widget),
-                activity.getString(R.string.tb_remove_widget)
-        };
+        // A locked desktop layout cannot be moved or resized, only cleaned up.
+        boolean locked = U.getSharedPreferences(activity).getBoolean(PREF_DESKTOP_LOCKED, false);
+        CharSequence[] items = locked
+                ? new CharSequence[] { activity.getString(R.string.tb_remove_widget) }
+                : new CharSequence[] {
+                        activity.getString(R.string.tb_move_resize_widget),
+                        activity.getString(R.string.tb_remove_widget)
+                };
 
         new AlertDialog.Builder(activity)
                 .setItems(items, (dialog, which) -> {
-                    if(which == 0)
+                    if(!locked && which == 0)
                         enterEditMode(entry);
                     else
                         removeEntry(entry);

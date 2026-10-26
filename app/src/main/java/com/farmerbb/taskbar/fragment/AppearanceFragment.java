@@ -80,6 +80,10 @@ public class AppearanceFragment extends SettingsFragment {
         } else {
             getPreferenceScreen().removePreference(findPreference(PREF_NOTIFICATION_COUNT));
             getPreferenceScreen().removePreference(findPreference(PREF_SYS_TRAY));
+            getPreferenceScreen().removePreference(findPreference(PREF_BATTERY_PERCENT));
+            getPreferenceScreen().removePreference(findPreference(PREF_CLOCK_FORMAT));
+            getPreferenceScreen().removePreference(findPreference(PREF_CLOCK_SHOW_DATE));
+            getPreferenceScreen().removePreference(findPreference(PREF_CLOCK_SHOW_SECONDS));
         }
 
         if(U.isAndroidGeneric(getActivity())) {
@@ -107,6 +111,13 @@ public class AppearanceFragment extends SettingsFragment {
         bindPreferenceSummaryToValue(findPreference(PREF_SHORTCUT_ICON));
         bindPreferenceSummaryToValue(findPreference(PREF_TRANSPARENT_START_MENU));
         bindPreferenceSummaryToValue(findPreference(PREF_HIDE_ICON_LABELS));
+        bindPreferenceSummaryToValue(findPreference(PREF_DESKTOP_ICON_SIZE));
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            bindPreferenceSummaryToValue(findPreference(PREF_BATTERY_PERCENT));
+            bindPreferenceSummaryToValue(findPreference(PREF_CLOCK_FORMAT));
+            bindPreferenceSummaryToValue(findPreference(PREF_CLOCK_SHOW_DATE));
+            bindPreferenceSummaryToValue(findPreference(PREF_CLOCK_SHOW_SECONDS));
+        }
 
         findPreference(PREF_BACKGROUND_TINT_PREF).setSummary("#" + String.format("%08x", U.getBackgroundTint(getActivity())).toUpperCase());
         findPreference(PREF_ACCENT_COLOR_PREF).setSummary("#" + String.format("%08x", U.getAccentColor(getActivity())).toUpperCase());

@@ -13,6 +13,7 @@ import androidx.test.core.app.ApplicationProvider
 import com.farmerbb.taskbar.R
 import com.farmerbb.taskbar.helper.GlobalHelper
 import com.farmerbb.taskbar.helper.LauncherHelper
+import com.farmerbb.taskbar.util.Constants
 import com.farmerbb.taskbar.util.Constants.ACTION_DESKTOP_TASKBAR_COMPACT
 import com.farmerbb.taskbar.util.Constants.ACTION_DESKTOP_TASKBAR_EXPAND
 import com.farmerbb.taskbar.util.Constants.PREF_DESKTOP_SESSION_ACTIVE
@@ -171,6 +172,65 @@ class DesktopLauncherActivitySmokeTest {
             View.FIND_VIEWS_WITH_TEXT,
         )
         Assert.assertEquals("The emoji shortcut must be drawn on the desktop", 1, labels.size)
+    }
+
+    private fun emojiShortcutView(activity: DesktopLauncherActivity): View {
+        val labels = ArrayList<View>()
+        activity.window.decorView.findViewsWithText(
+            labels,
+            "Launchpad",
+            View.FIND_VIEWS_WITH_TEXT,
+        )
+        Assert.assertEquals(1, labels.size.toLong())
+        return labels[0].parent as View
+    }
+
+    private fun putEmojiShortcut() {
+        U.getSharedPreferences(context).edit()
+            .putString(
+                "andesk_documents",
+                """[{"column":1,"row":1,"emoji":"\uD83D\uDE80","title":"Launchpad"}]""",
+            )
+            .apply()
+    }
+
+    @Test
+    fun lockedLayoutOpensTheMenuInsteadOfStartingADrag() {
+        putEmojiShortcut()
+        U.getSharedPreferences(context).edit()
+            .putBoolean(Constants.PREF_DESKTOP_LOCKED, true)
+            .apply()
+
+        val activity = launchDesktop()
+        idleMainLooper()
+        emojiShortcutView(activity).performLongClick()
+
+        Assert.assertNotNull(
+            "A locked desktop must show the item menu on long press",
+            ShadowAlertDialog.getLatestAlertDialog(),
+        )
+        Assert.assertEquals(
+            "The item must stay put, not turn invisible for a drag",
+            View.VISIBLE,
+            emojiShortcutView(activity).visibility,
+        )
+    }
+
+    @Test
+    fun largeDesktopIconsAreBiggerThanMedium() {
+        putEmojiShortcut()
+        val base = context.resources.getDimensionPixelSize(R.dimen.tb_start_menu_grid_width)
+
+        U.getSharedPreferences(context).edit()
+            .putString(Constants.PREF_DESKTOP_ICON_SIZE, "large")
+            .apply()
+        val activity = launchDesktop()
+        idleMainLooper()
+
+        Assert.assertEquals(
+            Math.round(base * 1.25f).toLong(),
+            emojiShortcutView(activity).layoutParams.width.toLong(),
+        )
     }
 
     @Test

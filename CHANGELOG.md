@@ -32,6 +32,11 @@
 - The date/time at the end of the taskbar fits its text and sits flush against the edge instead of centering inside a fixed-width box.
 - Reorder pinned taskbar apps from their menu (Move left/right, or up/down on a vertical taskbar).
 - Four new taskbar presets: macOS-like floating dock, ChromeOS-like shelf, GNOME/Ubuntu-like side dock (moves the taskbar to the left edge) and KDE Plasma-like panel. Explicit color and transparency settings still override the preset colors.
+- Settings: show or hide the battery percentage (it turns red at 15% or less when not charging), and choose the taskbar clock's 12/24-hour format, whether to show the date, and whether to show seconds.
+- Lock desktop layout (desktop menu): icons and widgets can no longer be dragged, resized or rearranged by accident; long-press still opens their menu.
+- Desktop icon size (Settings > Appearance): small, medium or large, with the grid adjusting to fit.
+- Control Center: volume and brightness sliders. Brightness asks once for the "modify system settings" permission.
+- Floating (freeform) taskbar: a thin "Show desktop" strip at its end brings the desktop forward.
 - Add regression tests for desktop startup, leaving/returning, session shutdown, appearance restarts, z-order and widget permissions.
 - Bind widgets using the provider's Android user profile and show the specific error stage when widget setup fails.
 

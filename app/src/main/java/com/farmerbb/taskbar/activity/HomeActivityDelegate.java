@@ -595,6 +595,7 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
                 getString(R.string.tb_add_emoji),
                 getString(R.string.tb_add_widget),
                 getString(R.string.tb_set_wallpaper),
+                getString(isDesktopLocked() ? R.string.tb_unlock_layout : R.string.tb_lock_layout),
                 "Taskbar settings"
         };
 
@@ -616,6 +617,16 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
                             break;
                         case 5:
                             setWallpaper();
+                            break;
+                        case 6:
+                            U.getSharedPreferences(this).edit()
+                                    .putBoolean(PREF_DESKTOP_LOCKED, !isDesktopLocked())
+                                    .apply();
+                            if(isDesktopLocked() && iconArrangeMode) {
+                                iconArrangeMode = false;
+                                if(fab != null) fab.hide();
+                                refreshDesktopIcons();
+                            }
                             break;
                         default:
                             U.openSettingsWindow(this);
@@ -1366,6 +1377,47 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
             windowManager.updateViewLayout(view, params.toWindowManagerParams());
     }
 
+    private boolean isDesktopLocked() {
+        return U.getSharedPreferences(this).getBoolean(PREF_DESKTOP_LOCKED, false);
+    }
+
+    /** Scale for desktop icons: small 0.8x, medium 1x, large 1.25x. */
+    private float desktopIconScale() {
+        switch(U.getSharedPreferences(this).getString(PREF_DESKTOP_ICON_SIZE, "medium")) {
+            case "small":
+                return 0.8f;
+            case "large":
+                return 1.25f;
+            default:
+                return 1f;
+        }
+    }
+
+    /** Resizes an inflated desktop icon (icon, label and cell width) to the chosen size. */
+    private void applyDesktopIconScale(View item) {
+        float scale = desktopIconScale();
+        if(scale == 1f) return;
+
+        ViewGroup.LayoutParams entryParams = item.getLayoutParams();
+        if(entryParams != null) {
+            entryParams.width = Math.round(
+                    getResources().getDimensionPixelSize(R.dimen.tb_start_menu_grid_width) * scale);
+            item.setLayoutParams(entryParams);
+        }
+
+        ImageView icon = item.findViewById(R.id.icon);
+        ViewGroup.LayoutParams iconParams = icon.getLayoutParams();
+        int iconSize = Math.round(
+                getResources().getDimensionPixelSize(R.dimen.tb_icon_size) * scale);
+        iconParams.width = iconSize;
+        iconParams.height = iconSize;
+        icon.setLayoutParams(iconParams);
+
+        TextView name = item.findViewById(R.id.name);
+        name.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX,
+                getResources().getDimension(R.dimen.tb_start_menu_grid_text_size) * scale);
+    }
+
     private int iconSizePx() {
         return Math.max(1, getResources().getDimensionPixelSize(R.dimen.tb_icon_size));
     }
@@ -1397,6 +1449,7 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
         ((ImageView) item.findViewById(R.id.icon)).setImageDrawable(icon);
 
         item.setOnTouchListener(new DesktopIconTouchListener());
+        applyDesktopIconScale(item);
         item.setOnClickListener(v -> {
             U.sendBroadcast(this, ACTION_HIDE_START_MENU);
             if(isEmoji)
@@ -1405,7 +1458,7 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
                 openDocumentShortcut(document);
         });
         item.setOnLongClickListener(v -> {
-            if(!isDesktopLauncher) {
+            if(!isDesktopLauncher || isDesktopLocked()) {
                 showDocumentShortcutMenu(document);
                 return true;
             }
@@ -1463,7 +1516,8 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
 
         boolean taskbarIsVertical = TaskbarPosition.isVertical(this);
         int iconSize = U.getTaskbarIconSize(this);
-        int desktopIconSize = getResources().getDimensionPixelSize(R.dimen.tb_start_menu_grid_width);
+        int desktopIconSize = Math.round(
+                getResources().getDimensionPixelSize(R.dimen.tb_start_menu_grid_width) * desktopIconScale());
 
         int columns = Math.max(1, (layout.getWidth() - (taskbarIsVertical ? iconSize : 0)) / desktopIconSize);
         int rows = Math.max(1, (layout.getHeight() - (!taskbarIsVertical ? iconSize : 0)) / desktopIconSize);
@@ -1550,7 +1604,7 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
                 }
 
                 if(isDesktopLauncher && info != null && info.entry != null
-                        && iconContainer.getChildCount() > 0) {
+                        && iconContainer.getChildCount() > 0 && !isDesktopLocked()) {
                     startDragIndex = index;
                     View iconView = iconContainer.getChildAt(0);
                     ClipData data = ClipData.newPlainText("", "");
@@ -1697,6 +1751,11 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
     }
 
     private void enterIconArrangeMode() {
+        if(isDesktopLocked()) {
+            U.showToast(this, R.string.tb_layout_locked);
+            return;
+        }
+
         try {
             SharedPreferences pref = U.getSharedPreferences(this);
             JSONArray jsonIcons = new JSONArray(pref.getString(PREF_DESKTOP_ICONS, "[]"));
@@ -1806,6 +1865,7 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
         imageView.setImageDrawable(custom != null ? custom : entry.getIcon(this));
 
         icon.setOnTouchListener(new DesktopIconTouchListener());
+        applyDesktopIconScale(icon);
         return icon;
     }
 
@@ -1850,7 +1910,8 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
     private final class DesktopIconTouchListener implements View.OnTouchListener {
         @Override
         public boolean onTouch(View view, MotionEvent motionEvent) {
-            if(iconArrangeMode && motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
+            if(iconArrangeMode && !isDesktopLocked()
+                    && motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
                 startDragIndex = desktopIcons.indexOfChild((ViewGroup) view.getParent());
 
                 ClipData data = ClipData.newPlainText("", "");

@@ -2,11 +2,14 @@ package com.farmerbb.taskbar.activity
 
 import android.app.Application
 import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.media.AudioManager
 import android.os.Looper
 import android.view.View
 import android.view.ViewGroup
+import android.widget.SeekBar
 import androidx.test.core.app.ApplicationProvider
 import com.farmerbb.taskbar.R
 import com.farmerbb.taskbar.util.Constants
@@ -92,5 +95,29 @@ class SystemTrayActivityTest {
         val started = Shadows.shadowOf(application).nextStartedActivity
         Assert.assertNotNull("Settings must open via the normal app launch path", started)
         Assert.assertEquals(MainActivity::class.java.name, started.component?.className)
+    }
+
+    @Test
+    fun testVolumeSliderChangesMediaVolume() {
+        val activity = Robolectric.buildActivity(SystemTrayActivity::class.java).setup().get()
+        val slider = activity.findViewById<SeekBar>(R.id.control_center_volume_slider)
+        Assert.assertNotNull("Control Center must have a volume slider", slider)
+        Assert.assertTrue(slider.max > 0)
+
+        slider.progress = slider.max
+        val audio = activity.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        Assert.assertEquals(
+            slider.max.toLong(),
+            audio.getStreamVolume(AudioManager.STREAM_MUSIC).toLong(),
+        )
+    }
+
+    @Test
+    fun testBrightnessSliderIsPresent() {
+        val activity = Robolectric.buildActivity(SystemTrayActivity::class.java).setup().get()
+
+        val slider = activity.findViewById<SeekBar>(R.id.control_center_brightness_slider)
+        Assert.assertNotNull("Control Center must have a brightness slider", slider)
+        Assert.assertEquals(254, slider.max.toLong())
     }
 }

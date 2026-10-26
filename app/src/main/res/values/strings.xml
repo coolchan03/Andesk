@@ -534,4 +534,16 @@
     <string name="tb_use" translatable="false">Use</string>
     <string name="tb_move_left" translatable="false">Move left</string>
     <string name="tb_move_right" translatable="false">Move right</string>
+    <string name="tb_pref_title_battery_percent" translatable="false">Show battery percentage</string>
+    <string name="tb_pref_description_battery_percent" translatable="false">Shown next to the battery icon; turns red when low and not charging</string>
+    <string name="tb_pref_title_clock_format" translatable="false">Clock format</string>
+    <string name="tb_pref_title_clock_show_date" translatable="false">Show date under the clock</string>
+    <string name="tb_pref_title_clock_show_seconds" translatable="false">Show seconds</string>
+    <string name="tb_pref_title_desktop_icon_size" translatable="false">Desktop icon size</string>
+    <string name="tb_lock_layout" translatable="false">Lock desktop layout</string>
+    <string name="tb_unlock_layout" translatable="false">Unlock desktop layout</string>
+    <string name="tb_layout_locked" translatable="false">Desktop layout is locked</string>
+    <string name="tb_brightness" translatable="false">Brightness</string>
+    <string name="tb_allow_brightness" translatable="false">Allow Andesk to change system settings to adjust brightness</string>
+    <string name="tb_show_desktop" translatable="false">Show desktop</string>
 </resources>

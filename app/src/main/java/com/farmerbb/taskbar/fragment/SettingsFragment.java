@@ -177,6 +177,7 @@ public abstract class SettingsFragment extends PreferenceFragment implements Pre
                         shouldRestart = false;
                         break;
                     case PREF_HIDE_ICON_LABELS:
+                    case PREF_DESKTOP_ICON_SIZE:
                         U.sendBroadcast(getActivity(), ACTION_REFRESH_DESKTOP_ICONS);
                         break;
                     case PREF_TASKBAR_STYLE:

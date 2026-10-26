@@ -1976,6 +1976,41 @@ public class U {
         return isWindowsTaskbarStyle(context) ? Color.WHITE : getAccentColor(context);
     }
 
+    /** True when the user changed the clock away from "system time with date, no seconds". */
+    public static boolean hasCustomClockFormat(Context context) {
+        SharedPreferences pref = getSharedPreferences(context);
+        return !"system".equals(pref.getString(PREF_CLOCK_FORMAT, "system"))
+                || !pref.getBoolean(PREF_CLOCK_SHOW_DATE, true)
+                || pref.getBoolean(PREF_CLOCK_SHOW_SECONDS, false);
+    }
+
+    /** The system tray clock text: time, and optionally the date on a second line. */
+    public static String getTaskbarClockText(Context context, java.util.Date now) {
+        SharedPreferences pref = getSharedPreferences(context);
+        String format = pref.getString(PREF_CLOCK_FORMAT, "system");
+        boolean showDate = pref.getBoolean(PREF_CLOCK_SHOW_DATE, true);
+        boolean showSeconds = pref.getBoolean(PREF_CLOCK_SHOW_SECONDS, false);
+
+        String time;
+        if("system".equals(format) && !showSeconds) {
+            time = android.text.format.DateFormat.getTimeFormat(context).format(now);
+        } else {
+            boolean is24Hour = "24".equals(format)
+                    || ("system".equals(format)
+                    && android.text.format.DateFormat.is24HourFormat(context));
+            java.util.Locale locale = java.util.Locale.getDefault();
+            String pattern = android.text.format.DateFormat.getBestDateTimePattern(
+                    locale, (is24Hour ? "Hm" : "hm") + (showSeconds ? "s" : ""));
+            time = new java.text.SimpleDateFormat(pattern, locale).format(now);
+        }
+
+        if(!showDate)
+            return time;
+
+        return context.getString(R.string.tb_systray_clock, time,
+                android.text.format.DateFormat.getDateFormat(context).format(now));
+    }
+
     public static boolean isSystemTrayEnabled(Context context) {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
                 && getBooleanPrefWithDefault(context, PREF_SYS_TRAY)
