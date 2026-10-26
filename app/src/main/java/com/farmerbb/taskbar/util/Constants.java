@@ -47,6 +47,8 @@ public class Constants {
     public static final String ACTION_NOTIFICATION_COUNT_CHANGED = "st.advisory.andesk.NOTIFICATION_COUNT_CHANGED";
     public static final String ACTION_QUIT = "st.advisory.andesk.QUIT";
     public static final String ACTION_REFRESH_DESKTOP_ICONS = "st.advisory.andesk.REFRESH_DESKTOP_ICONS";
+    public static final String ACTION_CHANGE_DESKTOP_ICON = "st.advisory.andesk.CHANGE_DESKTOP_ICON";
+    public static final String EXTRA_ICON_KEY = "st.advisory.andesk.extra.ICON_KEY";
     public static final String ACTION_REMOVE_DESKTOP_WALLPAPER = "st.advisory.andesk.REMOVE_DESKTOP_WALLPAPER";
     public static final String ACTION_REMOVE_WIDGET_COMPLETED = "st.advisory.andesk.REMOVE_WIDGET_COMPLETED";
     public static final String ACTION_REMOVE_WIDGET_REQUESTED = "st.advisory.andesk.REMOVE_WIDGET_REQUESTED";
@@ -180,6 +182,9 @@ public class Constants {
     public static final String PREF_RECENTS_AMOUNT = "recents_amount";
     public static final String PREF_REFRESH_FREQUENCY = "refresh_frequency";
     public static final String PREF_REMOVE_DESKTOP_ICON = "remove_desktop_icon";
+    public static final String PREF_CHANGE_DESKTOP_ICON = "change_desktop_icon";
+    public static final String PREF_MOVE_PINNED_EARLIER = "move_pinned_earlier";
+    public static final String PREF_MOVE_PINNED_LATER = "move_pinned_later";
     public static final String PREF_REMOVE_DESKTOP_WALLPAPER = "remove_desktop_wallpaper";
     public static final String PREF_RESET_COLORS = "reset_colors";
     public static final String PREF_RESTORE_SETTINGS = "restore_settings";
@@ -255,6 +260,10 @@ public class Constants {
     public static final String PREF_TASKBAR_STYLE_WINDOWS_7 = "windows7";
     public static final String PREF_TASKBAR_STYLE_WINDOWS_10 = "windows10";
     public static final String PREF_TASKBAR_STYLE_WINDOWS_11 = "windows11";
+    public static final String PREF_TASKBAR_STYLE_MACOS = "macos";
+    public static final String PREF_TASKBAR_STYLE_CHROMEOS = "chromeos";
+    public static final String PREF_TASKBAR_STYLE_GNOME = "gnome";
+    public static final String PREF_TASKBAR_STYLE_KDE = "kde";
 
     // TaskbarPosition values
 

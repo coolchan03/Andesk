@@ -23,6 +23,15 @@
 - Redesigned Control Center: a translucent, rounded panel in the taskbar's colors with icon tiles (Wi-Fi and Bluetooth highlight when on), a larger clock and a full date header.
 - The Calendar and Clock apps opened from the taskbar or Control Center launch like other taskbar apps, i.e. in a freeform window when freeform mode is on.
 - While the floating (freeform) taskbar is running, Andesk shows an ongoing notification; tapping it closes the desktop taskbar. This also keeps the floating Start button from being stopped by Android after you leave the desktop.
+- New desktop items start where you pressed: long-press (or right-click) an empty spot and choose Add app, file, folder, emoji or widget. They no longer all land in the top-left corner.
+- Files, folders and emoji shortcuts can now be dragged and swapped like app icons (they could not be moved before); press and release for the menu. Files and folders look like app icons.
+- Add emoji to the desktop, and force a custom icon (an emoji or a picked image) onto any app, file or folder from its menu ("Change icon"), with a reset option.
+- Right-click now works on widgets (menu), on empty parts of the taskbar (taskbar menu) and on desktop items; long-pressing empty taskbar space opens the taskbar menu.
+- Taskbar Settings, Calendar and Clock open as windows (like taskbar apps) instead of full screen, no longer pushing your open freeform windows behind them.
+- Tapping the desktop no longer pulls the full-screen desktop in front of your freeform windows while the floating taskbar is running (the desktop window is non-focusable in that mode).
+- The date/time at the end of the taskbar fits its text and sits flush against the edge instead of centering inside a fixed-width box.
+- Reorder pinned taskbar apps from their menu (Move left/right, or up/down on a vertical taskbar).
+- Four new taskbar presets: macOS-like floating dock, ChromeOS-like shelf, GNOME/Ubuntu-like side dock (moves the taskbar to the left edge) and KDE Plasma-like panel. Explicit color and transparency settings still override the preset colors.
 - Add regression tests for desktop startup, leaving/returning, session shutdown, appearance restarts, z-order and widget permissions.
 - Bind widgets using the provider's Android user profile and show the specific error stage when widget setup fails.
 

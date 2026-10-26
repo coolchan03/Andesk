@@ -179,6 +179,9 @@ public abstract class SettingsFragment extends PreferenceFragment implements Pre
                     case PREF_HIDE_ICON_LABELS:
                         U.sendBroadcast(getActivity(), ACTION_REFRESH_DESKTOP_ICONS);
                         break;
+                    case PREF_TASKBAR_STYLE:
+                        applyStylePosition(getActivity(), stringValue);
+                        break;
                     case PREF_DASHBOARD:
                     case PREF_SYS_TRAY:
                         SharedPreferences pref2 = U.getSharedPreferences(getActivity());
@@ -192,6 +195,24 @@ public abstract class SettingsFragment extends PreferenceFragment implements Pre
             return true;
         }
     };
+
+    /**
+     * The GNOME/Ubuntu-like preset is a dock on the left edge; move the taskbar there when the
+     * preset is chosen, and back to the bottom when switching away from it.
+     */
+    private static void applyStylePosition(Context context, String newStyle) {
+        SharedPreferences pref = U.getSharedPreferences(context);
+        String oldStyle = pref.getString(PREF_TASKBAR_STYLE, PREF_TASKBAR_STYLE_CLASSIC);
+
+        // This also runs when the preference is bound with its current value.
+        if(oldStyle.equals(newStyle)) return;
+
+        if(PREF_TASKBAR_STYLE_GNOME.equals(newStyle))
+            pref.edit().putString(PREF_POSITION, POSITION_BOTTOM_VERTICAL_LEFT).apply();
+        else if(PREF_TASKBAR_STYLE_GNOME.equals(oldStyle)
+                && POSITION_BOTTOM_VERTICAL_LEFT.equals(pref.getString(PREF_POSITION, "")))
+            pref.edit().putString(PREF_POSITION, POSITION_BOTTOM_LEFT).apply();
+    }
 
     void bindPreferenceSummaryToValue(Preference preference) {
         // Set the listener to watch for value changes.

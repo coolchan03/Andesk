@@ -84,6 +84,10 @@
         <item>Windows 7 Aero-like</item>
         <item>Windows 10-like</item>
         <item>Windows 11-like</item>
+        <item>macOS-like floating dock</item>
+        <item>ChromeOS-like shelf</item>
+        <item>GNOME / Ubuntu-like side dock</item>
+        <item>KDE Plasma-like panel</item>
     </string-array>
     <string name="tb_pref_title_taskbar_size">Taskbar size</string>
     <string name="tb_pref_summary_taskbar_size">Choose compact, standard, or large taskbar controls</string>
@@ -519,4 +523,15 @@
     <string name="tb_no_clock_app" translatable="false">No clock app found</string>
     <string name="tb_no_calendar_app" translatable="false">No calendar app found</string>
     <string name="tb_tap_to_close_desktop" translatable="false">Tap to close the desktop taskbar</string>
+    <string name="tb_change_icon" translatable="false">Change icon</string>
+    <string name="tb_icon_emoji" translatable="false">Use an emoji…</string>
+    <string name="tb_icon_image" translatable="false">Use an image…</string>
+    <string name="tb_icon_reset" translatable="false">Reset to default icon</string>
+    <string name="tb_add_emoji" translatable="false">Add emoji</string>
+    <string name="tb_pick_emoji" translatable="false">Choose an emoji</string>
+    <string name="tb_emoji_hint" translatable="false">Or type / paste any emoji</string>
+    <string name="tb_emoji_label_hint" translatable="false">Label (optional)</string>
+    <string name="tb_use" translatable="false">Use</string>
+    <string name="tb_move_left" translatable="false">Move left</string>
+    <string name="tb_move_right" translatable="false">Move right</string>
 </resources>

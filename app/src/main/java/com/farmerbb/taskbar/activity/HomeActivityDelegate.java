@@ -29,6 +29,7 @@ import android.content.SharedPreferences;
 import android.content.pm.LauncherApps;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.UserHandle;
@@ -58,6 +59,8 @@ import com.farmerbb.taskbar.R;
 import com.farmerbb.taskbar.helper.DisplayHelper;
 import com.farmerbb.taskbar.helper.GlobalHelper;
 import com.farmerbb.taskbar.util.Callbacks;
+import com.farmerbb.taskbar.util.EmojiPickerDialog;
+import com.farmerbb.taskbar.util.IconOverrides;
 import com.farmerbb.taskbar.util.TaskbarPosition;
 import com.farmerbb.taskbar.service.DashboardService;
 import com.farmerbb.taskbar.service.NotificationService;
@@ -111,6 +114,12 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
 
     private boolean isDesktopIconsEnabled;
     private boolean iconArrangeMode = false;
+    // Where the user pressed to add something: the slot index and the raw pointer position.
+    private int pendingSlotIndex = -1;
+    private float lastTouchX = -1;
+    private float lastTouchY = -1;
+    private String pendingIconKey;
+    private static final int REQUEST_ICON_IMAGE = 9103;
     private int startDragIndex;
     private int endDragIndex;
 
@@ -176,6 +185,13 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
                 updateWindowFlags();
             else
                 recreate();
+        }
+    };
+
+    private final BroadcastReceiver changeIconReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            showChangeIconDialog(intent.getStringExtra(EXTRA_ICON_KEY));
         }
     };
 
@@ -476,7 +492,7 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
                     v.setVisibility(View.GONE);
                 });
                 addDesktopItem.setOnLongClickListener(v -> {
-                    startActivity(new Intent(this, MainActivity.class));
+                    U.openSettingsWindow(this);
                     return true;
                 });
                 desktopAddButton = addDesktopItem;
@@ -525,8 +541,10 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
         if(isSecondaryHome || isDesktopLauncher)
             U.registerReceiver(this, restartReceiver, ACTION_RESTART);
 
-        if(isDesktopLauncher)
+        if(isDesktopLauncher) {
             U.registerReceiver(this, exitDesktopReceiver, ACTION_EXIT_DESKTOP_LAUNCHER);
+            U.registerReceiver(this, changeIconReceiver, ACTION_CHANGE_DESKTOP_ICON);
+        }
 
         if(isWallpaperEnabled) {
             U.registerReceiver(this, removeDesktopWallpaperReceiver, ACTION_REMOVE_DESKTOP_WALLPAPER);
@@ -561,47 +579,147 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
     }
 
     private void showDesktopMenu() {
+        showDesktopMenu(-1);
+    }
+
+    /** @param slotIndex the empty slot that was pressed, or -1 when there is no specific spot */
+    private void showDesktopMenu(int slotIndex) {
+        pendingSlotIndex = slotIndex;
+        final float pointerX = slotIndex >= 0 ? lastTouchX : -1;
+        final float pointerY = slotIndex >= 0 ? lastTouchY : -1;
+
         CharSequence[] items = {
                 "Add app shortcut",
                 "Add file shortcut",
                 "Add folder shortcut",
+                getString(R.string.tb_add_emoji),
                 getString(R.string.tb_add_widget),
-                "Taskbar appearance",
-                "All settings",
-                getString(R.string.tb_set_wallpaper)
+                getString(R.string.tb_set_wallpaper),
+                "Taskbar settings"
         };
 
         new AlertDialog.Builder(this)
                 .setItems(items, (dialog, which) -> {
+                    switch(which) {
+                        case 0:
+                            addAppShortcut(slotIndex);
+                            break;
+                        case 1:
+                        case 2:
+                            openDesktopDocumentPicker(which == 2);
+                            break;
+                        case 3:
+                            addEmojiShortcut(slotIndex);
+                            break;
+                        case 4:
+                            desktopWidgets.startAddWidget(pointerX, pointerY);
+                            break;
+                        case 5:
+                            setWallpaper();
+                            break;
+                        default:
+                            U.openSettingsWindow(this);
+                            break;
+                    }
+                })
+                .show();
+    }
+
+    /** The preferred slot if it is free, otherwise the first free slot, otherwise null. */
+    private DesktopIconInfo findFreeSlot(int preferredIndex) throws org.json.JSONException {
+        if(desktopIcons == null) return null;
+
+        SharedPreferences pref = U.getSharedPreferences(this);
+        JSONArray apps = new JSONArray(pref.getString(PREF_DESKTOP_ICONS, "[]"));
+        JSONArray documents = new JSONArray(pref.getString("andesk_documents", "[]"));
+
+        if(preferredIndex >= 0 && preferredIndex < desktopIcons.getChildCount()) {
+            DesktopIconInfo slot = getDesktopIconInfo(preferredIndex);
+            if(!isOccupied(apps, slot) && !isOccupied(documents, slot))
+                return slot;
+        }
+
+        for(int i = 0; i < desktopIcons.getChildCount(); i++) {
+            DesktopIconInfo slot = getDesktopIconInfo(i);
+            if(!isOccupied(apps, slot) && !isOccupied(documents, slot))
+                return slot;
+        }
+
+        return null;
+    }
+
+    private void addAppShortcut(int slotIndex) {
+        try {
+            DesktopIconInfo slot = findFreeSlot(slotIndex);
+            if(slot == null) {
+                android.widget.Toast.makeText(this, "The desktop is full", android.widget.Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            Intent picker = U.getThemedIntent(this, DesktopIconSelectAppActivity.class);
+            picker.putExtra("desktop_icon", slot);
+            startActivity(picker);
+        } catch(org.json.JSONException e) {
+            android.util.Log.w("Andesk", "Unable to read desktop shortcuts", e);
+        }
+    }
+
+    private void addEmojiShortcut(int slotIndex) {
+        EmojiPickerDialog.show(this, true, (emoji, label) -> {
+            try {
+                DesktopIconInfo slot = findFreeSlot(slotIndex);
+                if(slot == null) {
+                    android.widget.Toast.makeText(this, "The desktop is full", android.widget.Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                SharedPreferences pref = U.getSharedPreferences(this);
+                JSONArray documents = new JSONArray(pref.getString("andesk_documents", "[]"));
+                org.json.JSONObject item = new org.json.JSONObject();
+                item.put("column", slot.column);
+                item.put("row", slot.row);
+                item.put("emoji", emoji);
+                item.put("title", label);
+                documents.put(item);
+                pref.edit().putString("andesk_documents", documents.toString()).apply();
+                refreshDesktopIcons();
+            } catch(org.json.JSONException e) {
+                android.util.Log.w("Andesk", "Cannot save emoji shortcut", e);
+            }
+        });
+    }
+
+    /** Lets the user replace an icon with an emoji or an image, or restore the original. */
+    private void showChangeIconDialog(String key) {
+        if(key == null) return;
+
+        CharSequence[] items = {
+                getString(R.string.tb_icon_emoji),
+                getString(R.string.tb_icon_image),
+                getString(R.string.tb_icon_reset)
+        };
+
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.tb_change_icon)
+                .setItems(items, (dialog, which) -> {
                     if(which == 0) {
-                        if(desktopIcons != null) {
-                            try {
-                                org.json.JSONArray icons = new org.json.JSONArray(U.getSharedPreferences(this).getString(PREF_DESKTOP_ICONS, "[]"));
-                                org.json.JSONArray documents = new org.json.JSONArray(
-                                        U.getSharedPreferences(this).getString("andesk_documents", "[]"));
-                                for(int i = 0; i < desktopIcons.getChildCount(); i++) {
-                                    DesktopIconInfo info = getDesktopIconInfo(i);
-                                    if(!isOccupied(icons, info) && !isOccupied(documents, info)) {
-                                        Intent picker = U.getThemedIntent(this, DesktopIconSelectAppActivity.class);
-                                        picker.putExtra("desktop_icon", info);
-                                        startActivity(picker);
-                                        break;
-                                    }
-                                }
-                            } catch(org.json.JSONException e) {
-                                android.util.Log.w("Andesk", "Unable to read desktop shortcuts", e);
-                            }
+                        EmojiPickerDialog.show(this, false, (emoji, label) -> {
+                            IconOverrides.setEmoji(this, key, emoji);
+                            refreshDesktopIcons();
+                        });
+                    } else if(which == 1) {
+                        pendingIconKey = key;
+                        Intent picker = new Intent(Intent.ACTION_GET_CONTENT);
+                        picker.setType("image/*");
+                        picker.addCategory(Intent.CATEGORY_OPENABLE);
+                        try {
+                            startActivityForResult(picker, REQUEST_ICON_IMAGE);
+                        } catch(ActivityNotFoundException error) {
+                            android.util.Log.w("Andesk", "No image picker available", error);
                         }
-                    } else if(which == 1 || which == 2) {
-                        openDesktopDocumentPicker(which == 2);
-                    } else if(which == 3)
-                        desktopWidgets.startAddWidget();
-                    else if(which == 6)
-                        setWallpaper();
-                    else {
-                        Intent appearance = new Intent(this, MainActivity.class);
-                        appearance.putExtra("theme_change", which == 4);
-                        startActivity(appearance);
+                    } else {
+                        IconOverrides.clear(this, key);
+                        refreshDesktopIcons();
                     }
                 })
                 .show();
@@ -870,6 +988,7 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
         }
 
         floatingTaskbar = true;
+        applyDesktopFocusability();
         U.sendBroadcast(this, ACTION_DESKTOP_TASKBAR_EXPAND);
 
         // Some devices reject overlay windows after the service starts. Fall back to the
@@ -885,8 +1004,21 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
         return true;
     }
 
+    /**
+     * With freeform windows open above the desktop, touching a focusable desktop makes Android
+     * raise its (full screen) task over every window. A non-focusable but touchable desktop
+     * window keeps the task where it is, like a wallpaper.
+     */
+    private void applyDesktopFocusability() {
+        if(floatingTaskbar)
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
+        else
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
+    }
+
     private void stopFloatingTaskbar() {
         floatingTaskbar = false;
+        applyDesktopFocusability();
         stopService(new Intent(this, TaskbarService.class));
         stopService(new Intent(this, StartMenuService.class));
         stopService(new Intent(this, NotificationService.class));
@@ -992,6 +1124,7 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
 
         if(isDesktopLauncher) {
             U.unregisterReceiver(this, exitDesktopReceiver);
+            U.unregisterReceiver(this, changeIconReceiver);
 
             // A finished activity is a closed session; do not stop on rotation.
             if(isFinishing() && !isChangingConfigurations())
@@ -1049,7 +1182,7 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
             }
 
             if(keyCode == KeyEvent.KEYCODE_S && event.isCtrlPressed() && event.isAltPressed()) {
-                startActivity(new Intent(this, MainActivity.class));
+                U.openSettingsWindow(this);
                 return true;
             }
             if(keyCode == KeyEvent.KEYCODE_F10 && event.isShiftPressed()) {
@@ -1155,6 +1288,7 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
     private void stopDesktopSession() {
         destroyDesktopControllers();
         floatingTaskbar = false;
+        applyDesktopFocusability();
         LauncherHelper.getInstance().setDesktopLauncherOpen(false);
 
         DesktopSessionState.close(this);
@@ -1176,13 +1310,24 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
         if(isDesktopLauncher) {
             // The real desktop must always remain touchable. The upstream
             // freeform touch absorber is unrelated to this on-screen host.
-            getWindow().clearFlags(flags);
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+            applyDesktopFocusability();
             return;
         }
         if(FreeformHackHelper.getInstance().isTouchAbsorberActive() && U.isOverridingFreeformHack(this))
             getWindow().setFlags(flags, flags);
         else
             getWindow().clearFlags(flags);
+    }
+
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        if(ev.getActionMasked() == MotionEvent.ACTION_DOWN) {
+            lastTouchX = ev.getRawX();
+            lastTouchY = ev.getRawY();
+        }
+
+        return super.dispatchTouchEvent(ev);
     }
 
     @Override
@@ -1219,6 +1364,68 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
                 view.setLayoutParams(params.toFrameLayoutParams());
         } else
             windowManager.updateViewLayout(view, params.toWindowManagerParams());
+    }
+
+    private int iconSizePx() {
+        return Math.max(1, getResources().getDimensionPixelSize(R.dimen.tb_icon_size));
+    }
+
+    /** Builds a desktop item for a file, folder or emoji shortcut, styled like app icons. */
+    private View createDocumentView(ViewGroup parent, org.json.JSONObject document, int index) {
+        SharedPreferences pref = U.getSharedPreferences(this);
+        boolean isEmoji = document.has("emoji");
+        View item = LayoutInflater.from(this).inflate(R.layout.tb_row_alt, parent, false);
+
+        TextView textView = item.findViewById(R.id.name);
+        String title = document.optString("title", isEmoji ? "" : "Shortcut");
+        textView.setText(pref.getBoolean(PREF_HIDE_ICON_LABELS, false) ? "" : title);
+        textView.setTextColor(ContextCompat.getColor(this, R.color.tb_desktop_icon_text));
+        textView.setShadowLayer(10, 0, 0, R.color.tb_desktop_icon_shadow);
+
+        Drawable icon;
+        if(isEmoji) {
+            icon = IconOverrides.emojiDrawable(this, document.optString("emoji"), iconSizePx());
+        } else {
+            icon = IconOverrides.getDrawable(this,
+                    IconOverrides.documentKey(document.optString("uri")), iconSizePx());
+            if(icon == null) {
+                icon = ContextCompat.getDrawable(this, document.optBoolean("folder")
+                        ? R.drawable.tb_desktop_folder
+                        : R.drawable.tb_desktop_file);
+            }
+        }
+        ((ImageView) item.findViewById(R.id.icon)).setImageDrawable(icon);
+
+        item.setOnTouchListener(new DesktopIconTouchListener());
+        item.setOnClickListener(v -> {
+            U.sendBroadcast(this, ACTION_HIDE_START_MENU);
+            if(isEmoji)
+                showDocumentShortcutMenu(document);
+            else
+                openDocumentShortcut(document);
+        });
+        item.setOnLongClickListener(v -> {
+            if(!isDesktopLauncher) {
+                showDocumentShortcutMenu(document);
+                return true;
+            }
+
+            // Like app icons: press and hold to drag, release in place for the menu.
+            startDragIndex = index;
+            v.startDrag(ClipData.newPlainText("", ""), new View.DragShadowBuilder(v), v, 0);
+            v.setVisibility(View.INVISIBLE);
+            return true;
+        });
+        item.setOnGenericMotionListener((v, motion) -> {
+            if(motion.getAction() == MotionEvent.ACTION_BUTTON_PRESS
+                    && (motion.getButtonState() & MotionEvent.BUTTON_SECONDARY) != 0) {
+                showDocumentShortcutMenu(document);
+                return true;
+            }
+            return false;
+        });
+
+        return item;
     }
 
     private void initDesktopIcons() {
@@ -1338,7 +1545,7 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
             iconContainer.setOnLongClickListener(view -> {
                 DesktopIconInfo info = icons.get(index);
                 if(isDesktopLauncher && (info == null || info.entry == null)) {
-                    showDesktopMenu();
+                    showDesktopMenu(index);
                     return true;
                 }
 
@@ -1371,7 +1578,7 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
 
                     DesktopIconInfo info = icons.get(index);
                     if(isDesktopLauncher && (info == null || info.entry == null)) {
-                        showDesktopMenu();
+                        showDesktopMenu(index);
                         return true;
                     }
                     if(info == null) info = getDesktopIconInfo(index);
@@ -1401,22 +1608,7 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
                     if(document == null) continue;
                     DesktopIconInfo slot = getDesktopIconInfo(index);
                     if(document.optInt("column", -1) == slot.column && document.optInt("row", -1) == slot.row) {
-                        TextView shortcutView = new TextView(this);
-                        shortcutView.setText((document.optBoolean("folder") ? "📁 " : "📄 ") + document.optString("title", "Shortcut"));
-                        shortcutView.setTextColor(Color.WHITE);
-                        shortcutView.setOnClickListener(v -> openDocumentShortcut(document));
-                        shortcutView.setOnLongClickListener(v -> {
-                            showDocumentShortcutMenu(document);
-                            return true;
-                        });
-                        shortcutView.setOnGenericMotionListener((v, motion) -> {
-                            if(motion.getAction() == MotionEvent.ACTION_BUTTON_PRESS
-                                    && (motion.getButtonState() & MotionEvent.BUTTON_SECONDARY) != 0) {
-                                showDocumentShortcutMenu(document);
-                                return true;
-                            }
-                            return false;
-                        });
+                        View shortcutView = createDocumentView(iconContainer, document, index);
                         iconContainer.addView(shortcutView);
                         break;
                     }
@@ -1468,44 +1660,40 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
 
         try {
             SharedPreferences pref = U.getSharedPreferences(this);
-            JSONArray jsonIcons = new JSONArray(pref.getString(PREF_DESKTOP_ICONS, "[]"));
+            JSONArray apps = new JSONArray(pref.getString(PREF_DESKTOP_ICONS, "[]"));
             JSONArray documents = new JSONArray(pref.getString("andesk_documents", "[]"));
             DesktopIconInfo oldSlot = getDesktopIconInfo(startDragIndex);
             DesktopIconInfo newSlot = getDesktopIconInfo(endDragIndex);
 
-            if(isOccupied(documents, newSlot)) return;
+            // Apps, files, folders and emoji all move the same way: swap with whatever is there.
+            org.json.JSONObject source = itemAt(apps, oldSlot);
+            if(source == null) source = itemAt(documents, oldSlot);
+            if(source == null) return;
 
-            int sourceIndex = -1;
-            int targetIndex = -1;
-            DesktopIconInfo source = null;
-            DesktopIconInfo target = null;
+            org.json.JSONObject target = itemAt(apps, newSlot);
+            if(target == null) target = itemAt(documents, newSlot);
 
-            for(int i = 0; i < jsonIcons.length(); i++) {
-                DesktopIconInfo info = DesktopIconInfo.fromJson(jsonIcons.getJSONObject(i));
-                if(info == null) continue;
-                if(info.column == oldSlot.column && info.row == oldSlot.row) {
-                    sourceIndex = i;
-                    source = info;
-                } else if(info.column == newSlot.column && info.row == newSlot.row) {
-                    targetIndex = i;
-                    target = info;
-                }
+            source.put("column", newSlot.column);
+            source.put("row", newSlot.row);
+            if(target != null) {
+                target.put("column", oldSlot.column);
+                target.put("row", oldSlot.row);
             }
 
-            if(sourceIndex < 0 || source == null) return;
-
-            source.column = newSlot.column;
-            source.row = newSlot.row;
-            jsonIcons.put(sourceIndex, source.toJson(this));
-
-            if(targetIndex >= 0 && target != null) {
-                target.column = oldSlot.column;
-                target.row = oldSlot.row;
-                jsonIcons.put(targetIndex, target.toJson(this));
-            }
-
-            pref.edit().putString(PREF_DESKTOP_ICONS, jsonIcons.toString()).apply();
+            pref.edit()
+                    .putString(PREF_DESKTOP_ICONS, apps.toString())
+                    .putString("andesk_documents", documents.toString())
+                    .apply();
         } catch (JSONException ignored) {}
+    }
+
+    private org.json.JSONObject itemAt(JSONArray list, DesktopIconInfo slot) throws JSONException {
+        for(int i = 0; i < list.length(); i++) {
+            org.json.JSONObject item = list.getJSONObject(i);
+            if(item.optInt("column", -1) == slot.column && item.optInt("row", -1) == slot.row)
+                return item;
+        }
+        return null;
     }
 
     private void enterIconArrangeMode() {
@@ -1531,15 +1719,18 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
         String position = TaskbarPosition.getTaskbarPosition(this);
         int iconSize = U.getTaskbarIconSize(this);
 
+        // Floating docks leave a gap to the edge and have inner padding; keep icons clear of both.
+        int thickness = iconSize + U.getTaskbarExtraThickness(this);
+
         int[] margins = new int[4];
         if(TaskbarPosition.isVerticalLeft(position))
-            margins[0] = iconSize;
+            margins[0] = thickness;
         else if(TaskbarPosition.isVerticalRight(position))
-            margins[2] = iconSize;
+            margins[2] = thickness;
         else if(TaskbarPosition.isBottom(position))
-            margins[3] = iconSize;
+            margins[3] = thickness;
         else
-            margins[1] = iconSize;
+            margins[1] = thickness;
 
         return margins;
     }
@@ -1610,7 +1801,9 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
         textView.setShadowLayer(10, 0, 0, R.color.tb_desktop_icon_shadow);
 
         ImageView imageView = icon.findViewById(R.id.icon);
-        imageView.setImageDrawable(entry.getIcon(this));
+        Drawable custom = IconOverrides.getDrawable(this,
+                IconOverrides.appKey(entry.getComponentName()), iconSizePx());
+        imageView.setImageDrawable(custom != null ? custom : entry.getIcon(this));
 
         icon.setOnTouchListener(new DesktopIconTouchListener());
         return icon;
@@ -1644,6 +1837,11 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
                     return;
                 }
             }
+
+            org.json.JSONObject document = itemAt(new JSONArray(
+                    U.getSharedPreferences(this).getString("andesk_documents", "[]")), slot);
+            if(document != null)
+                showDocumentShortcutMenu(document);
         } catch(JSONException e) {
             android.util.Log.w("Andesk", "Unable to read desktop shortcuts", e);
         }
@@ -1751,11 +1949,10 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
         if(desktopIcons == null) return;
         try {
             SharedPreferences pref = U.getSharedPreferences(this);
-            JSONArray apps = new JSONArray(pref.getString(PREF_DESKTOP_ICONS, "[]"));
             JSONArray documents = new JSONArray(pref.getString("andesk_documents", "[]"));
-            for(int index = 0; index < desktopIcons.getChildCount(); index++) {
-                DesktopIconInfo slot = getDesktopIconInfo(index);
-                if(isOccupied(apps, slot) || isOccupied(documents, slot)) continue;
+            DesktopIconInfo slot = findFreeSlot(pendingSlotIndex);
+            pendingSlotIndex = -1;
+            if(slot != null) {
                 String title = uri.getLastPathSegment();
                 if(!folder) {
                     try(android.database.Cursor cursor = getContentResolver().query(uri, null, null, null, null)) {
@@ -1774,7 +1971,8 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
                 documents.put(document);
                 pref.edit().putString("andesk_documents", documents.toString()).apply();
                 refreshDesktopIcons();
-                return;
+            } else {
+                android.widget.Toast.makeText(this, "The desktop is full", android.widget.Toast.LENGTH_SHORT).show();
             }
         } catch(Exception error) { android.util.Log.w("Andesk", "Cannot save document shortcut", error); }
     }
@@ -1789,21 +1987,40 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
     }
 
     private void showDocumentShortcutMenu(org.json.JSONObject shortcut) {
+        boolean isEmoji = shortcut.has("emoji");
+        String[] items = isEmoji
+                ? new String[] {"Rename", "Change emoji", "Remove from desktop"}
+                : new String[] {"Open", "Open with", "Share file", "Details", "Rename shortcut",
+                        getString(R.string.tb_change_icon), "Remove shortcut"};
+
         new AlertDialog.Builder(this).setTitle(shortcut.optString("title", "Shortcut"))
-                .setItems(new String[] {"Open", "Open with", "Share file", "Details", "Rename shortcut", "Remove shortcut"}, (dialog, selected) -> {
-                    if(selected == 0) openDocumentShortcut(shortcut);
-                    if(selected == 1) openDocumentWithChooser(shortcut);
-                    if(selected == 2) shareDocumentShortcut(shortcut);
-                    if(selected == 3) showDocumentDetails(shortcut);
-                    if(selected == 4) {
+                .setItems(items, (dialog, selected) -> {
+                    String choice = items[selected];
+                    if(choice.equals("Open")) openDocumentShortcut(shortcut);
+                    else if(choice.equals("Open with")) openDocumentWithChooser(shortcut);
+                    else if(choice.equals("Share file")) shareDocumentShortcut(shortcut);
+                    else if(choice.equals("Details")) showDocumentDetails(shortcut);
+                    else if(choice.startsWith("Rename")) {
                         android.widget.EditText name = new android.widget.EditText(this);
                         name.setSingleLine(true);
-                        name.setText(shortcut.optString("title", "Shortcut"));
+                        name.setText(shortcut.optString("title", ""));
                         new AlertDialog.Builder(this).setTitle("Rename shortcut").setView(name)
                                 .setPositiveButton("Save", (d, w) -> modifyDocumentShortcut(shortcut, name.getText().toString(), false))
                                 .setNegativeButton("Cancel", null).show();
                     }
-                    if(selected == 5) modifyDocumentShortcut(shortcut, null, true);
+                    else if(choice.equals("Change emoji")) {
+                        EmojiPickerDialog.show(this, false, (emoji, label) -> {
+                            try {
+                                shortcut.put("emoji", emoji);
+                                modifyDocumentShortcut(shortcut, shortcut.optString("title", ""), false);
+                            } catch(JSONException e) {
+                                android.util.Log.w("Andesk", "Unable to change emoji", e);
+                            }
+                        });
+                    }
+                    else if(choice.equals(getString(R.string.tb_change_icon)))
+                        showChangeIconDialog(IconOverrides.documentKey(shortcut.optString("uri")));
+                    else modifyDocumentShortcut(shortcut, null, true);
                 }).show();
     }
 
@@ -1854,6 +2071,7 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
                         && item.optInt("row") == shortcut.optInt("row")) {
                     if(remove) continue;
                     item.put("title", title);
+                    if(shortcut.has("emoji")) item.put("emoji", shortcut.optString("emoji"));
                 }
                 updated.put(item);
             }
@@ -1939,6 +2157,15 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
 
         if(resultCode != RESULT_OK)
             return;
+        if(requestCode == REQUEST_ICON_IMAGE) {
+            if(data != null && data.getData() != null && pendingIconKey != null) {
+                if(!IconOverrides.setImage(this, pendingIconKey, data.getData()))
+                    android.widget.Toast.makeText(this, "That image could not be used", android.widget.Toast.LENGTH_SHORT).show();
+                refreshDesktopIcons();
+            }
+            pendingIconKey = null;
+            return;
+        }
         if(requestCode == 9101 || requestCode == 9102) {
             if(data != null && data.getData() != null) saveDocumentShortcut(data.getData(), requestCode == 9102, data.getFlags());
             return;

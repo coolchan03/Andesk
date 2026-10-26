@@ -108,4 +108,71 @@ class TaskbarStyleTest {
         ).apply()
         Assert.assertEquals(Math.round(72 * density), U.getTaskbarIconSize(context))
     }
+
+    @Test
+    fun testMacosDockIsAFloatingCenteredRoundedDock() {
+        U.getSharedPreferences(context).edit()
+            .putString(Constants.PREF_TASKBAR_STYLE, Constants.PREF_TASKBAR_STYLE_MACOS)
+            .putBoolean(Constants.PREF_FULL_LENGTH, true)
+            .apply()
+
+        Assert.assertTrue(U.isDockTaskbarStyle(context))
+        Assert.assertFalse("A dock only spans its icons", U.isTaskbarFullLength(context))
+        Assert.assertTrue(U.isTaskbarCentered(context))
+        Assert.assertTrue(U.getTaskbarCornerRadius(context) > 0)
+        Assert.assertTrue(U.getTaskbarExtraThickness(context) > 0)
+        Assert.assertTrue(
+            "The macOS dock is translucent",
+            Color.alpha(U.getTaskbarBackgroundColor(context)) in 1..254,
+        )
+    }
+
+    @Test
+    fun testGnomeDockIsTranslucentAndDark() {
+        U.getSharedPreferences(context).edit()
+            .putString(Constants.PREF_TASKBAR_STYLE, Constants.PREF_TASKBAR_STYLE_GNOME)
+            .apply()
+
+        Assert.assertTrue(U.isDockTaskbarStyle(context))
+        Assert.assertTrue(U.isDarkBackground(U.getTaskbarBackgroundColor(context)))
+        Assert.assertEquals(Color.WHITE, U.getTaskbarAccentColor(context))
+    }
+
+    @Test
+    fun testChromeOsShelfAndKdePanelAreFullLengthWithoutADock() {
+        for (style in listOf(
+            Constants.PREF_TASKBAR_STYLE_CHROMEOS,
+            Constants.PREF_TASKBAR_STYLE_KDE,
+        )) {
+            U.getSharedPreferences(context).edit()
+                .putString(Constants.PREF_TASKBAR_STYLE, style)
+                .putBoolean(Constants.PREF_FULL_LENGTH, false)
+                .apply()
+
+            Assert.assertFalse(U.isDockTaskbarStyle(context))
+            Assert.assertTrue(style, U.isTaskbarFullLength(context))
+            Assert.assertEquals(0, U.getTaskbarExtraThickness(context).toLong())
+        }
+
+        U.getSharedPreferences(context).edit()
+            .putString(Constants.PREF_TASKBAR_STYLE, Constants.PREF_TASKBAR_STYLE_CHROMEOS)
+            .apply()
+        Assert.assertTrue(U.isTaskbarCentered(context))
+
+        U.getSharedPreferences(context).edit()
+            .putString(Constants.PREF_TASKBAR_STYLE, Constants.PREF_TASKBAR_STYLE_KDE)
+            .apply()
+        Assert.assertFalse(U.isTaskbarCentered(context))
+    }
+
+    @Test
+    fun testExplicitColorsStillOverrideNewPresets() {
+        val background = Color.argb(99, 9, 8, 7)
+        U.getSharedPreferences(context).edit()
+            .putString(Constants.PREF_TASKBAR_STYLE, Constants.PREF_TASKBAR_STYLE_MACOS)
+            .putInt(Constants.PREF_BACKGROUND_TINT, background)
+            .apply()
+
+        Assert.assertEquals(background, U.getTaskbarBackgroundColor(context))
+    }
 }

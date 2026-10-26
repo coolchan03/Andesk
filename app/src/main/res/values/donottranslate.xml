@@ -53,6 +53,10 @@
         <item>windows7</item>
         <item>windows10</item>
         <item>windows11</item>
+        <item>macos</item>
+        <item>chromeos</item>
+        <item>gnome</item>
+        <item>kde</item>
     </string-array>
     <string-array name="tb_pref_taskbar_size_values">
         <item>compact</item>

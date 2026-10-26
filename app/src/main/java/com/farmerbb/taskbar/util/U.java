@@ -1878,15 +1878,60 @@ public class U {
                 || isWindows10TaskbarStyle(context) || isWindows11TaskbarStyle(context);
     }
 
+    /** macOS- and GNOME-like presets are floating, rounded docks that only span their icons. */
+    public static boolean isDockTaskbarStyle(Context context) {
+        String style = getTaskbarStyle(context);
+        return PREF_TASKBAR_STYLE_MACOS.equals(style) || PREF_TASKBAR_STYLE_GNOME.equals(style);
+    }
+
+    public static boolean isDarkBackground(int color) {
+        return androidx.core.graphics.ColorUtils.calculateLuminance(
+                androidx.core.graphics.ColorUtils.setAlphaComponent(color, 255)) < 0.5;
+    }
+
+    /** Corner radius of a floating dock, in pixels (0 for other styles). */
+    public static int getTaskbarCornerRadius(Context context) {
+        return isDockTaskbarStyle(context)
+                ? Math.round(18 * context.getResources().getDisplayMetrics().density)
+                : 0;
+    }
+
+    /** Gap between a floating dock and the screen edge, in pixels (0 for other styles). */
+    public static int getTaskbarEdgeMargin(Context context) {
+        return isDockTaskbarStyle(context)
+                ? Math.round(8 * context.getResources().getDisplayMetrics().density)
+                : 0;
+    }
+
+    /** Padding inside a floating dock, in pixels (0 for other styles). */
+    public static int getTaskbarDockPadding(Context context) {
+        return isDockTaskbarStyle(context)
+                ? Math.round(6 * context.getResources().getDisplayMetrics().density)
+                : 0;
+    }
+
+    /** Extra space the taskbar occupies beyond its icons (floating margin and padding). */
+    public static int getTaskbarExtraThickness(Context context) {
+        return getTaskbarEdgeMargin(context) + 2 * getTaskbarDockPadding(context);
+    }
+
     public static boolean isTaskbarFullLength(Context context) {
+        String style = getTaskbarStyle(context);
+        if(isDockTaskbarStyle(context))
+            return false;
+
         return isWindowsTaskbarStyle(context)
+                || PREF_TASKBAR_STYLE_CHROMEOS.equals(style)
+                || PREF_TASKBAR_STYLE_KDE.equals(style)
                 || getSharedPreferences(context).getBoolean(PREF_FULL_LENGTH, true);
     }
 
     public static boolean isTaskbarCentered(Context context) {
-        if(isWindows10TaskbarStyle(context))
+        String style = getTaskbarStyle(context);
+        if(isWindows10TaskbarStyle(context) || PREF_TASKBAR_STYLE_KDE.equals(style))
             return false;
-        if(isWindows11TaskbarStyle(context))
+        if(isWindows11TaskbarStyle(context) || isDockTaskbarStyle(context)
+                || PREF_TASKBAR_STYLE_CHROMEOS.equals(style))
             return true;
 
         return getSharedPreferences(context).getBoolean(PREF_CENTERED_ICONS, false);
@@ -1903,10 +1948,31 @@ public class U {
         if(isWindows11TaskbarStyle(context))
             return Color.argb(232, 32, 32, 32);
 
+        switch(getTaskbarStyle(context)) {
+            case PREF_TASKBAR_STYLE_MACOS:
+                return Color.argb(150, 242, 242, 247);
+            case PREF_TASKBAR_STYLE_CHROMEOS:
+                return Color.argb(235, 32, 33, 36);
+            case PREF_TASKBAR_STYLE_GNOME:
+                return Color.argb(205, 46, 52, 54);
+            case PREF_TASKBAR_STYLE_KDE:
+                return Color.argb(235, 27, 30, 32);
+        }
+
         return getBackgroundTint(context);
     }
 
     public static int getTaskbarAccentColor(Context context) {
+        switch(getTaskbarStyle(context)) {
+            case PREF_TASKBAR_STYLE_MACOS:
+                return Color.rgb(58, 58, 60);
+            case PREF_TASKBAR_STYLE_KDE:
+                return Color.rgb(61, 174, 233);
+            case PREF_TASKBAR_STYLE_CHROMEOS:
+            case PREF_TASKBAR_STYLE_GNOME:
+                return Color.WHITE;
+        }
+
         return isWindowsTaskbarStyle(context) ? Color.WHITE : getAccentColor(context);
     }
 
@@ -2325,55 +2391,78 @@ public class U {
             "com.android.BBKClock"
     };
 
-    private static Intent resolvable(Context context, Intent intent) {
-        if(intent == null) return null;
-        try {
-            return intent.resolveActivity(context.getPackageManager()) != null ? intent : null;
-        } catch(RuntimeException e) {
-            return null;
+    /**
+     * Launches an app exactly like a taskbar icon does (same window size, freeform workspace and
+     * launch flags), so it opens as a window in freeform mode instead of full screen.
+     */
+    private static boolean launchExternalApp(Context context, Intent intent) {
+        PackageManager pm = context.getPackageManager();
+
+        ComponentName component = intent.getComponent();
+        if(component == null) {
+            ComponentName resolved = intent.resolveActivity(pm);
+            if(resolved == null) return false;
+
+            // Open the app's regular launcher activity; the resolved one may not be exported
+            // for MAIN/LAUNCHER launches.
+            Intent launcher = pm.getLaunchIntentForPackage(resolved.getPackageName());
+            component = launcher != null && launcher.getComponent() != null
+                    ? launcher.getComponent()
+                    : resolved;
         }
+
+        String label = component.getPackageName();
+        Drawable icon = null;
+        try {
+            ActivityInfo info = pm.getActivityInfo(component, 0);
+            label = String.valueOf(info.loadLabel(pm));
+            icon = info.loadIcon(pm);
+        } catch(PackageManager.NameNotFoundException | RuntimeException e) {
+            Log.w("Andesk", "No launcher info for " + component, e);
+        }
+
+        AppEntry entry = new AppEntry(
+                component.getPackageName(), component.flattenToString(), label, icon, false);
+        UserManager userManager = (UserManager) context.getSystemService(Context.USER_SERVICE);
+        entry.setUserId(userManager.getSerialNumberForUser(Process.myUserHandle()));
+
+        launchApp(context.getApplicationContext(), entry, null, true, false, null);
+        return true;
     }
 
-    /** Launches another app the same way as taskbar apps, i.e. windowed in freeform mode. */
-    private static void launchExternalApp(Context context, Intent intent) {
-        Context appContext = context.getApplicationContext();
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        launchApp(appContext, () -> {
-            Bundle options = getActivityOptionsBundle(appContext, ApplicationType.APP_PORTRAIT, null);
-            try {
-                appContext.startActivity(intent, options);
-            } catch(ActivityNotFoundException | SecurityException | IllegalArgumentException e) {
-                Log.w("Andesk", "Unable to open " + intent, e);
-            }
-        });
+    /** Opens Andesk's own settings the way other taskbar apps open, i.e. windowed in freeform. */
+    public static void openSettingsWindow(Context context) {
+        if(!launchExternalApp(context, new Intent(context, MainActivity.class))) {
+            Intent intent = new Intent(context, MainActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(intent);
+        }
     }
 
     /** Opens the device's Clock app; not every Clock app handles ACTION_SHOW_ALARMS. */
     public static boolean openClockApp(Context context) {
-        Intent intent = resolvable(context, new Intent(android.provider.AlarmClock.ACTION_SHOW_ALARMS));
+        if(launchExternalApp(context, new Intent(android.provider.AlarmClock.ACTION_SHOW_ALARMS)))
+            return true;
 
         PackageManager pm = context.getPackageManager();
-        for(int i = 0; intent == null && i < CLOCK_PACKAGES.length; i++)
-            intent = pm.getLaunchIntentForPackage(CLOCK_PACKAGES[i]);
-
-        if(intent == null) return false;
-        launchExternalApp(context, intent);
-        return true;
+        for(String packageName : CLOCK_PACKAGES) {
+            Intent launcher = pm.getLaunchIntentForPackage(packageName);
+            if(launcher != null && launchExternalApp(context, launcher))
+                return true;
+        }
+        return false;
     }
 
-    /** Opens the device's Calendar app at the given time, or its main screen as a fallback. */
+    /** Opens the device's Calendar app, falling back to any app registered as the calendar. */
     public static boolean openCalendarApp(Context context, long timeMillis) {
         Uri uri = android.provider.CalendarContract.CONTENT_URI.buildUpon()
                 .appendPath("time")
                 .appendPath(Long.toString(timeMillis))
                 .build();
-        Intent intent = resolvable(context, new Intent(Intent.ACTION_VIEW, uri));
-        if(intent == null)
-            intent = resolvable(context, Intent.makeMainSelectorActivity(
-                    Intent.ACTION_MAIN, Intent.CATEGORY_APP_CALENDAR));
+        if(launchExternalApp(context, new Intent(Intent.ACTION_VIEW, uri)))
+            return true;
 
-        if(intent == null) return false;
-        launchExternalApp(context, intent);
-        return true;
+        return launchExternalApp(context,
+                Intent.makeMainSelectorActivity(Intent.ACTION_MAIN, Intent.CATEGORY_APP_CALENDAR));
     }
 }

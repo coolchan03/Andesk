@@ -198,6 +198,18 @@ public class StartMenuController extends UIController {
         layout = (StartMenuLayout) LayoutInflater.from(U.wrapContext(context)).inflate(layoutId, null);
         layout.setAlpha(0);
 
+        // Keep the menu clear of the taskbar, including a floating dock's gap and padding.
+        View menuSpace = layout.findViewById(R.id.start_menu_space);
+        if(menuSpace != null) {
+            ViewGroup.LayoutParams spaceParams = menuSpace.getLayoutParams();
+            int thickness = U.getTaskbarIconSize(context) + U.getTaskbarExtraThickness(context);
+            if(TaskbarPosition.isVertical(taskbarPosition))
+                spaceParams.width = thickness;
+            else
+                spaceParams.height = thickness;
+            menuSpace.setLayoutParams(spaceParams);
+        }
+
         startMenu = layout.findViewById(R.id.start_menu);
 
         if((shouldShowSearchBox && !hasHardwareKeyboard) || Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP_MR1)
