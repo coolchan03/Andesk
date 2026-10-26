@@ -67,7 +67,11 @@ class SystemTrayActivityTest {
         val application = ApplicationProvider.getApplicationContext<Application>()
         val started = Shadows.shadowOf(application).nextStartedActivity
         Assert.assertNotNull("Tapping the date must open a calendar app", started)
-        Assert.assertEquals(Intent.ACTION_VIEW, started.action)
+        Assert.assertEquals(
+            "The calendar must launch like a taskbar app (so it can be a freeform window)",
+            calendarApp,
+            started.component,
+        )
     }
 
     @Test
