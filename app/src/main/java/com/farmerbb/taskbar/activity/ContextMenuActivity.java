@@ -53,6 +53,7 @@ import com.farmerbb.taskbar.helper.FreeformHackHelper;
 import com.farmerbb.taskbar.util.IconCache;
 import com.farmerbb.taskbar.helper.LauncherHelper;
 import com.farmerbb.taskbar.helper.MenuHelper;
+import com.farmerbb.taskbar.util.IconOverrides;
 import com.farmerbb.taskbar.util.PinnedBlockedApps;
 import com.farmerbb.taskbar.util.SavedWindowSizes;
 import com.farmerbb.taskbar.util.U;
@@ -349,6 +350,7 @@ public class ContextMenuActivity extends PreferenceActivity implements Preferenc
                 addPreferencesFromResource(R.xml.tb_pref_context_menu_remove_desktop_icon);
                 findPreference(PREF_ARRANGE_ICONS).setOnPreferenceClickListener(this);
                 findPreference(PREF_REMOVE_DESKTOP_ICON).setOnPreferenceClickListener(this);
+                findPreference(PREF_CHANGE_DESKTOP_ICON).setOnPreferenceClickListener(this);
             } else if(!entry.getPackageName().contains(BuildConfig.BASE_APPLICATION_ID)
                     && !entry.getPackageName().equals(defaultLauncher.activityInfo.packageName)) {
                 PinnedBlockedApps pba = PinnedBlockedApps.getInstance(this);
@@ -357,6 +359,17 @@ public class ContextMenuActivity extends PreferenceActivity implements Preferenc
                     addPreferencesFromResource(R.xml.tb_pref_context_menu_pin);
                     findPreference(PREF_PIN_APP).setOnPreferenceClickListener(this);
                     findPreference(PREF_PIN_APP).setTitle(R.string.tb_unpin_app);
+
+                    // Pinned apps can be rearranged: left/right on a horizontal taskbar and
+                    // up/down on a vertical one (which lists the pinned order bottom to top).
+                    if(pba.getPinnedApps().size() > 1) {
+                        boolean vertical = TaskbarPosition.isVertical(this);
+                        addPreferencesFromResource(R.xml.tb_pref_context_menu_reorder);
+                        findPreference(PREF_MOVE_PINNED_EARLIER).setTitle(vertical ? "Move down" : getString(R.string.tb_move_left));
+                        findPreference(PREF_MOVE_PINNED_EARLIER).setOnPreferenceClickListener(this);
+                        findPreference(PREF_MOVE_PINNED_LATER).setTitle(vertical ? "Move up" : getString(R.string.tb_move_right));
+                        findPreference(PREF_MOVE_PINNED_LATER).setOnPreferenceClickListener(this);
+                    }
                 } else if(pba.isBlocked(entry.getComponentName())) {
                     addPreferencesFromResource(R.xml.tb_pref_context_menu_block);
                     findPreference(PREF_BLOCK_APP).setOnPreferenceClickListener(this);
@@ -557,6 +570,12 @@ public class ContextMenuActivity extends PreferenceActivity implements Preferenc
                         pba.addPinnedApp(this, newEntry);
                     }
                 }
+                break;
+            case PREF_MOVE_PINNED_EARLIER:
+                PinnedBlockedApps.getInstance(this).movePinnedApp(this, entry.getComponentName(), -1);
+                break;
+            case PREF_MOVE_PINNED_LATER:
+                PinnedBlockedApps.getInstance(this).movePinnedApp(this, entry.getComponentName(), 1);
                 break;
             case PREF_BLOCK_APP:
                 PinnedBlockedApps pba2 = PinnedBlockedApps.getInstance(this);
@@ -769,6 +788,13 @@ public class ContextMenuActivity extends PreferenceActivity implements Preferenc
                         U.sendBroadcast(this, ACTION_REFRESH_DESKTOP_ICONS);
                     }
                 } catch (JSONException ignored) {}
+                break;
+            case PREF_CHANGE_DESKTOP_ICON:
+                if(entry != null) {
+                    Intent changeIcon = new Intent(ACTION_CHANGE_DESKTOP_ICON);
+                    changeIcon.putExtra(EXTRA_ICON_KEY, IconOverrides.appKey(entry.getComponentName()));
+                    U.sendBroadcast(this, changeIcon);
+                }
                 break;
             case PREF_CHANGE_WALLPAPER_GLOBAL:
                 changeWallpaper();

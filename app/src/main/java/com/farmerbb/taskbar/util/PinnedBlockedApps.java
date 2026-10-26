@@ -49,6 +49,29 @@ public class PinnedBlockedApps implements Serializable {
         save(context);
     }
 
+    /**
+     * Moves a pinned app by the given number of places in the pinned order.
+     *
+     * @return true if the order changed
+     */
+    public boolean movePinnedApp(Context context, String componentName, int delta) {
+        int from = -1;
+        for(int i = 0; i < pinnedApps.size(); i++) {
+            if(pinnedApps.get(i).getComponentName().equals(componentName)) {
+                from = i;
+                break;
+            }
+        }
+
+        int to = from + delta;
+        if(from == -1 || to < 0 || to >= pinnedApps.size() || to == from)
+            return false;
+
+        pinnedApps.add(to, pinnedApps.remove(from));
+        save(context);
+        return true;
+    }
+
     public void addBlockedApp(Context context, AppEntry entry) {
         blockedApps.add(entry);
         save(context);

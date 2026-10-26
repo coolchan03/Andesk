@@ -63,6 +63,8 @@ public class DesktopWidgetManager {
 
     private static final String TAG = "AndeskWidget";
     private static final String STATE_PENDING_ID = "andesk_pending_widget_id";
+    private static final String STATE_PENDING_X = "andesk_pending_widget_x";
+    private static final String STATE_PENDING_Y = "andesk_pending_widget_y";
     private static final int HOST_ID = 4242;
     private static final int MIN_SIZE_DP = 56;
     private static final int HANDLE_SIZE_DP = 40;
@@ -90,6 +92,9 @@ public class DesktopWidgetManager {
     private final Context widgetContext;
 
     private int pendingId = -1;
+    // Where the user asked for the widget (raw screen coordinates), or -1 for the default spot.
+    private float pendingX = -1;
+    private float pendingY = -1;
     private int editingId = -1;
 
     public DesktopWidgetManager(Activity activity, FrameLayout parent) {
@@ -129,12 +134,17 @@ public class DesktopWidgetManager {
 
     /** Preserve the widget binding/configuration ID across Activity recreation. */
     public void restorePendingState(Bundle state) {
-        if(state != null)
+        if(state != null) {
             pendingId = state.getInt(STATE_PENDING_ID, -1);
+            pendingX = state.getFloat(STATE_PENDING_X, -1);
+            pendingY = state.getFloat(STATE_PENDING_Y, -1);
+        }
     }
 
     public void savePendingState(Bundle state) {
         state.putInt(STATE_PENDING_ID, pendingId);
+        state.putFloat(STATE_PENDING_X, pendingX);
+        state.putFloat(STATE_PENDING_Y, pendingY);
     }
 
     /** Keeps widgets clear of the taskbar. */
@@ -186,6 +196,14 @@ public class DesktopWidgetManager {
     /* Adding widgets */
 
     public void startAddWidget() {
+        startAddWidget(-1, -1);
+    }
+
+    /** @param rawX raw screen position to place the widget at, or -1 to use the default spot */
+    public void startAddWidget(float rawX, float rawY) {
+        pendingX = rawX;
+        pendingY = rawY;
+
         List<AppWidgetProviderInfo> providers;
         try {
             providers = new ArrayList<>(appWidgetManager.getInstalledProviders());
@@ -341,9 +359,19 @@ public class DesktopWidgetManager {
         entry.width = Math.max(info.minWidth, dp(160));
         entry.height = Math.max(info.minHeight, dp(80));
 
-        int offset = dp(24) * (entries.size() % 6);
-        entry.x = dp(48) + offset;
-        entry.y = dp(96) + offset;
+        if(pendingX >= 0 && pendingY >= 0) {
+            // Center the new widget on the spot that was pressed.
+            int[] location = new int[2];
+            container.getLocationOnScreen(location);
+            entry.x = Math.round(pendingX) - location[0] - entry.width / 2;
+            entry.y = Math.round(pendingY) - location[1] - entry.height / 2;
+        } else {
+            int offset = dp(24) * (entries.size() % 6);
+            entry.x = dp(48) + offset;
+            entry.y = dp(96) + offset;
+        }
+        pendingX = -1;
+        pendingY = -1;
 
         try {
             addEntry(entry);
@@ -507,6 +535,19 @@ public class DesktopWidgetManager {
                     showMenu(entry);
                 }
             });
+        }
+
+        @Override
+        public boolean dispatchGenericMotionEvent(MotionEvent ev) {
+            // Right click does what a long press does.
+            if(editingId != entry.id
+                    && ev.getActionMasked() == MotionEvent.ACTION_BUTTON_PRESS
+                    && (ev.getButtonState() & MotionEvent.BUTTON_SECONDARY) != 0) {
+                showMenu(entry);
+                return true;
+            }
+
+            return super.dispatchGenericMotionEvent(ev);
         }
 
         @Override

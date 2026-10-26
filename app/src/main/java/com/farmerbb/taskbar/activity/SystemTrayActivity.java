@@ -93,9 +93,7 @@ public class SystemTrayActivity extends Activity {
                 }), tileParams());
         row2.addView(makeTile(R.drawable.tb_cc_settings, getString(R.string.tb_settings),
                 null, false, v -> {
-                    Intent intent = new Intent(this, MainActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    startActivity(intent);
+                    U.openSettingsWindow(this);
                     finish();
                 }), tileParams());
         row2.addView(makeTile(R.drawable.tb_cc_exit, getString(R.string.tb_exit_desktop),

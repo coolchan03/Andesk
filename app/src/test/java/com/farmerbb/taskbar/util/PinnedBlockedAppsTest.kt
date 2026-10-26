@@ -107,4 +107,30 @@ class PinnedBlockedAppsTest {
         Assert.assertTrue(newPinnedBlockedApps.isPinned(packageName))
         Assert.assertTrue(newPinnedBlockedApps.isBlocked(packageName))
     }
+
+    @Test
+    fun testMovePinnedAppReordersAndStaysInBounds() {
+        val first = AppEntry(packageName, "first", "First", null, false)
+        val second = AppEntry(packageName, "second", "Second", null, false)
+        val third = AppEntry(packageName, "third", "Third", null, false)
+        pinnedBlockedApps.addPinnedApp(context, first)
+        pinnedBlockedApps.addPinnedApp(context, second)
+        pinnedBlockedApps.addPinnedApp(context, third)
+
+        Assert.assertTrue(pinnedBlockedApps.movePinnedApp(context, "third", -1))
+        Assert.assertEquals(
+            listOf("first", "third", "second"),
+            pinnedBlockedApps.pinnedApps.map { it.componentName },
+        )
+
+        Assert.assertTrue(pinnedBlockedApps.movePinnedApp(context, "first", 1))
+        Assert.assertEquals(
+            listOf("third", "first", "second"),
+            pinnedBlockedApps.pinnedApps.map { it.componentName },
+        )
+
+        Assert.assertFalse(pinnedBlockedApps.movePinnedApp(context, "third", -1))
+        Assert.assertFalse(pinnedBlockedApps.movePinnedApp(context, "second", 1))
+        Assert.assertFalse(pinnedBlockedApps.movePinnedApp(context, "missing", 1))
+    }
 }

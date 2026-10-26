@@ -34,6 +34,8 @@ public class ViewParams {
     public int bottomMargin;
     // Desktop overlays may extend over the non-tappable gesture navigation area.
     public boolean extendIntoGestureArea;
+    // Gap kept between a floating dock and the screen edge it is anchored to.
+    public int edgeMargin;
 
     public ViewParams(int width, int height, int gravity, int flags, int bottomMargin) {
         this.width = width;
@@ -57,6 +59,10 @@ public class ViewParams {
 
         if(bottomMargin > -1)
             wmParams.y = bottomMargin;
+
+        if(edgeMargin > 0 && gravity > -1
+                && (gravity & Gravity.HORIZONTAL_GRAVITY_MASK) != Gravity.CENTER_HORIZONTAL)
+            wmParams.x = edgeMargin;
 
         if(extendIntoGestureArea && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
             wmParams.setFitInsetsTypes(WindowInsets.Type.tappableElement());
@@ -88,6 +94,14 @@ public class ViewParams {
             else
                 frameParams.topMargin = bottomMargin;
         }
+
+        int horizontal = frameParams.gravity & Gravity.HORIZONTAL_GRAVITY_MASK;
+        if(edgeMargin > 0 && horizontal != Gravity.CENTER_HORIZONTAL) {
+            if(horizontal == Gravity.RIGHT || horizontal == Gravity.END)
+                frameParams.rightMargin = edgeMargin;
+            else
+                frameParams.leftMargin = edgeMargin;
+        }
         return frameParams;
     }
 
@@ -106,6 +120,7 @@ public class ViewParams {
     private ViewParams copyWith(int width, int height, int bottomMargin) {
         ViewParams copy = new ViewParams(width, height, gravity, flags, bottomMargin);
         copy.extendIntoGestureArea = extendIntoGestureArea;
+        copy.edgeMargin = edgeMargin;
         return copy;
     }
 }

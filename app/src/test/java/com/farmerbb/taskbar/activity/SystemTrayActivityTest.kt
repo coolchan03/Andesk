@@ -67,6 +67,30 @@ class SystemTrayActivityTest {
         val application = ApplicationProvider.getApplicationContext<Application>()
         val started = Shadows.shadowOf(application).nextStartedActivity
         Assert.assertNotNull("Tapping the date must open a calendar app", started)
-        Assert.assertEquals(Intent.ACTION_VIEW, started.action)
+        Assert.assertEquals(
+            "The calendar must launch like a taskbar app (so it can be a freeform window)",
+            calendarApp,
+            started.component,
+        )
+    }
+
+    @Test
+    fun testSettingsTileOpensSettingsLikeATaskbarApp() {
+        val activity = Robolectric.buildActivity(SystemTrayActivity::class.java).setup().get()
+        val tiles = ArrayList<View>()
+        activity.window.decorView.findViewsWithText(
+            tiles,
+            "Settings",
+            View.FIND_VIEWS_WITH_CONTENT_DESCRIPTION,
+        )
+        Assert.assertEquals(1, tiles.size.toLong())
+
+        tiles[0].performClick()
+        Shadows.shadowOf(Looper.getMainLooper()).idleFor(Duration.ofSeconds(1))
+
+        val application = ApplicationProvider.getApplicationContext<Application>()
+        val started = Shadows.shadowOf(application).nextStartedActivity
+        Assert.assertNotNull("Settings must open via the normal app launch path", started)
+        Assert.assertEquals(MainActivity::class.java.name, started.component?.className)
     }
 }

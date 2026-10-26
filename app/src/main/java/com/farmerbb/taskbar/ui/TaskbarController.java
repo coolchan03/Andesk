@@ -279,11 +279,27 @@ public class TaskbarController extends UIController {
         params.gravity = getTaskbarGravity(taskbarPosition);
         boolean desktopSession = DesktopSessionState.isActive(context);
         params.extendIntoGestureArea = desktopSession;
-        // Andesk desktop taskbars always occupy the full horizontal edge.
-        if(!TaskbarPosition.isVertical(taskbarPosition) && desktopSession)
+        boolean dock = U.isDockTaskbarStyle(context);
+        // Andesk desktop taskbars occupy the full horizontal edge, except floating docks.
+        if(!TaskbarPosition.isVertical(taskbarPosition) && desktopSession && !dock)
             params.width = WindowManager.LayoutParams.MATCH_PARENT;
         int layoutId = getTaskbarLayoutId(taskbarPosition);
         positionIsVertical = TaskbarPosition.isVertical(taskbarPosition);
+
+        if(dock) {
+            // Floating dock: centered along its edge, with a gap to the screen edge.
+            int margin = U.getTaskbarEdgeMargin(context);
+            params.edgeMargin = margin;
+            if(positionIsVertical) {
+                params.gravity = (params.gravity & Gravity.HORIZONTAL_GRAVITY_MASK)
+                        | Gravity.CENTER_VERTICAL;
+                params.bottomMargin = -1;
+            } else {
+                params.gravity = (params.gravity & Gravity.VERTICAL_GRAVITY_MASK)
+                        | Gravity.CENTER_HORIZONTAL;
+                params.bottomMargin = Math.max(0, params.bottomMargin) + margin;
+            }
+        }
 
         // Initialize views
         SharedPreferences pref = U.getSharedPreferences(context);
@@ -293,7 +309,7 @@ public class TaskbarController extends UIController {
         applyTaskbarSize(layout);
         taskbar = layout.findViewById(R.id.taskbar);
         scrollView = layout.findViewById(R.id.taskbar_scrollview);
-        if(desktopSession && !positionIsVertical
+        if(desktopSession && !positionIsVertical && !dock
                 && scrollView.getLayoutParams() instanceof LinearLayout.LayoutParams) {
             LinearLayout.LayoutParams scrollParams =
                     (LinearLayout.LayoutParams) scrollView.getLayoutParams();
@@ -327,6 +343,12 @@ public class TaskbarController extends UIController {
             if(!DesktopSessionState.isActive(context))
                 toggleTaskbar(true);
         });
+        if(desktopSession) {
+            // Nothing follows the tray on the desktop, so the spacer would only add a gap.
+            ViewGroup.LayoutParams spaceParams = space.getLayoutParams();
+            spaceParams.width = 0;
+            space.setLayoutParams(spaceParams);
+        }
 
         startButton = layout.findViewById(R.id.start_button);
         drawStartButton(context, startButton, pref);
@@ -418,11 +440,34 @@ public class TaskbarController extends UIController {
                 aero.setStroke(highlightSize, highlightColor);
                 layout.setBackground(aero);
             }
+        } else if(dock) {
+            android.graphics.drawable.GradientDrawable shape = new android.graphics.drawable.GradientDrawable();
+            shape.setColor(backgroundTint);
+            shape.setCornerRadius(U.getTaskbarCornerRadius(context));
+            shape.setStroke(Math.max(1, Math.round(context.getResources().getDisplayMetrics().density)),
+                    androidx.core.graphics.ColorUtils.setAlphaComponent(
+                            U.isDarkBackground(backgroundTint) ? android.graphics.Color.WHITE : android.graphics.Color.BLACK, 48));
+            layout.setBackground(shape);
+            int dockPadding = U.getTaskbarDockPadding(context);
+            layout.setPadding(dockPadding, dockPadding, dockPadding, dockPadding);
         } else
             layout.setBackgroundColor(backgroundTint);
         layout.findViewById(R.id.divider).setBackgroundColor(
                 windowsStyle || pref.getBoolean(PREF_CENTERED_ICONS, false) ? 0 : accentColor
         );
+        // Empty parts of the taskbar open the taskbar menu on long press or right click.
+        layout.setOnLongClickListener(v -> {
+            openContextMenu();
+            return true;
+        });
+        layout.setOnGenericMotionListener((v, motionEvent) -> {
+            if(motionEvent.getAction() == MotionEvent.ACTION_BUTTON_PRESS
+                    && (motionEvent.getButtonState() & MotionEvent.BUTTON_SECONDARY) != 0) {
+                openContextMenu();
+                return true;
+            }
+            return false;
+        });
         button.setTextColor(accentColor);
 
         applyMarginFix(host, layout, params);
@@ -480,7 +525,7 @@ public class TaskbarController extends UIController {
                         ? params.updateHeight(WindowManager.LayoutParams.MATCH_PARENT)
                         : params.updateHeight(WindowManager.LayoutParams.WRAP_CONTENT);
             } else {
-                newParams = DesktopSessionState.isActive(context)
+                newParams = DesktopSessionState.isActive(context) && !U.isDockTaskbarStyle(context)
                         ? params.updateWidth(WindowManager.LayoutParams.MATCH_PARENT)
                         : (matchParent ? params.updateWidth(WindowManager.LayoutParams.MATCH_PARENT)
                         : params.updateWidth(WindowManager.LayoutParams.WRAP_CONTENT));
@@ -785,6 +830,16 @@ public class TaskbarController extends UIController {
         }
 
         time.setVisibility(View.VISIBLE);
+        if(DesktopSessionState.isActive(context)) {
+            // The fixed 84dp box centered the text and left a gap before the screen edge.
+            // Size it to the text and align it to the end instead.
+            ViewGroup.LayoutParams timeParams = time.getLayoutParams();
+            timeParams.width = ViewGroup.LayoutParams.WRAP_CONTENT;
+            time.setLayoutParams(timeParams);
+            time.setGravity(Gravity.END | Gravity.CENTER_VERTICAL);
+            int timePadding = Math.round(10 * context.getResources().getDisplayMetrics().density);
+            time.setPadding(timePadding, 0, timePadding, 0);
+        }
         sysTrayLayout.setLayoutParams(sysTrayParams);
 
         {
@@ -965,7 +1020,8 @@ public class TaskbarController extends UIController {
         final List<AppEntry> entries = new ArrayList<>();
         List<LauncherActivityInfo> launcherAppCache = new ArrayList<>();
         int maxNumOfEntries = firstRefresh ? 0 : U.getMaxNumOfEntries(context);
-        boolean fullLength = DesktopSessionState.isActive(context) || U.isTaskbarFullLength(context);
+        boolean fullLength = (DesktopSessionState.isActive(context)
+                && !U.isDockTaskbarStyle(context)) || U.isTaskbarFullLength(context);
 
         PinnedBlockedApps pba = PinnedBlockedApps.getInstance(context);
         List<AppEntry> pinnedApps = pba.getPinnedApps();
@@ -1225,6 +1281,7 @@ public class TaskbarController extends UIController {
                 } catch (NullPointerException ignored) {}
             }
         } else if(DesktopSessionState.isActive(context)
+                && !U.isDockTaskbarStyle(context)
                 && params instanceof LinearLayout.LayoutParams) {
             // Desktop taskbars span the screen: let the app area take the remaining width
             // so the clock and tray stay pinned to the end, independent of pixel estimates
@@ -1273,7 +1330,8 @@ public class TaskbarController extends UIController {
             }
         }
 
-        boolean realMatchParent = DesktopSessionState.isActive(context)
+        boolean realMatchParent = (DesktopSessionState.isActive(context)
+                && !U.isDockTaskbarStyle(context))
                 || (maxRecentsSize >= maxScreenSize
                 && pref.getBoolean(PREF_COLLAPSED, false)
                 && !(TaskbarPosition.isVertical(context) && U.isChromeOs(context)));

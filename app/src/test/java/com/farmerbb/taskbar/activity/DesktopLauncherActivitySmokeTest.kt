@@ -153,6 +153,27 @@ class DesktopLauncherActivitySmokeTest {
     }
 
     @Test
+    fun emojiShortcutAppearsOnTheDesktop() {
+        U.getSharedPreferences(context).edit()
+            .putString(
+                "andesk_documents",
+                """[{"column":1,"row":1,"emoji":"\uD83D\uDE80","title":"Launchpad"}]""",
+            )
+            .apply()
+
+        val activity = launchDesktop()
+        idleMainLooper()
+
+        val labels = ArrayList<View>()
+        activity.window.decorView.findViewsWithText(
+            labels,
+            "Launchpad",
+            View.FIND_VIEWS_WITH_TEXT,
+        )
+        Assert.assertEquals("The emoji shortcut must be drawn on the desktop", 1, labels.size)
+    }
+
+    @Test
     fun floatingTaskbarShrinksToStartButtonAndExpandsAgain() {
         val activity = launchDesktop()
         val startButton = activity.findViewById<View>(R.id.start_button)

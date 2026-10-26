@@ -21,6 +21,10 @@
         android:title="@string/tb_arrange_icons_alt" />
 
     <Preference
+        android:key="change_desktop_icon"
+        android:title="@string/tb_change_icon" />
+
+    <Preference
         android:key="remove_desktop_icon"
         android:title="@string/tb_remove_desktop_icon" />
 
