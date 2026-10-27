@@ -8,4 +8,7 @@
 <resources>
     <item name="control_center_calendar" type="id" />
     <item name="control_center_calendar_toggle" type="id" />
+    <item name="control_center_volume_slider" type="id" />
+    <item name="control_center_brightness_slider" type="id" />
+    <item name="show_desktop_sliver" type="id" />
 </resources>

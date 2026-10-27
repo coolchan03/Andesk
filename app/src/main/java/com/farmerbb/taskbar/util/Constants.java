@@ -184,6 +184,12 @@ public class Constants {
     public static final String PREF_REMOVE_DESKTOP_ICON = "remove_desktop_icon";
     public static final String PREF_CHANGE_DESKTOP_ICON = "change_desktop_icon";
     public static final String PREF_MOVE_PINNED_EARLIER = "move_pinned_earlier";
+    public static final String PREF_BATTERY_PERCENT = "battery_percent";
+    public static final String PREF_CLOCK_FORMAT = "clock_format";
+    public static final String PREF_CLOCK_SHOW_DATE = "clock_show_date";
+    public static final String PREF_CLOCK_SHOW_SECONDS = "clock_show_seconds";
+    public static final String PREF_DESKTOP_ICON_SIZE = "desktop_icon_size";
+    public static final String PREF_DESKTOP_LOCKED = "andesk_desktop_locked";
     public static final String PREF_MOVE_PINNED_LATER = "move_pinned_later";
     public static final String PREF_REMOVE_DESKTOP_WALLPAPER = "remove_desktop_wallpaper";
     public static final String PREF_RESET_COLORS = "reset_colors";

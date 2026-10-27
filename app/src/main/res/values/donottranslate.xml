@@ -58,6 +58,26 @@
         <item>gnome</item>
         <item>kde</item>
     </string-array>
+    <string-array name="tb_pref_clock_format">
+        <item>Follow system setting</item>
+        <item>12-hour</item>
+        <item>24-hour</item>
+    </string-array>
+    <string-array name="tb_pref_clock_format_values">
+        <item>system</item>
+        <item>12</item>
+        <item>24</item>
+    </string-array>
+    <string-array name="tb_pref_desktop_icon_size">
+        <item>Small</item>
+        <item>Medium</item>
+        <item>Large</item>
+    </string-array>
+    <string-array name="tb_pref_desktop_icon_size_values">
+        <item>small</item>
+        <item>medium</item>
+        <item>large</item>
+    </string-array>
     <string-array name="tb_pref_taskbar_size_values">
         <item>compact</item>
         <item>standard</item>

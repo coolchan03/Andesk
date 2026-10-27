@@ -9,10 +9,13 @@ import android.accessibilityservice.AccessibilityService;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.content.ActivityNotFoundException;
+import android.content.ContentResolver;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
+import android.media.AudioManager;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -27,6 +30,7 @@ import android.view.WindowManager;
 import android.widget.CalendarView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import androidx.annotation.VisibleForTesting;
@@ -44,6 +48,7 @@ public class SystemTrayActivity extends Activity {
     private int foregroundColor;
     private int activeColor;
     private boolean darkPanel;
+    private boolean askedForSettingsAccess;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,6 +75,8 @@ public class SystemTrayActivity extends Activity {
             root.setElevation(dp(8));
 
         addClockAndDate();
+
+        addSliders();
 
         Boolean wifi = isWifiEnabled();
         Boolean bluetooth = isBluetoothEnabled();
@@ -176,6 +183,113 @@ public class SystemTrayActivity extends Activity {
             calendar.setVisibility(show ? View.VISIBLE : View.GONE);
             toggle.setText(show ? "\u25B4" : "\u25BE");
         });
+    }
+
+    private void addSliders() {
+        AudioManager audio = (AudioManager) getSystemService(AUDIO_SERVICE);
+        if(audio != null) {
+            SeekBar volume = makeSlider(R.drawable.tb_cc_volume, getString(R.string.tb_volume));
+            volume.setId(R.id.control_center_volume_slider);
+            volume.setMax(Math.max(1, audio.getStreamMaxVolume(AudioManager.STREAM_MUSIC)));
+            volume.setProgress(audio.getStreamVolume(AudioManager.STREAM_MUSIC));
+            volume.setOnSeekBarChangeListener(new SimpleSeekListener() {
+                @Override
+                void onChanged(int progress) {
+                    try {
+                        audio.setStreamVolume(AudioManager.STREAM_MUSIC, progress, 0);
+                    } catch(SecurityException ignored) {
+                        // Some devices restrict volume changes while Do Not Disturb is on.
+                    }
+                }
+            });
+        }
+
+        SeekBar brightness = makeSlider(R.drawable.tb_cc_brightness, getString(R.string.tb_brightness));
+        brightness.setId(R.id.control_center_brightness_slider);
+        brightness.setMax(254);
+        brightness.setProgress(readBrightness() - 1);
+        brightness.setOnSeekBarChangeListener(new SimpleSeekListener() {
+            @Override
+            void onChanged(int progress) {
+                writeBrightness(progress + 1);
+            }
+        });
+    }
+
+    /** Adds a labelled slider row to the panel and returns its SeekBar. */
+    private SeekBar makeSlider(int icon, String description) {
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+        row.setPadding(dp(6), dp(2), dp(6), dp(2));
+
+        ImageView image = new ImageView(this);
+        image.setImageResource(icon);
+        image.setColorFilter(foregroundColor);
+        image.setContentDescription(description);
+        row.addView(image, new LinearLayout.LayoutParams(dp(24), dp(24)));
+
+        SeekBar seekBar = new SeekBar(this);
+        seekBar.setContentDescription(description);
+        seekBar.setProgressTintList(ColorStateList.valueOf(activeColor));
+        seekBar.setThumbTintList(ColorStateList.valueOf(activeColor));
+        seekBar.setProgressBackgroundTintList(
+                ColorStateList.valueOf(ColorUtils.setAlphaComponent(foregroundColor, 70)));
+        LinearLayout.LayoutParams seekParams = new LinearLayout.LayoutParams(
+                0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+        seekParams.setMargins(dp(10), 0, 0, 0);
+        row.addView(seekBar, seekParams);
+
+        root.addView(row, new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, dp(40)));
+        return seekBar;
+    }
+
+    private int readBrightness() {
+        try {
+            return Math.max(1, Math.min(255,
+                    Settings.System.getInt(getContentResolver(), Settings.System.SCREEN_BRIGHTNESS)));
+        } catch(Settings.SettingNotFoundException e) {
+            return 128;
+        }
+    }
+
+    private boolean canChangeSystemSettings() {
+        return Build.VERSION.SDK_INT < Build.VERSION_CODES.M || Settings.System.canWrite(this);
+    }
+
+    private void writeBrightness(int value) {
+        if(!canChangeSystemSettings()) {
+            if(!askedForSettingsAccess) {
+                // Brightness is a protected system setting; the user grants it once in Settings.
+                askedForSettingsAccess = true;
+                U.showToastLong(this, R.string.tb_allow_brightness);
+                Intent grant = new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS,
+                        android.net.Uri.parse("package:" + getPackageName()));
+                startActivitySafely(grant);
+            }
+            return;
+        }
+
+        ContentResolver resolver = getContentResolver();
+        Settings.System.putInt(resolver, Settings.System.SCREEN_BRIGHTNESS_MODE,
+                Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL);
+        Settings.System.putInt(resolver, Settings.System.SCREEN_BRIGHTNESS, value);
+    }
+
+    private abstract static class SimpleSeekListener implements SeekBar.OnSeekBarChangeListener {
+        abstract void onChanged(int progress);
+
+        @Override
+        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+            onChanged(progress);
+        }
+
+        @Override
+        public void onStartTrackingTouch(SeekBar seekBar) {}
+
+        @Override
+        public void onStopTrackingTouch(SeekBar seekBar) {}
     }
 
     private View makeTile(int icon, String label, String state, boolean active,
