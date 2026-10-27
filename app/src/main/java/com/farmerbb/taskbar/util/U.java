@@ -1998,9 +1998,12 @@ public class U {
             boolean is24Hour = "24".equals(format)
                     || ("system".equals(format)
                     && android.text.format.DateFormat.is24HourFormat(context));
+            // Explicit patterns: skeleton expansion is locale data dependent and not reliable
+            // everywhere. AM/PM text is still localized by SimpleDateFormat.
             java.util.Locale locale = java.util.Locale.getDefault();
-            String pattern = android.text.format.DateFormat.getBestDateTimePattern(
-                    locale, (is24Hour ? "Hm" : "hm") + (showSeconds ? "s" : ""));
+            String pattern = (is24Hour ? "HH:mm" : "h:mm")
+                    + (showSeconds ? ":ss" : "")
+                    + (is24Hour ? "" : " a");
             time = new java.text.SimpleDateFormat(pattern, locale).format(now);
         }
 
