@@ -10,7 +10,9 @@ import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.content.ActivityNotFoundException;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -39,6 +41,8 @@ import androidx.core.graphics.ColorUtils;
 import com.farmerbb.taskbar.R;
 import com.farmerbb.taskbar.util.Constants;
 import com.farmerbb.taskbar.util.U;
+
+import static com.farmerbb.taskbar.util.Constants.*;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -106,6 +110,28 @@ public class SystemTrayActivity extends Activity {
         row2.addView(makeTile(R.drawable.tb_cc_exit, getString(R.string.tb_exit_desktop),
                 null, false, v -> exitDesktop()), tileParams());
         root.addView(row2);
+
+        SharedPreferences pref = U.getSharedPreferences(this);
+        boolean fullscreen = pref.getBoolean(PREF_HIDE_STATUS_BAR, false);
+        boolean locked = pref.getBoolean(PREF_DESKTOP_LOCKED, false);
+
+        LinearLayout row3 = new LinearLayout(this);
+        row3.setOrientation(LinearLayout.HORIZONTAL);
+        row3.addView(makeTile(R.drawable.tb_cc_close_all, getString(R.string.tb_close_apps),
+                null, false, v -> closeApps()), tileParams());
+        row3.addView(makeTile(R.drawable.tb_cc_fullscreen, getString(R.string.tb_fullscreen),
+                stateLabel(fullscreen), fullscreen, v -> {
+                    pref.edit().putBoolean(PREF_HIDE_STATUS_BAR, !fullscreen).apply();
+                    U.restartTaskbar(this);
+                    finish();
+                }), tileParams());
+        row3.addView(makeTile(R.drawable.tb_cc_lock, getString(R.string.tb_lock_short),
+                stateLabel(locked), locked, v -> {
+                    pref.edit().putBoolean(PREF_DESKTOP_LOCKED, !locked).apply();
+                    U.sendBroadcast(this, ACTION_REFRESH_DESKTOP_ICONS);
+                    finish();
+                }), tileParams());
+        root.addView(row3);
 
         setContentView(root);
         setFinishOnTouchOutside(true);
@@ -183,6 +209,17 @@ public class SystemTrayActivity extends Activity {
             calendar.setVisibility(show ? View.VISIBLE : View.GONE);
             toggle.setText(show ? "\u25B4" : "\u25BE");
         });
+    }
+
+    private void closeApps() {
+        Context appContext = getApplicationContext();
+        new Thread(() -> {
+            U.closeBackgroundApps(appContext);
+            runOnUiThread(() -> {
+                U.showToast(this, R.string.tb_apps_closed);
+                finish();
+            });
+        }).start();
     }
 
     private void addSliders() {

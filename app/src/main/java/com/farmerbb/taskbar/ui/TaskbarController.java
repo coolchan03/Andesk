@@ -103,6 +103,7 @@ import com.farmerbb.taskbar.util.DisplayInfo;
 import com.farmerbb.taskbar.util.DesktopSessionState;
 import com.farmerbb.taskbar.helper.FreeformHackHelper;
 import com.farmerbb.taskbar.util.IconCache;
+import com.farmerbb.taskbar.util.IconOverrides;
 import com.farmerbb.taskbar.helper.LauncherHelper;
 import com.farmerbb.taskbar.util.PinnedBlockedApps;
 import com.farmerbb.taskbar.helper.MenuHelper;
@@ -639,6 +640,14 @@ public class TaskbarController extends UIController {
                 break;
         }
 
+        // A custom (emoji or image) Start button icon wins over the style's icon.
+        Drawable customStart = IconOverrides.getDrawable(context,
+                IconOverrides.specialKey(START_BUTTON_ICON), U.getTaskbarIconSize(context));
+        if(customStart != null) {
+            startButton.setImageDrawable(customStart);
+            padding = context.getResources().getDimensionPixelSize(R.dimen.tb_app_drawer_icon_padding);
+        }
+
         startButton.setPadding(padding, padding, padding, padding);
         startButton.setOnClickListener(ocl);
         startButton.setOnLongClickListener(view -> {
@@ -844,8 +853,8 @@ public class TaskbarController extends UIController {
             timeParams.width = ViewGroup.LayoutParams.WRAP_CONTENT;
             time.setLayoutParams(timeParams);
             time.setGravity(Gravity.END | Gravity.CENTER_VERTICAL);
-            int timePadding = Math.round(10 * context.getResources().getDisplayMetrics().density);
-            time.setPadding(timePadding, 0, timePadding, 0);
+            float density = context.getResources().getDisplayMetrics().density;
+            time.setPadding(Math.round(8 * density), 0, Math.round(6 * density), 0);
         }
         sysTrayLayout.setLayoutParams(sysTrayParams);
 
@@ -1953,7 +1962,9 @@ public class TaskbarController extends UIController {
 
         ImageView imageView = convertView.findViewById(R.id.icon);
         ImageView imageView2 = convertView.findViewById(R.id.shortcut_icon);
-        imageView.setImageDrawable(entry.getIcon(context));
+        Drawable customIcon = IconOverrides.getDrawable(context,
+                IconOverrides.appKey(entry.getComponentName()), U.getTaskbarIconSize(context));
+        imageView.setImageDrawable(customIcon != null ? customIcon : entry.getIcon(context));
         imageView2.setBackgroundColor(U.getTaskbarAccentColor(context));
 
         String taskbarPosition = TaskbarPosition.getTaskbarPosition(context);
@@ -1977,12 +1988,22 @@ public class TaskbarController extends UIController {
         layout.setContentDescription(entry.getLabel());
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
             layout.setTooltipText(entry.getLabel());
+        // Ctrl-, Shift- or middle-click opens another window of the app instead of focusing it.
+        final boolean[] newWindow = { false };
+        layout.setOnTouchListener((view, motionEvent) -> {
+            if(motionEvent.getActionMasked() == MotionEvent.ACTION_DOWN) {
+                newWindow[0] = motionEvent.isCtrlPressed()
+                        || motionEvent.isShiftPressed()
+                        || (motionEvent.getButtonState() & MotionEvent.BUTTON_TERTIARY) != 0;
+            }
+            return false;
+        });
         layout.setOnClickListener(view -> U.launchApp(
                 context,
                 entry,
                 null,
                 true,
-                false,
+                newWindow[0],
                 view
         ));
 
@@ -2027,6 +2048,12 @@ public class TaskbarController extends UIController {
             });
 
             layout.setOnTouchListener((v, event) -> {
+                if(event.getActionMasked() == MotionEvent.ACTION_DOWN) {
+                    newWindow[0] = event.isCtrlPressed()
+                            || event.isShiftPressed()
+                            || (event.getButtonState() & MotionEvent.BUTTON_TERTIARY) != 0;
+                }
+
                 v.setAlpha(event.getAction() == MotionEvent.ACTION_DOWN || event.getAction() == MotionEvent.ACTION_MOVE ? 0.5f : 1);
                 return false;
             });

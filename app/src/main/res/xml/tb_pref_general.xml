@@ -83,6 +83,39 @@
         android:key="notification_settings"
         android:title="@string/tb_notification_settings"/>
 
+    <PreferenceCategory
+        android:key="apps_and_search_category"
+        android:title="@string/tb_pref_category_apps_search">
+
+        <Preference
+            android:key="clock_app"
+            android:title="@string/tb_pref_title_clock_app" />
+
+        <Preference
+            android:key="calendar_app"
+            android:title="@string/tb_pref_title_calendar_app" />
+
+        <ListPreference
+            android:defaultValue="system"
+            android:entries="@array/tb_pref_search_engine"
+            android:entryValues="@array/tb_pref_search_engine_values"
+            android:key="search_engine"
+            android:negativeButtonText="@null"
+            android:positiveButtonText="@null"
+            android:title="@string/tb_pref_title_search_engine"
+            android:summary="@string/tb_pref_title_search_engine" />
+
+        <Preference
+            android:key="search_url"
+            android:title="@string/tb_pref_title_search_url" />
+
+        <Preference
+            android:key="search_app"
+            android:title="@string/tb_pref_title_search_app"
+            android:summary="@string/tb_pref_description_search_app" />
+
+    </PreferenceCategory>
+
     <PreferenceCategory android:key="dummy" android:title="\n\n" />
 
 </PreferenceScreen>

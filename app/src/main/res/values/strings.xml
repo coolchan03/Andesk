@@ -546,4 +546,37 @@
     <string name="tb_brightness" translatable="false">Brightness</string>
     <string name="tb_allow_brightness" translatable="false">Allow Andesk to change system settings to adjust brightness</string>
     <string name="tb_show_desktop" translatable="false">Show desktop</string>
+    <string name="tb_open_new_window" translatable="false">Open in a new window</string>
+    <string name="tb_app_automatic" translatable="false">Automatic (default)</string>
+    <string name="tb_app_search_hint" translatable="false">Search apps</string>
+    <string name="tb_pref_category_apps_search" translatable="false">Apps and search</string>
+    <string name="tb_pref_title_clock_app" translatable="false">Clock app</string>
+    <string name="tb_pref_title_calendar_app" translatable="false">Calendar app</string>
+    <string name="tb_pref_title_search_app" translatable="false">Search app</string>
+    <string name="tb_pref_description_search_app" translatable="false">Optional: send searches to this app instead of a website</string>
+    <string name="tb_pref_title_search_engine" translatable="false">Search engine</string>
+    <string name="tb_pref_title_search_url" translatable="false">Custom search address</string>
+    <string name="tb_search_url_hint" translatable="false">https://example.com/search?q=%s</string>
+    <string name="tb_search_url_invalid" translatable="false">The address must contain %s where the search goes</string>
+    <string name="tb_press_enter_engine" translatable="false">No apps found\n\nPress Enter to search using %1$s</string>
+    <string name="tb_pref_title_hide_status_bar" translatable="false">Hide the status bar on the desktop</string>
+    <string name="tb_pref_description_hide_status_bar" translatable="false">Full-screen desktop. Swipe from the top edge to show it briefly</string>
+    <string name="tb_close_apps" translatable="false">Close apps</string>
+    <string name="tb_apps_closed" translatable="false">Background apps closed</string>
+    <string name="tb_fullscreen" translatable="false">Full screen</string>
+    <string name="tb_lock_short" translatable="false">Lock layout</string>
+    <string name="tb_pref_category_style" translatable="false">Taskbar look</string>
+    <string name="tb_pref_category_colors" translatable="false">Colors</string>
+    <string name="tb_pref_category_status_area" translatable="false">Clock, battery and status icons</string>
+    <string name="tb_pref_category_icons" translatable="false">Icons</string>
+    <string name="tb_pref_category_behavior" translatable="false">Desktop and menus</string>
+    <string name="tb_pick_color" translatable="false">Pick a color</string>
+    <string name="tb_color_brightness" translatable="false">Brightness</string>
+    <string name="tb_color_opacity" translatable="false">Opacity</string>
+    <string name="tb_color_hex" translatable="false">Color code</string>
+    <string name="tb_color_invalid" translatable="false">Enter a color like #RRGGBB or #AARRGGBB</string>
+    <string name="tb_choose_style" translatable="false">Choose a taskbar style</string>
+    <string name="tb_search_settings" translatable="false">Search settings</string>
+    <string name="tb_icon_image_failed" translatable="false">That image could not be used</string>
+    <string name="tb_change_start_icon" translatable="false">Change Start button icon</string>
 </resources>

@@ -67,6 +67,13 @@ public class ViewParams {
         if(extendIntoGestureArea && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
             wmParams.setFitInsetsTypes(WindowInsets.Type.tappableElement());
 
+        // Without this the taskbar keeps clear of a camera cutout on the side of the screen
+        // (landscape), which leaves the clock short of the screen edge.
+        if(extendIntoGestureArea && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
+            wmParams.layoutInDisplayCutoutMode = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
+                    ? WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
+                    : WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
+
         U.allowReflection();
         try {
             Class<?> layoutParamsClass = Class.forName("android.view.WindowManager$LayoutParams");

@@ -51,6 +51,11 @@ public final class IconOverrides {
         return "app:" + componentName;
     }
 
+    /** Key for icons that are not an app or document, such as the taskbar Start button. */
+    public static String specialKey(String name) {
+        return "special:" + name;
+    }
+
     public static String documentKey(String uri) {
         return "doc:" + uri;
     }

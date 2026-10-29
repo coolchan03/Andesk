@@ -42,6 +42,7 @@ import android.util.Patterns;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -253,6 +254,25 @@ public class StartMenuController extends UIController {
                 return false;
             });
 
+            // Ctrl+Enter or Shift+Enter searches the web even when apps match.
+            EditText searchText = searchView.findViewById(com.google.android.material.R.id.search_src_text);
+            if(searchText != null) {
+                searchText.setOnKeyListener((v, keyCode, event) -> {
+                    if(keyCode == KeyEvent.KEYCODE_ENTER
+                            && event.getAction() == KeyEvent.ACTION_DOWN
+                            && (event.isCtrlPressed() || event.isShiftPressed())) {
+                        String query = searchText.getText().toString().trim();
+                        if(!query.isEmpty()) {
+                            hideStartMenu(true);
+                            openWebSearch(query);
+                            return true;
+                        }
+                    }
+
+                    return false;
+                });
+            }
+
             searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                 @Override
                 public boolean onQueryTextSubmit(String query) {
@@ -272,15 +292,7 @@ public class StartMenuController extends UIController {
                                     hideStartMenu(true);
                                 }
 
-                                Intent intent = generateQueryWebSearchIntent(query);
-                                if(intent.resolveActivity(context.getPackageManager()) != null) {
-                                    context.startActivity(intent);
-                                } else {
-                                    intent = generateQueryGoogleIntent(query);
-                                    try {
-                                        context.startActivity(intent);
-                                    } catch (ActivityNotFoundException ignored) {}
-                                }
+                                openWebSearch(query);
                             }
                         }
                     }
@@ -434,10 +446,47 @@ public class StartMenuController extends UIController {
         } else {
             intent = new Intent(Intent.ACTION_WEB_SEARCH);
             intent.putExtra(SearchManager.QUERY, query);
+
+            // A chosen search app takes priority; otherwise a chosen search engine's website.
+            ComponentName searchApp = U.getChosenApp(context, PREF_SEARCH_APP);
+            if(searchApp != null) {
+                intent.setPackage(searchApp.getPackageName());
+                if(intent.resolveActivity(context.getPackageManager()) == null)
+                    intent.setPackage(null);
+            }
+
+            Uri engineUri = intent.getPackage() == null ? U.getSearchEngineUri(context, query) : null;
+            if(engineUri != null) {
+                intent = new Intent(Intent.ACTION_VIEW);
+                intent.setData(engineUri);
+            }
         }
 
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         return intent;
+    }
+
+    private void openWebSearch(String query) {
+        Intent intent = generateQueryWebSearchIntent(query);
+        if(intent.resolveActivity(context.getPackageManager()) != null) {
+            context.startActivity(intent);
+        } else {
+            intent = generateQueryGoogleIntent(query);
+            try {
+                context.startActivity(intent);
+            } catch (ActivityNotFoundException ignored) {}
+        }
+    }
+
+    private String getPressEnterText(String query) {
+        if(Patterns.WEB_URL.matcher(query).matches())
+            return context.getString(R.string.tb_press_enter_alt);
+
+        if(!"system".equals(U.getSharedPreferences(context).getString(PREF_SEARCH_ENGINE, "system"))
+                && !"google".equals(U.getSharedPreferences(context).getString(PREF_SEARCH_ENGINE, "system")))
+            return context.getString(R.string.tb_press_enter_engine, U.getSearchEngineName(context));
+
+        return context.getString(R.string.tb_press_enter);
     }
 
     @VisibleForTesting
@@ -576,7 +625,7 @@ public class StartMenuController extends UIController {
                         if(adapter != null && adapter.getCount() > 0)
                             textView.setText(null);
                         else if(query != null)
-                            textView.setText(context.getString(Patterns.WEB_URL.matcher(query).matches() ? R.string.tb_press_enter_alt : R.string.tb_press_enter));
+                            textView.setText(getPressEnterText(query));
                         else
                             textView.setText(context.getString(R.string.tb_nothing_to_see_here));
                     }

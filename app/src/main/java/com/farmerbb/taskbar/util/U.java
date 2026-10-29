@@ -102,6 +102,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -979,7 +981,14 @@ public class U {
         switch(applicationType) {
             case APP_PORTRAIT:
             case APP_LANDSCAPE:
-                if(FreeformHackHelper.getInstance().isFreeformHackActive())
+                // In a desktop session with freeform enabled, apps are windows even before the
+                // freeform helper activity has finished starting; otherwise a fast launch would
+                // explicitly request full screen.
+                if(FreeformHackHelper.getInstance().isFreeformHackActive()
+                        || (context != null
+                        && DesktopSessionState.isActive(context)
+                        && hasFreeformSupport(context)
+                        && isFreeformModeEnabled(context)))
                     stackId = getFreeformWindowModeId();
                 else
                     stackId = getFullscreenWindowModeId();
@@ -2477,8 +2486,98 @@ public class U {
         }
     }
 
+    /** The launcher activity the user picked for an action, or null to use the automatic one. */
+    public static ComponentName getChosenApp(Context context, String prefKey) {
+        String value = getSharedPreferences(context).getString(prefKey, "");
+        if(value == null || value.isEmpty()) return null;
+
+        ComponentName component = ComponentName.unflattenFromString(value);
+        if(component == null) return null;
+
+        try {
+            context.getPackageManager().getActivityInfo(component, 0);
+            return component;
+        } catch(PackageManager.NameNotFoundException e) {
+            return null;
+        }
+    }
+
+    private static final String[][] SEARCH_ENGINES = {
+            { "google", "Google", "https://www.google.com/search?q=%s" },
+            { "duckduckgo", "DuckDuckGo", "https://duckduckgo.com/?q=%s" },
+            { "bing", "Bing", "https://www.bing.com/search?q=%s" },
+            { "brave", "Brave Search", "https://search.brave.com/search?q=%s" },
+            { "startpage", "Startpage", "https://www.startpage.com/do/search?q=%s" },
+            { "ecosia", "Ecosia", "https://www.ecosia.org/search?q=%s" }
+    };
+
+    /** The website search address for the chosen engine, or null to use the system default. */
+    public static Uri getSearchEngineUri(Context context, String query) {
+        SharedPreferences pref = getSharedPreferences(context);
+        String engine = pref.getString(PREF_SEARCH_ENGINE, "system");
+
+        String template = null;
+        if("custom".equals(engine)) {
+            String custom = pref.getString(PREF_SEARCH_URL, "");
+            if(custom != null && custom.contains("%s")) template = custom;
+        } else {
+            for(String[] known : SEARCH_ENGINES) {
+                if(known[0].equals(engine)) template = known[2];
+            }
+        }
+
+        if(template == null) return null;
+        return Uri.parse(template.replace("%s", Uri.encode(query)));
+    }
+
+    public static String getSearchEngineName(Context context) {
+        String engine = getSharedPreferences(context).getString(PREF_SEARCH_ENGINE, "system");
+        for(String[] known : SEARCH_ENGINES) {
+            if(known[0].equals(engine)) return known[1];
+        }
+
+        return "custom".equals(engine) ? "your search engine" : "Google";
+    }
+
+    /**
+     * Asks Android to end the background processes of the apps that can be launched. Android
+     * only allows this for apps that are not in the foreground, so a window that is open and in
+     * use stays until it is no longer visible.
+     */
+    public static void closeBackgroundApps(Context context) {
+        ActivityManager manager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        PackageManager pm = context.getPackageManager();
+        if(manager == null) return;
+
+        Set<String> keep = new HashSet<>();
+        keep.add(context.getPackageName());
+        keep.add("com.android.systemui");
+        keep.add("com.android.phone");
+        keep.add("com.android.settings");
+
+        Intent home = new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME);
+        for(ResolveInfo info : pm.queryIntentActivities(home, 0))
+            keep.add(info.activityInfo.packageName);
+
+        Intent launcher = new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER);
+        for(ResolveInfo info : pm.queryIntentActivities(launcher, 0)) {
+            String packageName = info.activityInfo.packageName;
+            if(keep.add(packageName)) {
+                try {
+                    manager.killBackgroundProcesses(packageName);
+                } catch(RuntimeException e) {
+                    Log.w("Andesk", "Unable to close " + packageName, e);
+                }
+            }
+        }
+    }
+
     /** Opens the device's Clock app; not every Clock app handles ACTION_SHOW_ALARMS. */
     public static boolean openClockApp(Context context) {
+        ComponentName chosen = getChosenApp(context, PREF_CLOCK_APP);
+        if(chosen != null && launchExternalApp(context, new Intent().setComponent(chosen)))
+            return true;
+
         if(launchExternalApp(context, new Intent(android.provider.AlarmClock.ACTION_SHOW_ALARMS)))
             return true;
 
@@ -2493,6 +2592,10 @@ public class U {
 
     /** Opens the device's Calendar app, falling back to any app registered as the calendar. */
     public static boolean openCalendarApp(Context context, long timeMillis) {
+        ComponentName chosen = getChosenApp(context, PREF_CALENDAR_APP);
+        if(chosen != null && launchExternalApp(context, new Intent().setComponent(chosen)))
+            return true;
+
         Uri uri = android.provider.CalendarContract.CONTENT_URI.buildUpon()
                 .appendPath("time")
                 .appendPath(Long.toString(timeMillis))

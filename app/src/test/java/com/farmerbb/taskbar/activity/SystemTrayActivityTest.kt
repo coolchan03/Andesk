@@ -13,6 +13,7 @@ import android.widget.SeekBar
 import androidx.test.core.app.ApplicationProvider
 import com.farmerbb.taskbar.R
 import com.farmerbb.taskbar.util.Constants
+import com.farmerbb.taskbar.util.U
 import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -119,5 +120,47 @@ class SystemTrayActivityTest {
         val slider = activity.findViewById<SeekBar>(R.id.control_center_brightness_slider)
         Assert.assertNotNull("Control Center must have a brightness slider", slider)
         Assert.assertEquals(254, slider.max.toLong())
+    }
+
+    private fun tile(activity: SystemTrayActivity, description: String): View {
+        val tiles = ArrayList<View>()
+        activity.window.decorView.findViewsWithText(
+            tiles,
+            description,
+            View.FIND_VIEWS_WITH_CONTENT_DESCRIPTION,
+        )
+        Assert.assertTrue("No tile for $description", tiles.isNotEmpty())
+        return tiles[0]
+    }
+
+    @Test
+    fun testFullScreenTileTogglesTheHideStatusBarSetting() {
+        val pref = U.getSharedPreferences(ApplicationProvider.getApplicationContext())
+        pref.edit().remove(Constants.PREF_HIDE_STATUS_BAR).apply()
+        val activity = Robolectric.buildActivity(SystemTrayActivity::class.java).setup().get()
+
+        tile(activity, "Full screen").performClick()
+
+        Assert.assertTrue(pref.getBoolean(Constants.PREF_HIDE_STATUS_BAR, false))
+        pref.edit().remove(Constants.PREF_HIDE_STATUS_BAR).apply()
+    }
+
+    @Test
+    fun testLockLayoutTileTogglesTheDesktopLock() {
+        val pref = U.getSharedPreferences(ApplicationProvider.getApplicationContext())
+        pref.edit().remove(Constants.PREF_DESKTOP_LOCKED).apply()
+        val activity = Robolectric.buildActivity(SystemTrayActivity::class.java).setup().get()
+
+        tile(activity, "Lock layout").performClick()
+
+        Assert.assertTrue(pref.getBoolean(Constants.PREF_DESKTOP_LOCKED, false))
+        pref.edit().remove(Constants.PREF_DESKTOP_LOCKED).apply()
+    }
+
+    @Test
+    fun testCloseAppsTileIsOffered() {
+        val activity = Robolectric.buildActivity(SystemTrayActivity::class.java).setup().get()
+
+        Assert.assertNotNull(tile(activity, "Close apps"))
     }
 }

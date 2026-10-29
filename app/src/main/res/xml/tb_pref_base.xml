@@ -18,6 +18,11 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <Preference
+        android:key="pref_screen_search"
+        android:icon="@drawable/tb_search"
+        android:title="@string/tb_search_settings" />
+
+    <Preference
         android:key="pref_screen_general"
         android:icon="@drawable/tb_settings"
         android:title="@string/tb_pref_header_general" />
