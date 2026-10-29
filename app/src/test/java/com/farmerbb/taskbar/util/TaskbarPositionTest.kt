@@ -10,6 +10,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows
+import org.robolectric.util.ReflectionHelpers
 import java.util.function.Predicate
 
 @RunWith(RobolectricTestRunner::class)
@@ -20,6 +21,10 @@ class TaskbarPositionTest {
     fun setUp() {
         context = ApplicationProvider.getApplicationContext()
         Assert.assertNotNull(context)
+
+        // Controllers cache the display rotation in a static; forget a value that an earlier
+        // test in this JVM left behind so the shadow display rotation is read.
+        ReflectionHelpers.setStaticField(TaskbarPosition::class.java, "cachedRotation", null)
     }
 
     @Test
