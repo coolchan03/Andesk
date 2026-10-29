@@ -18,7 +18,6 @@ package com.farmerbb.taskbar.ui;
 import android.graphics.PixelFormat;
 import android.os.Build;
 import android.view.Gravity;
-import android.view.WindowInsets;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 
@@ -63,9 +62,6 @@ public class ViewParams {
         if(edgeMargin > 0 && gravity > -1
                 && (gravity & Gravity.HORIZONTAL_GRAVITY_MASK) != Gravity.CENTER_HORIZONTAL)
             wmParams.x = edgeMargin;
-
-        if(extendIntoGestureArea && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
-            wmParams.setFitInsetsTypes(WindowInsets.Type.tappableElement());
 
         // Without this the taskbar keeps clear of a camera cutout on the side of the screen
         // (landscape), which leaves the clock short of the screen edge.

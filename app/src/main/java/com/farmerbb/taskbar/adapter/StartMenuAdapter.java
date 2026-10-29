@@ -97,8 +97,7 @@ public class StartMenuAdapter extends ArrayAdapter<AppEntry> implements SectionI
         TextView textView = convertView.findViewById(R.id.name);
         textView.setText(pref.getBoolean(PREF_HIDE_ICON_LABELS, false) ? "" : entry.getLabel());
         textView.setTypeface(null, isTopApp(entry) ? Typeface.BOLD : Typeface.NORMAL);
-        textView.setTextColor(ContextCompat.getColor(getContext(),
-                U.isDarkTheme(getContext()) ? R.color.tb_text_color_dark : R.color.tb_text_color));
+        textView.setTextColor(U.getStartMenuTextColor(getContext()));
 
         ImageView imageView = convertView.findViewById(R.id.icon);
         Drawable customIcon = IconOverrides.getDrawable(getContext(),

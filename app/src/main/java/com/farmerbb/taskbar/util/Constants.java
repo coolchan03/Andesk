@@ -185,6 +185,13 @@ public class Constants {
     public static final String PREF_CHANGE_DESKTOP_ICON = "change_desktop_icon";
     public static final String PREF_MOVE_PINNED_EARLIER = "move_pinned_earlier";
     public static final String PREF_OPEN_NEW_WINDOW = "open_new_window";
+    public static final String PREF_TASKBAR_TEXTURE = "taskbar_texture";
+    public static final String PREF_TASKBAR_TEXTURE_STRENGTH = "taskbar_texture_strength";
+    public static final String PREF_TASKBAR_POSITION_PICKER = "taskbar_position_picker";
+    public static final String PREF_PINNED_APPS = "pinned_apps_editor";
+    public static final String PREF_RESET_APPEARANCE = "reset_appearance";
+    public static final String PREF_KEYBOARD_SHORTCUTS = "keyboard_shortcuts";
+    public static final String ACTION_SYSTEM_INSETS_CHANGED = "st.advisory.andesk.SYSTEM_INSETS_CHANGED";
     public static final String PREF_CHANGE_ICON = "change_icon";
     public static final String PREF_CHANGE_START_ICON = "change_start_icon";
     public static final String START_BUTTON_ICON = "start_button";

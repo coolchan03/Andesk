@@ -1893,6 +1893,51 @@ public class U {
         return PREF_TASKBAR_STYLE_MACOS.equals(style) || PREF_TASKBAR_STYLE_GNOME.equals(style);
     }
 
+    /** The Start menu (all apps) uses the taskbar's color so the two look like one theme. */
+    public static int getStartMenuBackgroundColor(Context context) {
+        int color = getTaskbarBackgroundColor(context);
+
+        // Presets can be very see-through (the macOS dock); keep the app list readable.
+        // A classic taskbar keeps exactly the transparency the user picked.
+        if(!PREF_TASKBAR_STYLE_CLASSIC.equals(getTaskbarStyle(context)))
+            return androidx.core.graphics.ColorUtils.setAlphaComponent(
+                    color, Math.max(Color.alpha(color), 225));
+
+        return color;
+    }
+
+    public static int getStartMenuTextColor(Context context) {
+        return isDarkBackground(getStartMenuBackgroundColor(context))
+                ? Color.WHITE
+                : Color.rgb(32, 32, 32);
+    }
+
+    /** Corner radius of the Start menu in pixels, matching the taskbar style's character. */
+    public static int getStartMenuCornerRadius(Context context) {
+        float dp;
+        switch(getTaskbarStyle(context)) {
+            case PREF_TASKBAR_STYLE_WINDOWS_11:
+                dp = 12;
+                break;
+            case PREF_TASKBAR_STYLE_MACOS:
+            case PREF_TASKBAR_STYLE_CHROMEOS:
+                dp = 16;
+                break;
+            case PREF_TASKBAR_STYLE_GNOME:
+                dp = 14;
+                break;
+            case PREF_TASKBAR_STYLE_WINDOWS_7:
+            case PREF_TASKBAR_STYLE_KDE:
+                dp = 6;
+                break;
+            default:
+                dp = 0;
+                break;
+        }
+
+        return Math.round(dp * context.getResources().getDisplayMetrics().density);
+    }
+
     public static boolean isDarkBackground(int color) {
         return androidx.core.graphics.ColorUtils.calculateLuminance(
                 androidx.core.graphics.ColorUtils.setAlphaComponent(color, 255)) < 0.5;
@@ -2491,6 +2536,37 @@ public class U {
         int modifiers = android.view.KeyEvent.META_CTRL_ON | android.view.KeyEvent.META_SHIFT_ON;
         return (event.getMetaState() & modifiers) != 0
                 || (event.getButtonState() & android.view.MotionEvent.BUTTON_TERTIARY) != 0;
+    }
+
+    /**
+     * Pins an app to the taskbar.
+     *
+     * @return false if it is already pinned, cannot be found, or the taskbar is full
+     */
+    public static boolean pinApp(Context context, ComponentName component) {
+        PinnedBlockedApps pinned = PinnedBlockedApps.getInstance(context);
+        if(pinned.isPinned(component.flattenToString())
+                || pinned.getPinnedApps().size() >= getMaxNumOfEntries(context))
+            return false;
+
+        LauncherApps launcherApps = (LauncherApps) context.getSystemService(Context.LAUNCHER_APPS_SERVICE);
+        UserManager userManager = (UserManager) context.getSystemService(Context.USER_SERVICE);
+        if(launcherApps == null || userManager == null) return false;
+
+        Intent intent = new Intent();
+        intent.setComponent(component);
+        LauncherActivityInfo info = launcherApps.resolveActivity(intent, Process.myUserHandle());
+        if(info == null) return false;
+
+        AppEntry entry = new AppEntry(
+                component.getPackageName(),
+                component.flattenToString(),
+                info.getLabel().toString(),
+                IconCache.getInstance(context).getIcon(context, info),
+                true);
+        entry.setUserId(userManager.getSerialNumberForUser(Process.myUserHandle()));
+        pinned.addPinnedApp(context, entry);
+        return true;
     }
 
     /** The launcher activity the user picked for an action, or null to use the automatic one. */

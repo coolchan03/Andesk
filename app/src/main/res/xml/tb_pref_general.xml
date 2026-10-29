@@ -88,6 +88,11 @@
         android:title="@string/tb_pref_category_apps_search">
 
         <Preference
+            android:key="pinned_apps_editor"
+            android:title="@string/tb_pinned_apps"
+            android:summary="@string/tb_pinned_apps_summary" />
+
+        <Preference
             android:key="clock_app"
             android:title="@string/tb_pref_title_clock_app" />
 
@@ -113,6 +118,11 @@
             android:key="search_app"
             android:title="@string/tb_pref_title_search_app"
             android:summary="@string/tb_pref_description_search_app" />
+
+        <Preference
+            android:key="keyboard_shortcuts"
+            android:title="@string/tb_keyboard_shortcuts"
+            android:summary="@string/tb_keyboard_shortcuts_summary" />
 
     </PreferenceCategory>
 

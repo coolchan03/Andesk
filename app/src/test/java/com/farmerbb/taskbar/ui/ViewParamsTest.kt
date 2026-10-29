@@ -2,7 +2,6 @@ package com.farmerbb.taskbar.ui
 
 import android.graphics.PixelFormat
 import android.view.Gravity
-import android.view.WindowInsets
 import android.view.WindowManager
 import org.junit.Assert
 import org.junit.Test
@@ -62,18 +61,15 @@ class ViewParamsTest {
     }
 
     @Test
-    fun testDesktopOverlaysOnlyAvoidTappableNavigation() {
+    fun testDesktopOverlaysKeepGestureAreaSettingWhenResized() {
         val params = ViewParams(100, 50, Gravity.BOTTOM, 0, -1)
         params.extendIntoGestureArea = true
 
         val resized = params.updateWidth(WindowManager.LayoutParams.MATCH_PARENT)
         Assert.assertTrue(resized.extendIntoGestureArea)
         Assert.assertEquals(
-            WindowInsets.Type.tappableElement(),
-            resized.toWindowManagerParams().fitInsetsTypes,
+            WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS,
+            resized.toWindowManagerParams().layoutInDisplayCutoutMode,
         )
-
-        val legacy = ViewParams(100, 50, Gravity.BOTTOM, 0, -1).toWindowManagerParams()
-        Assert.assertNotEquals(WindowInsets.Type.tappableElement(), legacy.fitInsetsTypes)
     }
 }

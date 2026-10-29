@@ -560,7 +560,7 @@
     <string name="tb_search_url_invalid" translatable="false">The address must contain %s where the search goes</string>
     <string name="tb_press_enter_engine" translatable="false">No apps found\n\nPress Enter to search using %1$s</string>
     <string name="tb_pref_title_hide_status_bar" translatable="false">Hide the status bar on the desktop</string>
-    <string name="tb_pref_description_hide_status_bar" translatable="false">Full-screen desktop. Swipe from the top edge to show it briefly</string>
+    <string name="tb_pref_description_hide_status_bar" translatable="false">Hides the status bar while the desktop is in front. While the taskbar floats over freeform windows, Android only lets the app in front hide it</string>
     <string name="tb_close_apps" translatable="false">Close apps</string>
     <string name="tb_apps_closed" translatable="false">Background apps closed</string>
     <string name="tb_fullscreen" translatable="false">Full screen</string>
@@ -579,4 +579,20 @@
     <string name="tb_search_settings" translatable="false">Search settings</string>
     <string name="tb_icon_image_failed" translatable="false">That image could not be used</string>
     <string name="tb_change_start_icon" translatable="false">Change Start button icon</string>
+    <string name="tb_pref_title_position_picker" translatable="false">Taskbar position</string>
+    <string name="tb_pref_title_texture" translatable="false">Taskbar texture</string>
+    <string name="tb_pref_title_texture_strength" translatable="false">Texture strength</string>
+    <string name="tb_pref_category_reset" translatable="false">Reset</string>
+    <string name="tb_pref_title_reset_appearance" translatable="false">Reset all appearance settings</string>
+    <string name="tb_pref_description_reset_appearance" translatable="false">Style, colors, texture, clock, icons and custom icons go back to the defaults</string>
+    <string name="tb_reset_appearance_confirm" translatable="false">Reset every appearance setting, including custom icons, to its default?</string>
+    <string name="tb_appearance_reset_done" translatable="false">Appearance reset</string>
+    <string name="tb_choose_position" translatable="false">Where should the taskbar go?</string>
+    <string name="tb_pinned_apps" translatable="false">Pinned apps</string>
+    <string name="tb_pinned_apps_summary" translatable="false">Reorder, add or remove the apps pinned to the taskbar</string>
+    <string name="tb_pinned_apps_empty" translatable="false">Nothing is pinned yet. Add an app below.</string>
+    <string name="tb_pinned_add" translatable="false">Add an app</string>
+    <string name="tb_pinned_done" translatable="false">Done</string>
+    <string name="tb_keyboard_shortcuts" translatable="false">Keyboard shortcuts</string>
+    <string name="tb_keyboard_shortcuts_summary" translatable="false">Shortcuts for a connected keyboard</string>
 </resources>

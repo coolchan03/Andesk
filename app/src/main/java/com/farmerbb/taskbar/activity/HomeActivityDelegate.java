@@ -63,6 +63,7 @@ import com.farmerbb.taskbar.helper.GlobalHelper;
 import com.farmerbb.taskbar.util.Callbacks;
 import com.farmerbb.taskbar.util.EmojiPickerDialog;
 import com.farmerbb.taskbar.util.IconOverrides;
+import com.farmerbb.taskbar.util.SystemBarInsets;
 import com.farmerbb.taskbar.util.TaskbarPosition;
 import com.farmerbb.taskbar.service.DashboardService;
 import com.farmerbb.taskbar.service.NotificationService;
@@ -388,6 +389,11 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
                 android.graphics.Insets system = insets.getSystemWindowInsets();
                 android.graphics.Insets tappable = insets.getTappableElementInsets();
                 v.setPadding(system.left, system.top, system.right, tappable.bottom);
+
+                // Floating overlays are drawn below the system bars; tell them how big the bars are.
+                if(SystemBarInsets.update(system.left, system.top, system.right, tappable.bottom))
+                    U.sendBroadcast(this, ACTION_SYSTEM_INSETS_CHANGED);
+
                 return insets.consumeSystemWindowInsets();
             });
         }
