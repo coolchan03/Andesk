@@ -2486,6 +2486,13 @@ public class U {
         }
     }
 
+    /** True for a Ctrl-click, Shift-click or middle-click: "open this app in a new window". */
+    public static boolean isNewWindowClick(android.view.MotionEvent event) {
+        int modifiers = android.view.KeyEvent.META_CTRL_ON | android.view.KeyEvent.META_SHIFT_ON;
+        return (event.getMetaState() & modifiers) != 0
+                || (event.getButtonState() & android.view.MotionEvent.BUTTON_TERTIARY) != 0;
+    }
+
     /** The launcher activity the user picked for an action, or null to use the automatic one. */
     public static ComponentName getChosenApp(Context context, String prefKey) {
         String value = getSharedPreferences(context).getString(prefKey, "");

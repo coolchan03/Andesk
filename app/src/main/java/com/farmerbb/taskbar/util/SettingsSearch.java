@@ -101,7 +101,8 @@ public final class SettingsSearch {
         for(Screen screen : screens(context)) {
             String section = context.getString(screen.title);
 
-            try(XmlResourceParser parser = context.getResources().getXml(screen.xml)) {
+            XmlResourceParser parser = context.getResources().getXml(screen.xml);
+            try {
                 int event;
                 while((event = parser.next()) != XmlPullParser.END_DOCUMENT) {
                     if(event != XmlPullParser.START_TAG) continue;
@@ -117,6 +118,8 @@ public final class SettingsSearch {
                 }
             } catch(XmlPullParserException | IOException | RuntimeException e) {
                 android.util.Log.w("Andesk", "Unable to index settings screen", e);
+            } finally {
+                parser.close();
             }
         }
 

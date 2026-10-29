@@ -110,9 +110,7 @@ public class StartMenuAdapter extends ArrayAdapter<AppEntry> implements SectionI
         final boolean[] newWindow = { false };
         layout.setOnTouchListener((view, motionEvent) -> {
             if(motionEvent.getActionMasked() == MotionEvent.ACTION_DOWN) {
-                newWindow[0] = motionEvent.isCtrlPressed()
-                        || motionEvent.isShiftPressed()
-                        || (motionEvent.getButtonState() & MotionEvent.BUTTON_TERTIARY) != 0;
+                newWindow[0] = U.isNewWindowClick(motionEvent);
             }
             return false;
         });
@@ -192,9 +190,7 @@ public class StartMenuAdapter extends ArrayAdapter<AppEntry> implements SectionI
         if(pref.getBoolean(PREF_VISUAL_FEEDBACK, true)) {
             layout.setOnTouchListener((v, event) -> {
                 if(event.getActionMasked() == MotionEvent.ACTION_DOWN) {
-                    newWindow[0] = event.isCtrlPressed()
-                            || event.isShiftPressed()
-                            || (event.getButtonState() & MotionEvent.BUTTON_TERTIARY) != 0;
+                    newWindow[0] = U.isNewWindowClick(event);
                 }
 
                 v.setAlpha(event.getAction() == MotionEvent.ACTION_DOWN || event.getAction() == MotionEvent.ACTION_MOVE ? 0.5f : 1);
