@@ -278,7 +278,7 @@ public class AppearanceFragment extends SettingsFragment {
                         .setTitle(R.string.tb_pref_title_reset_appearance)
                         .setMessage(R.string.tb_reset_appearance_confirm)
                         .setNegativeButton(R.string.tb_action_cancel, null)
-                        .setPositiveButton(R.string.tb_action_ok, (dialog, which) -> {
+                        .setPositiveButton(R.string.tb_action_ok, (confirm, which) -> {
                             AppearanceDefaults.reset(getActivity());
                             U.sendBroadcast(getActivity(), ACTION_REFRESH_DESKTOP_ICONS);
                             U.restartTaskbar(getActivity());
