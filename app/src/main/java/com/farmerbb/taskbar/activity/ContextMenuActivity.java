@@ -308,6 +308,9 @@ public class ContextMenuActivity extends PreferenceActivity implements Preferenc
                 addPreferencesFromResource(R.xml.tb_pref_context_menu_desktop_session);
                 findPreference(PREF_OPEN_TASKBAR_SETTINGS).setOnPreferenceClickListener(this);
                 findPreference(PREF_QUIT_TASKBAR).setOnPreferenceClickListener(this);
+
+                addPreferencesFromResource(R.xml.tb_pref_context_menu_change_start_icon);
+                findPreference(PREF_CHANGE_START_ICON).setOnPreferenceClickListener(this);
             }
         } else if(desktopIcon != null && entry == null) {
             addPreferencesFromResource(R.xml.tb_pref_context_menu_desktop_icons);
@@ -329,6 +332,20 @@ public class ContextMenuActivity extends PreferenceActivity implements Preferenc
                     && !U.isGame(this, entry.getPackageName())) {
                 addPreferencesFromResource(R.xml.tb_pref_context_menu_show_window_sizes);
                 findPreference(PREF_SHOW_WINDOW_SIZES).setOnPreferenceClickListener(this);
+            }
+
+            // Taskbar and Start menu apps can wear an emoji or image instead of their icon.
+            if(desktopIcon == null) {
+                addPreferencesFromResource(R.xml.tb_pref_context_menu_change_icon);
+                findPreference(PREF_CHANGE_ICON).setOnPreferenceClickListener(this);
+            }
+
+            // A second window of the same app (if the app allows more than one).
+            if(desktopIcon == null
+                    && U.hasFreeformSupport(this)
+                    && U.isFreeformModeEnabled(this)) {
+                addPreferencesFromResource(R.xml.tb_pref_context_menu_new_window);
+                findPreference(PREF_OPEN_NEW_WINDOW).setOnPreferenceClickListener(this);
             }
 
             if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
@@ -506,19 +523,25 @@ public class ContextMenuActivity extends PreferenceActivity implements Preferenc
                 prepareToClose();
                 break;
             case PREF_OPEN_TASKBAR_SETTINGS:
-                U.launchApp(this, () -> {
-                    Intent intent2 = new Intent(this, MainActivity.class);
-                    intent2.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                    
-                    LauncherHelper helper = LauncherHelper.getInstance();
-                    if(helper.isOnHomeScreen(this) || helper.isOnSecondaryHomeScreen(this))
-                        U.applyOpenInNewWindow(this, intent2);
+                // Same launch path as taskbar apps, so settings open as a window in freeform mode.
+                U.openSettingsWindow(this);
 
-                    try {
-                        startActivity(intent2,
-                                U.getActivityOptionsBundle(this, ApplicationType.APP_PORTRAIT, getListView().getChildAt(p.getOrder())));
-                    } catch (IllegalArgumentException ignored) {}
-                });
+                prepareToClose();
+                break;
+            case PREF_CHANGE_ICON:
+                if(entry != null) {
+                    Intent changeIcon = new Intent(this, IconPickerActivity.class);
+                    changeIcon.putExtra(EXTRA_ICON_KEY, IconOverrides.appKey(entry.getComponentName()));
+                    startActivity(changeIcon);
+                }
+                break;
+            case PREF_CHANGE_START_ICON:
+                Intent changeStart = new Intent(this, IconPickerActivity.class);
+                changeStart.putExtra(EXTRA_ICON_KEY, IconOverrides.specialKey(START_BUTTON_ICON));
+                startActivity(changeStart);
+                break;
+            case PREF_OPEN_NEW_WINDOW:
+                U.launchApp(this, entry, null, true, true, null);
 
                 prepareToClose();
                 break;

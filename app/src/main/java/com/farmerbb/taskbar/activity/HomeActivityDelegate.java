@@ -49,6 +49,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.view.WindowInsets;
+import android.view.WindowInsetsController;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.GridLayout;
@@ -163,6 +165,7 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
     private final BroadcastReceiver restartReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+            applyImmersive();
             if(isDesktopLauncher) {
                 // Appearance changes redraw the Activity-hosted taskbar in place
                 // rather than starting the legacy overlay services.
@@ -736,6 +739,37 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
                 .show();
     }
 
+    /** Hides (or shows) the status bar on the desktop, per the "hide status bar" setting. */
+    private void applyImmersive() {
+        if(!isDesktopLauncher) return;
+
+        boolean hide = U.getSharedPreferences(this).getBoolean(PREF_HIDE_STATUS_BAR, false);
+
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            WindowInsetsController controller = getWindow().getInsetsController();
+            if(controller == null) return;
+
+            if(hide) {
+                controller.setSystemBarsBehavior(
+                        WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+                controller.hide(WindowInsets.Type.statusBars());
+            } else
+                controller.show(WindowInsets.Type.statusBars());
+        } else {
+            View decor = getWindow().getDecorView();
+            int flags = decor.getSystemUiVisibility();
+            decor.setSystemUiVisibility(hide
+                    ? flags | View.SYSTEM_UI_FLAG_FULLSCREEN
+                    : flags & ~View.SYSTEM_UI_FLAG_FULLSCREEN);
+        }
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if(hasFocus) applyImmersive();
+    }
+
     private void updateDesktopNavigationBar() {
         if(!isDesktopLauncher)
             return;
@@ -766,6 +800,7 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
         super.onResume();
 
         updateDesktopNavigationBar();
+        applyImmersive();
         if(isDesktopLauncher) {
             waitingForPermission = false;
             init();

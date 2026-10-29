@@ -25,6 +25,7 @@ import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
+import android.preference.PreferenceGroup;
 import android.preference.PreferenceScreen;
 import android.view.MenuItem;
 import android.view.View;
@@ -50,6 +51,9 @@ public abstract class SettingsFragment extends PreferenceFragment implements Pre
     boolean finishedLoadingPrefs;
     boolean showReminderToast = false;
     boolean restartNotificationService = false;
+
+    /** Fragment argument: the key of a preference to scroll to when the screen opens. */
+    public static final String ARG_HIGHLIGHT_KEY = "andesk_highlight_key";
 
     String isModified = "_is_modified";
 
@@ -201,7 +205,7 @@ public abstract class SettingsFragment extends PreferenceFragment implements Pre
      * The GNOME/Ubuntu-like preset is a dock on the left edge; move the taskbar there when the
      * preset is chosen, and back to the bottom when switching away from it.
      */
-    private static void applyStylePosition(Context context, String newStyle) {
+    static void applyStylePosition(Context context, String newStyle) {
         SharedPreferences pref = U.getSharedPreferences(context);
         String oldStyle = pref.getString(PREF_TASKBAR_STYLE, PREF_TASKBAR_STYLE_CLASSIC);
 
@@ -240,6 +244,7 @@ public abstract class SettingsFragment extends PreferenceFragment implements Pre
     @Override
     public void onResume() {
         super.onResume();
+        scrollToRequestedPreference();
 
         if(restartNotificationService && getActivity() != null) {
             restartNotificationService = false;
@@ -258,6 +263,49 @@ public abstract class SettingsFragment extends PreferenceFragment implements Pre
         }
 
         return true;
+    }
+
+    /** Removes a preference wherever it sits, including inside a category. */
+    protected void removePreferenceByKey(String key) {
+        Preference target = findPreference(key);
+        if(target != null)
+            removeFromGroup(getPreferenceScreen(), target);
+    }
+
+    private boolean removeFromGroup(PreferenceGroup group, Preference target) {
+        for(int i = 0; i < group.getPreferenceCount(); i++) {
+            Preference child = group.getPreference(i);
+            if(child == target) {
+                group.removePreference(target);
+                return true;
+            }
+
+            if(child instanceof PreferenceGroup && removeFromGroup((PreferenceGroup) child, target))
+                return true;
+        }
+
+        return false;
+    }
+
+    /** Scrolls to the preference that settings search asked for. */
+    private void scrollToRequestedPreference() {
+        Bundle args = getArguments();
+        String key = args == null ? null : args.getString(ARG_HIGHLIGHT_KEY);
+        if(key == null) return;
+
+        args.remove(ARG_HIGHLIGHT_KEY);
+        View root = getView();
+        ListView list = root == null ? null : root.findViewById(android.R.id.list);
+        if(list == null || list.getAdapter() == null) return;
+
+        for(int i = 0; i < list.getAdapter().getCount(); i++) {
+            Object item = list.getAdapter().getItem(i);
+            if(item instanceof Preference && key.equals(((Preference) item).getKey())) {
+                final int position = i;
+                list.post(() -> list.setSelection(position));
+                return;
+            }
+        }
     }
 
     protected void navigateTo(SettingsFragment fragment) {

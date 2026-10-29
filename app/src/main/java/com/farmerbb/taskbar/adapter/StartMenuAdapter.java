@@ -29,6 +29,7 @@ import androidx.core.content.ContextCompat;
 import androidx.core.graphics.ColorUtils;
 import android.util.SparseIntArray;
 import android.view.LayoutInflater;
+import android.graphics.drawable.Drawable;
 import android.view.MotionEvent;
 import android.view.PointerIcon;
 import android.view.View;
@@ -43,6 +44,7 @@ import com.farmerbb.taskbar.R;
 import com.farmerbb.taskbar.util.AppEntry;
 import com.farmerbb.taskbar.helper.FreeformHackHelper;
 import com.farmerbb.taskbar.util.TopApps;
+import com.farmerbb.taskbar.util.IconOverrides;
 import com.farmerbb.taskbar.util.U;
 
 import java.util.ArrayList;
@@ -99,12 +101,22 @@ public class StartMenuAdapter extends ArrayAdapter<AppEntry> implements SectionI
                 U.isDarkTheme(getContext()) ? R.color.tb_text_color_dark : R.color.tb_text_color));
 
         ImageView imageView = convertView.findViewById(R.id.icon);
-        imageView.setImageDrawable(entry.getIcon(getContext()));
+        Drawable customIcon = IconOverrides.getDrawable(getContext(),
+                IconOverrides.appKey(entry.getComponentName()), U.getTaskbarIconSize(getContext()));
+        imageView.setImageDrawable(customIcon != null ? customIcon : entry.getIcon(getContext()));
 
         LinearLayout layout = convertView.findViewById(R.id.entry);
+        // Ctrl-, Shift- or middle-click opens another window of the app.
+        final boolean[] newWindow = { false };
+        layout.setOnTouchListener((view, motionEvent) -> {
+            if(motionEvent.getActionMasked() == MotionEvent.ACTION_DOWN) {
+                newWindow[0] = U.isNewWindowClick(motionEvent);
+            }
+            return false;
+        });
         layout.setOnClickListener(view -> {
             U.sendBroadcast(getContext(), ACTION_HIDE_START_MENU);
-            U.launchApp(getContext(), entry, null, false, false, view);
+            U.launchApp(getContext(), entry, null, false, newWindow[0], view);
         });
 
         layout.setOnLongClickListener(view -> {
@@ -177,6 +189,10 @@ public class StartMenuAdapter extends ArrayAdapter<AppEntry> implements SectionI
 
         if(pref.getBoolean(PREF_VISUAL_FEEDBACK, true)) {
             layout.setOnTouchListener((v, event) -> {
+                if(event.getActionMasked() == MotionEvent.ACTION_DOWN) {
+                    newWindow[0] = U.isNewWindowClick(event);
+                }
+
                 v.setAlpha(event.getAction() == MotionEvent.ACTION_DOWN || event.getAction() == MotionEvent.ACTION_MOVE ? 0.5f : 1);
                 return false;
             });

@@ -22,6 +22,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.ListPreference;
@@ -30,19 +31,16 @@ import android.provider.Settings;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import android.view.View;
-import android.widget.ScrollView;
-import android.widget.SeekBar;
-import android.widget.TextView;
 
 import com.farmerbb.taskbar.R;
 import com.farmerbb.taskbar.activity.IconPackActivity;
+import com.farmerbb.taskbar.util.ColorPickerDialog;
+import com.farmerbb.taskbar.util.TaskbarStylePickerDialog;
 import com.farmerbb.taskbar.util.U;
 
 import static com.farmerbb.taskbar.util.Constants.*;
 
 public class AppearanceFragment extends SettingsFragment {
-    private int alpha, red, green, blue;
 
     @Override
     protected void addPrefsToSanitize() {
@@ -74,16 +72,16 @@ public class AppearanceFragment extends SettingsFragment {
 
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if(U.isAndroidTV(getActivity()))
-                getPreferenceScreen().removePreference(findPreference(PREF_NOTIFICATION_COUNT));
+                removePreferenceByKey(PREF_NOTIFICATION_COUNT);
             else
                 findPreference(PREF_NOTIFICATION_COUNT).setOnPreferenceClickListener(this);
         } else {
-            getPreferenceScreen().removePreference(findPreference(PREF_NOTIFICATION_COUNT));
-            getPreferenceScreen().removePreference(findPreference(PREF_SYS_TRAY));
-            getPreferenceScreen().removePreference(findPreference(PREF_BATTERY_PERCENT));
-            getPreferenceScreen().removePreference(findPreference(PREF_CLOCK_FORMAT));
-            getPreferenceScreen().removePreference(findPreference(PREF_CLOCK_SHOW_DATE));
-            getPreferenceScreen().removePreference(findPreference(PREF_CLOCK_SHOW_SECONDS));
+            removePreferenceByKey(PREF_NOTIFICATION_COUNT);
+            removePreferenceByKey(PREF_SYS_TRAY);
+            removePreferenceByKey(PREF_BATTERY_PERCENT);
+            removePreferenceByKey(PREF_CLOCK_FORMAT);
+            removePreferenceByKey(PREF_CLOCK_SHOW_DATE);
+            removePreferenceByKey(PREF_CLOCK_SHOW_SECONDS);
         }
 
         if(U.isAndroidGeneric(getActivity())) {
@@ -98,7 +96,9 @@ public class AppearanceFragment extends SettingsFragment {
         }
 
         bindPreferenceSummaryToValue(findPreference(PREF_THEME));
-        bindPreferenceSummaryToValue(findPreference(PREF_TASKBAR_STYLE));
+        findPreference(PREF_TASKBAR_STYLE).setOnPreferenceClickListener(this);
+        updateStyleSummary();
+        bindPreferenceSummaryToValue(findPreference(PREF_HIDE_STATUS_BAR));
         bindPreferenceSummaryToValue(findPreference(PREF_TASKBAR_SIZE));
         bindPreferenceSummaryToValue(findPreference(PREF_FULL_LENGTH));
         bindPreferenceSummaryToValue(findPreference(PREF_CENTERED_ICONS));
@@ -119,8 +119,35 @@ public class AppearanceFragment extends SettingsFragment {
             bindPreferenceSummaryToValue(findPreference(PREF_CLOCK_SHOW_SECONDS));
         }
 
-        findPreference(PREF_BACKGROUND_TINT_PREF).setSummary("#" + String.format("%08x", U.getBackgroundTint(getActivity())).toUpperCase());
-        findPreference(PREF_ACCENT_COLOR_PREF).setSummary("#" + String.format("%08x", U.getAccentColor(getActivity())).toUpperCase());
+        updateColorPreviews();
+    }
+
+    /** Shows the current color on each color preference, as a dot and as a code. */
+    private void updateColorPreviews() {
+        setColorPreview(PREF_BACKGROUND_TINT_PREF, U.getBackgroundTint(getActivity()));
+        setColorPreview(PREF_ACCENT_COLOR_PREF, U.getAccentColor(getActivity()));
+    }
+
+    private void setColorPreview(String key, int color) {
+        Preference preference = findPreference(key);
+        if(preference == null) return;
+
+        preference.setSummary("#" + String.format("%08X", color));
+
+        float density = getResources().getDisplayMetrics().density;
+        GradientDrawable dot = new GradientDrawable();
+        dot.setShape(GradientDrawable.OVAL);
+        dot.setColor(color);
+        dot.setStroke(Math.round(1.5f * density), Color.argb(120, 128, 128, 128));
+        dot.setSize(Math.round(28 * density), Math.round(28 * density));
+        preference.setIcon(dot);
+    }
+
+    private void updateStyleSummary() {
+        Preference style = findPreference(PREF_TASKBAR_STYLE);
+        if(style != null)
+            style.setSummary(TaskbarStylePickerDialog.getStyleName(
+                    getActivity(), U.getTaskbarStyle(getActivity())));
     }
 
     @Override
@@ -189,8 +216,7 @@ public class AppearanceFragment extends SettingsFragment {
 
                             pref.edit().remove(PREF_BACKGROUND_TINT).remove(PREF_ACCENT_COLOR).apply();
 
-                            findPreference(PREF_BACKGROUND_TINT_PREF).setSummary("#" + String.format("%08x", U.getBackgroundTint(getActivity())).toUpperCase());
-                            findPreference(PREF_ACCENT_COLOR_PREF).setSummary("#" + String.format("%08x", U.getAccentColor(getActivity())).toUpperCase());
+                            updateColorPreviews();
 
                             finishedLoadingPrefs = true;
                             U.restartTaskbar(getActivity());
@@ -198,6 +224,15 @@ public class AppearanceFragment extends SettingsFragment {
 
                 AlertDialog dialog = builder.create();
                 dialog.show();
+                break;
+            case PREF_TASKBAR_STYLE:
+                TaskbarStylePickerDialog.show(getActivity(), U.getTaskbarStyle(getActivity()), value -> {
+                    // Presets such as the GNOME dock move the taskbar to their natural edge.
+                    applyStylePosition(getActivity(), value);
+                    pref.edit().putString(PREF_TASKBAR_STYLE, value).apply();
+                    updateStyleSummary();
+                    U.restartTaskbar(getActivity());
+                });
                 break;
             case PREF_BACKGROUND_TINT_PREF:
                 showColorPicker(ColorPickerType.BACKGROUND_TINT);
@@ -231,149 +266,28 @@ public class AppearanceFragment extends SettingsFragment {
 
     @SuppressLint("SetTextI18n")
     private void showColorPicker(ColorPickerType type) {
-        int color = -1;
-        int dialogTitle = -1;
+        int color;
+        int dialogTitle;
+        String preferenceId;
 
         switch(type) {
-            case BACKGROUND_TINT:
-                color = U.getBackgroundTint(getActivity());
-                dialogTitle = R.string.tb_pref_title_background_tint;
-                break;
             case ACCENT_COLOR:
                 color = U.getAccentColor(getActivity());
                 dialogTitle = R.string.tb_pref_title_accent_color;
+                preferenceId = PREF_ACCENT_COLOR;
+                break;
+            case BACKGROUND_TINT:
+            default:
+                color = U.getBackgroundTint(getActivity());
+                dialogTitle = R.string.tb_pref_title_background_tint;
+                preferenceId = PREF_BACKGROUND_TINT;
                 break;
         }
 
-        alpha = Color.alpha(color);
-        red = Color.red(color);
-        green = Color.green(color);
-        blue = Color.blue(color);
-
-        ScrollView dialogLayout = (ScrollView) View.inflate(getActivity(), R.layout.tb_color_picker_pref, null);
-
-        View colorPreview = dialogLayout.findViewById(R.id.color_preview);
-        colorPreview.setBackgroundColor(Color.argb(alpha, red, green, blue));
-
-        TextView hexPreview = dialogLayout.findViewById(R.id.hex_preview);
-        hexPreview.setText("#" + String.format("%08x", Color.argb(alpha, red, green, blue)).toUpperCase());
-
-        final TextView alphaValue = dialogLayout.findViewById(R.id.alpha_value);
-        alphaValue.setText("0");
-
-        final SeekBar alphaSeekBar = dialogLayout.findViewById(R.id.alpha_seekbar);
-        alphaSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                alpha = progress;
-
-                alphaValue.setText(Integer.toString(alpha));
-                colorPreview.setBackgroundColor(Color.argb(alpha, red, green, blue));
-                hexPreview.setText("#" + String.format("%08x", Color.argb(alpha, red, green, blue)).toUpperCase());
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {}
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {}
+        ColorPickerDialog.show(getActivity(), dialogTitle, color, picked -> {
+            U.getSharedPreferences(getActivity()).edit().putInt(preferenceId, picked).apply();
+            updateColorPreviews();
+            U.restartTaskbar(getActivity());
         });
-
-        alphaSeekBar.setProgress(Color.alpha(color));
-
-        final TextView redValue = dialogLayout.findViewById(R.id.red_value);
-        redValue.setText("0");
-
-        final SeekBar redSeekBar = dialogLayout.findViewById(R.id.red_seekbar);
-        redSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                red = progress;
-
-                redValue.setText(Integer.toString(red));
-                colorPreview.setBackgroundColor(Color.argb(alpha, red, green, blue));
-                hexPreview.setText("#" + String.format("%08x", Color.argb(alpha, red, green, blue)).toUpperCase());
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {}
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {}
-        });
-
-        redSeekBar.setProgress(Color.red(color));
-
-        final TextView greenValue = dialogLayout.findViewById(R.id.green_value);
-        greenValue.setText("0");
-
-        final SeekBar greenSeekBar = dialogLayout.findViewById(R.id.green_seekbar);
-        greenSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                green = progress;
-
-                greenValue.setText(Integer.toString(green));
-                colorPreview.setBackgroundColor(Color.argb(alpha, red, green, blue));
-                hexPreview.setText("#" + String.format("%08x", Color.argb(alpha, red, green, blue)).toUpperCase());
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {}
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {}
-        });
-
-        greenSeekBar.setProgress(Color.green(color));
-
-        final TextView blueValue = dialogLayout.findViewById(R.id.blue_value);
-        blueValue.setText("0");
-
-        final SeekBar blueSeekBar = dialogLayout.findViewById(R.id.blue_seekbar);
-        blueSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                blue = progress;
-
-                blueValue.setText(Integer.toString(blue));
-                colorPreview.setBackgroundColor(Color.argb(alpha, red, green, blue));
-                hexPreview.setText("#" + String.format("%08x", Color.argb(alpha, red, green, blue)).toUpperCase());
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {}
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {}
-        });
-
-        blueSeekBar.setProgress(Color.blue(color));
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setView(dialogLayout)
-                .setTitle(dialogTitle)
-                .setPositiveButton(R.string.tb_action_ok, (dialog, which) -> {
-                    String preferenceId = null;
-                    switch(type) {
-                        case BACKGROUND_TINT:
-                            preferenceId = PREF_BACKGROUND_TINT;
-                            break;
-                        case ACCENT_COLOR:
-                            preferenceId = PREF_ACCENT_COLOR;
-                            break;
-                    }
-
-                    SharedPreferences pref = U.getSharedPreferences(getActivity());
-                    pref.edit().putInt(preferenceId, Color.argb(alpha, red, green, blue)).apply();
-
-                    findPreference(preferenceId + "_pref").setSummary("#" + String.format("%08x", Color.argb(alpha, red, green, blue)).toUpperCase());
-
-                    U.restartTaskbar(getActivity());
-                })
-                .setNegativeButton(R.string.tb_action_cancel, null);
-
-        AlertDialog dialog = builder.create();
-        dialog.show();
     }
 }

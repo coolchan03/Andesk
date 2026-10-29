@@ -16,17 +16,21 @@
 package com.farmerbb.taskbar.fragment;
 
 import android.annotation.TargetApi;
+import android.app.AlertDialog;
+import android.content.ComponentName;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.provider.Settings;
+import android.widget.EditText;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.farmerbb.taskbar.R;
 import com.farmerbb.taskbar.activity.SelectAppActivity;
+import com.farmerbb.taskbar.util.AppChooserDialog;
 import com.farmerbb.taskbar.util.Blacklist;
 import com.farmerbb.taskbar.util.TopApps;
 import com.farmerbb.taskbar.util.U;
@@ -57,6 +61,12 @@ public class GeneralFragment extends SettingsFragment {
                 && !U.isChromeOs(getActivity())
                 && !U.isOverridingFreeformHack(getActivity(), false))
             findPreference(PREF_HIDE_TASKBAR).setSummary(R.string.tb_hide_taskbar_disclaimer);
+
+        findPreference(PREF_CLOCK_APP).setOnPreferenceClickListener(this);
+        findPreference(PREF_CALENDAR_APP).setOnPreferenceClickListener(this);
+        findPreference(PREF_SEARCH_APP).setOnPreferenceClickListener(this);
+        findPreference(PREF_SEARCH_URL).setOnPreferenceClickListener(this);
+        bindPreferenceSummaryToValue(findPreference(PREF_SEARCH_ENGINE));
 
         bindPreferenceSummaryToValue(findPreference(PREF_START_MENU_LAYOUT));
         bindPreferenceSummaryToValue(findPreference(PREF_SCROLLBAR));
@@ -98,6 +108,69 @@ public class GeneralFragment extends SettingsFragment {
         if(blacklistPref != null) {
             blacklistPref.setSummary(summary);
         }
+
+        updateAppSummaries();
+    }
+
+    private void updateAppSummaries() {
+        setAppSummary(PREF_CLOCK_APP);
+        setAppSummary(PREF_CALENDAR_APP);
+
+        Preference searchApp = findPreference(PREF_SEARCH_APP);
+        ComponentName chosen = U.getChosenApp(getActivity(), PREF_SEARCH_APP);
+        String label = AppChooserDialog.getLabel(getActivity(), chosen);
+        if(searchApp != null)
+            searchApp.setSummary(label != null ? label : getString(R.string.tb_pref_description_search_app));
+
+        Preference searchUrl = findPreference(PREF_SEARCH_URL);
+        if(searchUrl != null) {
+            String url = U.getSharedPreferences(getActivity()).getString(PREF_SEARCH_URL, "");
+            searchUrl.setSummary(url == null || url.isEmpty() ? getString(R.string.tb_search_url_hint) : url);
+        }
+    }
+
+    private void setAppSummary(String key) {
+        Preference preference = findPreference(key);
+        if(preference == null) return;
+
+        String label = AppChooserDialog.getLabel(getActivity(), U.getChosenApp(getActivity(), key));
+        preference.setSummary(label != null ? label : getString(R.string.tb_app_automatic));
+    }
+
+    private void chooseApp(String key, int titleRes) {
+        AppChooserDialog.show(getActivity(), titleRes, component -> {
+            U.getSharedPreferences(getActivity()).edit()
+                    .putString(key, component == null ? "" : component.flattenToString())
+                    .apply();
+            updateAppSummaries();
+        });
+    }
+
+    private void editSearchUrl() {
+        EditText input = new EditText(getActivity());
+        input.setSingleLine(true);
+        input.setHint(R.string.tb_search_url_hint);
+        input.setText(U.getSharedPreferences(getActivity()).getString(PREF_SEARCH_URL, ""));
+
+        AlertDialog dialog = new AlertDialog.Builder(getActivity())
+                .setTitle(R.string.tb_pref_title_search_url)
+                .setView(input)
+                .setPositiveButton(R.string.tb_action_ok, null)
+                .setNegativeButton(R.string.tb_action_cancel, null)
+                .create();
+        dialog.show();
+
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+            String url = input.getText().toString().trim();
+            if(!url.contains("%s")) {
+                U.showToastLong(getActivity(), R.string.tb_search_url_invalid);
+                return;
+            }
+
+            U.getSharedPreferences(getActivity()).edit().putString(PREF_SEARCH_URL, url).apply();
+            updateAppSummaries();
+            dialog.dismiss();
+        });
     }
 
     @TargetApi(Build.VERSION_CODES.O)
@@ -108,6 +181,18 @@ public class GeneralFragment extends SettingsFragment {
             case PREF_BLACKLIST:
                 Intent intent = U.getThemedIntent(getActivity(), SelectAppActivity.class);
                 startActivity(intent);
+                break;
+            case PREF_CLOCK_APP:
+                chooseApp(PREF_CLOCK_APP, R.string.tb_pref_title_clock_app);
+                break;
+            case PREF_CALENDAR_APP:
+                chooseApp(PREF_CALENDAR_APP, R.string.tb_pref_title_calendar_app);
+                break;
+            case PREF_SEARCH_APP:
+                chooseApp(PREF_SEARCH_APP, R.string.tb_pref_title_search_app);
+                break;
+            case PREF_SEARCH_URL:
+                editSearchUrl();
                 break;
             case PREF_NOTIFICATION_SETTINGS:
                 Intent intent2 = new Intent();

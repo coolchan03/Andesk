@@ -37,6 +37,17 @@
 - Desktop icon size (Settings > Appearance): small, medium or large, with the grid adjusting to fit.
 - Control Center: volume and brightness sliders. Brightness asks once for the "modify system settings" permission.
 - Floating (freeform) taskbar: a thin "Show desktop" strip at its end brings the desktop forward.
+- Taskbar Settings now opens as a window from the taskbar menu: while a desktop session has freeform enabled, apps are launched as windows even before the freeform helper finishes starting (a fast launch used to request full screen).
+- Open the same app in a second window: "Open in a new window" in an app's menu, or Ctrl-, Shift- or middle-click its taskbar or Start menu icon (apps that allow only one window ignore this).
+- New color picker with a color wheel, brightness and opacity sliders, a color code field and swatches.
+- The Appearance screen is grouped (Taskbar look, Colors, Clock/battery/status icons, Icons, Desktop and menus), and the taskbar style is chosen from picture cards instead of a text list.
+- Search settings: a search entry at the top of the settings home finds any setting and jumps to it.
+- Hide the status bar on the desktop (Appearance > Desktop and menus, or the Full screen tile in the Control Center).
+- Close apps tile in the Control Center ends the background processes of launchable apps; Android keeps apps that are still visible.
+- Choose the apps used for the clock, the calendar and for search (Settings > General > Apps and search).
+- Search: pick a search engine (Google, DuckDuckGo, Bing, Brave, Startpage, Ecosia or your own address) or a search app; Ctrl+Enter or Shift+Enter in the Start menu search always searches the web.
+- Taskbar apps and the Start button can use an emoji or your own image as their icon (Change icon in their menu).
+- The floating taskbar extends into the screen's camera-cutout side so the clock reaches the screen edge, and the clock's side padding is smaller.
 - Add regression tests for desktop startup, leaving/returning, session shutdown, appearance restarts, z-order and widget permissions.
 - Bind widgets using the provider's Android user profile and show the specific error stage when widget setup fails.
 

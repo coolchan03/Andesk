@@ -23,6 +23,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.farmerbb.taskbar.BuildConfig;
 import com.farmerbb.taskbar.R;
 import com.farmerbb.taskbar.activity.MainActivity;
+import com.farmerbb.taskbar.util.SettingsSearch;
 import com.farmerbb.taskbar.util.U;
 
 import java.util.Calendar;
@@ -49,6 +50,7 @@ public class AboutFragment extends SettingsFragment {
         // in this fork. DesktopLauncherActivity is the only desktop-session owner.
         getPreferenceScreen().removePreference(findPreference(PREF_PREF_SCREEN_DESKTOP_MODE));
 
+        findPreference(PREF_PREF_SCREEN_SEARCH).setOnPreferenceClickListener(this);
         findPreference(PREF_PREF_SCREEN_GENERAL).setOnPreferenceClickListener(this);
         findPreference(PREF_PREF_SCREEN_APPEARANCE).setOnPreferenceClickListener(this);
         findPreference(PREF_PREF_SCREEN_RECENT_APPS).setOnPreferenceClickListener(this);
@@ -84,6 +86,19 @@ public class AboutFragment extends SettingsFragment {
         switch(p.getKey()) {
             case PREF_ABOUT:
                 U.checkForUpdates(getActivity());
+                break;
+            case PREF_PREF_SCREEN_SEARCH:
+                SettingsSearch.showDialog(getActivity(), result -> {
+                    try {
+                        SettingsFragment fragment = result.fragment.getDeclaredConstructor().newInstance();
+                        Bundle args = new Bundle();
+                        args.putString(ARG_HIGHLIGHT_KEY, result.key);
+                        fragment.setArguments(args);
+                        navigateTo(fragment);
+                    } catch(ReflectiveOperationException e) {
+                        android.util.Log.w("Andesk", "Unable to open settings screen", e);
+                    }
+                });
                 break;
             case PREF_PREF_SCREEN_GENERAL:
                 navigateTo(new GeneralFragment());

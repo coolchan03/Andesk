@@ -58,6 +58,26 @@
         <item>gnome</item>
         <item>kde</item>
     </string-array>
+    <string-array name="tb_pref_search_engine">
+        <item>System default</item>
+        <item>Google</item>
+        <item>DuckDuckGo</item>
+        <item>Bing</item>
+        <item>Brave Search</item>
+        <item>Startpage</item>
+        <item>Ecosia</item>
+        <item>Custom address</item>
+    </string-array>
+    <string-array name="tb_pref_search_engine_values">
+        <item>system</item>
+        <item>google</item>
+        <item>duckduckgo</item>
+        <item>bing</item>
+        <item>brave</item>
+        <item>startpage</item>
+        <item>ecosia</item>
+        <item>custom</item>
+    </string-array>
     <string-array name="tb_pref_clock_format">
         <item>Follow system setting</item>
         <item>12-hour</item>
@@ -77,6 +97,16 @@
         <item>small</item>
         <item>medium</item>
         <item>large</item>
+    </string-array>
+    <string-array name="tb_pref_taskbar_style_descriptions">
+        <item>Your own colors and layout</item>
+        <item>Glass look, icons on the left</item>
+        <item>Flat and dark, icons on the left</item>
+        <item>Centered icons, softer look</item>
+        <item>Floating, centered dock</item>
+        <item>Centered shelf, like Chromebooks</item>
+        <item>Floating dock on the left side</item>
+        <item>Panel with a blue highlight</item>
     </string-array>
     <string-array name="tb_pref_taskbar_size_values">
         <item>compact</item>

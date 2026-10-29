@@ -51,6 +51,11 @@ public final class IconOverrides {
         return "app:" + componentName;
     }
 
+    /** Key for icons that are not an app or document, such as the taskbar Start button. */
+    public static String specialKey(String name) {
+        return "special:" + name;
+    }
+
     public static String documentKey(String uri) {
         return "doc:" + uri;
     }
@@ -97,7 +102,17 @@ public final class IconOverrides {
 
     /** @return the replacement icon, or null when the item uses its normal icon. */
     public static Drawable getDrawable(Context context, String key, int sizePx) {
-        JSONObject override = load(context).optJSONObject(key);
+        // Most users have no custom icons; skip parsing entirely for them. This runs for
+        // every taskbar icon on every refresh.
+        String raw = U.getSharedPreferences(context).getString(PREF_ICON_OVERRIDES, "{}");
+        if(raw == null || raw.length() <= 2) return null;
+
+        JSONObject override;
+        try {
+            override = load(context).optJSONObject(key);
+        } catch(RuntimeException e) {
+            return null;
+        }
         if(override == null) return null;
 
         String emoji = override.optString(KEY_EMOJI, null);
