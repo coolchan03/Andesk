@@ -104,6 +104,7 @@ import com.farmerbb.taskbar.util.DesktopSessionState;
 import com.farmerbb.taskbar.helper.FreeformHackHelper;
 import com.farmerbb.taskbar.util.IconCache;
 import com.farmerbb.taskbar.util.IconOverrides;
+import com.farmerbb.taskbar.util.TaskbarTexture;
 import com.farmerbb.taskbar.helper.LauncherHelper;
 import com.farmerbb.taskbar.util.PinnedBlockedApps;
 import com.farmerbb.taskbar.helper.MenuHelper;
@@ -166,6 +167,8 @@ public class TaskbarController extends UIController {
 
     // Floating desktop taskbar: shrinks to the Start button while the desktop is not shown.
     private boolean compact = false;
+    private boolean overlayInsets = false;
+    private int dockMargin = 0;
     private View showDesktopSliver;
     private UIHost currentHost;
     private ViewParams currentParams;
@@ -224,6 +227,24 @@ public class TaskbarController extends UIController {
         @Override
         public void onReceive(Context context, Intent intent) {
             setCompact(true);
+        }
+    };
+
+    private final BroadcastReceiver insetsReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if(!overlayInsets || layout == null || currentHost == null || currentParams == null)
+                return;
+
+            boolean vertical = TaskbarPosition.isVertical(context);
+            applyOverlayInsets(currentParams, vertical,
+                    TaskbarPosition.getTaskbarPosition(context), dockMargin);
+            if(vertical && dockMargin > 0)
+                currentParams.bottomMargin = -1;
+
+            try {
+                currentHost.updateViewLayout(layout, currentParams);
+            } catch(IllegalArgumentException ignored) {}
         }
     };
 
@@ -289,10 +310,18 @@ public class TaskbarController extends UIController {
         int layoutId = getTaskbarLayoutId(taskbarPosition);
         positionIsVertical = TaskbarPosition.isVertical(taskbarPosition);
 
+        // A taskbar floating over other apps is drawn below the status and navigation bars, so
+        // it offsets itself by their measured size. Views inside the desktop Activity do not.
+        overlayInsets = desktopSession && !(host instanceof android.app.Activity);
+        dockMargin = dock ? U.getTaskbarEdgeMargin(context) : 0;
+        if(overlayInsets)
+            applyOverlayInsets(params, positionIsVertical, taskbarPosition, dockMargin);
+
         if(dock) {
             // Floating dock: centered along its edge, with a gap to the screen edge.
-            int margin = U.getTaskbarEdgeMargin(context);
-            params.edgeMargin = margin;
+            if(!overlayInsets)
+                params.edgeMargin = dockMargin;
+
             if(positionIsVertical) {
                 params.gravity = (params.gravity & Gravity.HORIZONTAL_GRAVITY_MASK)
                         | Gravity.CENTER_VERTICAL;
@@ -300,7 +329,8 @@ public class TaskbarController extends UIController {
             } else {
                 params.gravity = (params.gravity & Gravity.VERTICAL_GRAVITY_MASK)
                         | Gravity.CENTER_HORIZONTAL;
-                params.bottomMargin = Math.max(0, params.bottomMargin) + margin;
+                if(!overlayInsets)
+                    params.bottomMargin = Math.max(0, params.bottomMargin) + dockMargin;
             }
         }
 
@@ -455,6 +485,20 @@ public class TaskbarController extends UIController {
             layout.setPadding(dockPadding, dockPadding, dockPadding, dockPadding);
         } else
             layout.setBackgroundColor(backgroundTint);
+
+        // An optional pattern (dots, lines, grid, carbon, noise) over the background.
+        Drawable plainBackground = layout.getBackground();
+        Drawable texturedBackground = TaskbarTexture.wrap(
+                context, plainBackground, backgroundTint, U.getTaskbarCornerRadius(context));
+        if(texturedBackground != plainBackground) {
+            layout.setBackground(texturedBackground);
+
+            // Setting a background can reset the padding a floating dock relies on.
+            if(dock) {
+                int dockPadding = U.getTaskbarDockPadding(context);
+                layout.setPadding(dockPadding, dockPadding, dockPadding, dockPadding);
+            }
+        }
         layout.findViewById(R.id.divider).setBackgroundColor(
                 windowsStyle || pref.getBoolean(PREF_CENTERED_ICONS, false) ? 0 : accentColor
         );
@@ -518,6 +562,7 @@ public class TaskbarController extends UIController {
         if(desktopSession) {
             U.registerReceiver(context, compactReceiver, ACTION_DESKTOP_TASKBAR_COMPACT);
             U.registerReceiver(context, expandReceiver, ACTION_DESKTOP_TASKBAR_EXPAND);
+            U.registerReceiver(context, insetsReceiver, ACTION_SYSTEM_INSETS_CHANGED);
         }
 
         updateParamsRunnable = () -> {
@@ -1871,6 +1916,7 @@ public class TaskbarController extends UIController {
         U.unregisterReceiver(context, startMenuDisappearReceiver);
         U.unregisterReceiver(context, compactReceiver);
         U.unregisterReceiver(context, expandReceiver);
+        U.unregisterReceiver(context, insetsReceiver);
 
         if(sysTrayEnabled) {
             TelephonyManager manager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);

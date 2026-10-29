@@ -34,6 +34,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.farmerbb.taskbar.R;
 import com.farmerbb.taskbar.activity.IconPackActivity;
+import com.farmerbb.taskbar.util.AppearanceDefaults;
 import com.farmerbb.taskbar.util.ColorPickerDialog;
 import com.farmerbb.taskbar.util.TaskbarStylePickerDialog;
 import com.farmerbb.taskbar.util.U;
@@ -97,7 +98,12 @@ public class AppearanceFragment extends SettingsFragment {
 
         bindPreferenceSummaryToValue(findPreference(PREF_THEME));
         findPreference(PREF_TASKBAR_STYLE).setOnPreferenceClickListener(this);
+        findPreference(PREF_TASKBAR_POSITION_PICKER).setOnPreferenceClickListener(this);
+        findPreference(PREF_RESET_APPEARANCE).setOnPreferenceClickListener(this);
+        bindPreferenceSummaryToValue(findPreference(PREF_TASKBAR_TEXTURE));
+        bindPreferenceSummaryToValue(findPreference(PREF_TASKBAR_TEXTURE_STRENGTH));
         updateStyleSummary();
+        updatePositionSummary();
         bindPreferenceSummaryToValue(findPreference(PREF_HIDE_STATUS_BAR));
         bindPreferenceSummaryToValue(findPreference(PREF_TASKBAR_SIZE));
         bindPreferenceSummaryToValue(findPreference(PREF_FULL_LENGTH));
@@ -141,6 +147,45 @@ public class AppearanceFragment extends SettingsFragment {
         dot.setStroke(Math.round(1.5f * density), Color.argb(120, 128, 128, 128));
         dot.setSize(Math.round(28 * density), Math.round(28 * density));
         preference.setIcon(dot);
+    }
+
+    private void updatePositionSummary() {
+        Preference position = findPreference(PREF_TASKBAR_POSITION_PICKER);
+        if(position == null) return;
+
+        String[] names = getResources().getStringArray(R.array.tb_pref_position_list);
+        String[] values = getResources().getStringArray(R.array.tb_pref_position_list_values);
+        String current = U.getSharedPreferences(getActivity()).getString(PREF_POSITION, POSITION_BOTTOM_LEFT);
+        for(int i = 0; i < values.length; i++) {
+            if(values[i].equals(current)) {
+                position.setSummary(names[i]);
+                return;
+            }
+        }
+    }
+
+    private void showPositionPicker() {
+        String[] names = getResources().getStringArray(R.array.tb_pref_position_list);
+        String[] values = getResources().getStringArray(R.array.tb_pref_position_list_values);
+        String current = U.getSharedPreferences(getActivity()).getString(PREF_POSITION, POSITION_BOTTOM_LEFT);
+
+        int checked = -1;
+        for(int i = 0; i < values.length; i++) {
+            if(values[i].equals(current)) checked = i;
+        }
+
+        new AlertDialog.Builder(getActivity())
+                .setTitle(R.string.tb_choose_position)
+                .setSingleChoiceItems(names, checked, (dialog, which) -> {
+                    U.getSharedPreferences(getActivity()).edit()
+                            .putString(PREF_POSITION, values[which])
+                            .apply();
+                    updatePositionSummary();
+                    U.restartTaskbar(getActivity());
+                    dialog.dismiss();
+                })
+                .setNegativeButton(R.string.tb_action_cancel, null)
+                .show();
     }
 
     private void updateStyleSummary() {
@@ -224,6 +269,25 @@ public class AppearanceFragment extends SettingsFragment {
 
                 AlertDialog dialog = builder.create();
                 dialog.show();
+                break;
+            case PREF_TASKBAR_POSITION_PICKER:
+                showPositionPicker();
+                break;
+            case PREF_RESET_APPEARANCE:
+                new AlertDialog.Builder(getActivity())
+                        .setTitle(R.string.tb_pref_title_reset_appearance)
+                        .setMessage(R.string.tb_reset_appearance_confirm)
+                        .setNegativeButton(R.string.tb_action_cancel, null)
+                        .setPositiveButton(R.string.tb_action_ok, (confirm, which) -> {
+                            AppearanceDefaults.reset(getActivity());
+                            U.sendBroadcast(getActivity(), ACTION_REFRESH_DESKTOP_ICONS);
+                            U.restartTaskbar(getActivity());
+                            U.showToast(getActivity(), R.string.tb_appearance_reset_done);
+
+                            // Rebuild the screen (and the theme) with the defaults.
+                            getActivity().recreate();
+                        })
+                        .show();
                 break;
             case PREF_TASKBAR_STYLE:
                 TaskbarStylePickerDialog.show(getActivity(), U.getTaskbarStyle(getActivity()), value -> {

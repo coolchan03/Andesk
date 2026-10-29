@@ -30,6 +30,7 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -44,6 +45,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.ViewOutlineProvider;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
@@ -60,6 +62,7 @@ import com.farmerbb.taskbar.R;
 import com.farmerbb.taskbar.activity.InvisibleActivity;
 import com.farmerbb.taskbar.activity.InvisibleActivityAlt;
 import com.farmerbb.taskbar.adapter.StartMenuAdapter;
+import com.farmerbb.taskbar.util.TaskbarTexture;
 import com.farmerbb.taskbar.util.TaskbarPosition;
 import com.farmerbb.taskbar.util.AppEntry;
 import com.farmerbb.taskbar.util.Blacklist;
@@ -99,6 +102,25 @@ public class StartMenuController extends UIController {
     private List<String> currentStartMenuIds = new ArrayList<>();
 
     private final View.OnClickListener ocl = view -> toggleStartMenu();
+
+    private boolean overlayInsets = false;
+    private UIHost currentHost;
+    private ViewParams currentParams;
+
+    private final BroadcastReceiver insetsReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if(!overlayInsets || layout == null || currentHost == null || currentParams == null)
+                return;
+
+            applyOverlayInsets(currentParams, TaskbarPosition.isVertical(context),
+                    TaskbarPosition.getTaskbarPosition(context), 0);
+
+            try {
+                currentHost.updateViewLayout(layout, currentParams);
+            } catch(IllegalArgumentException ignored) {}
+        }
+    };
 
     private final BroadcastReceiver toggleReceiver = new BroadcastReceiver() {
         @Override
@@ -195,6 +217,13 @@ public class StartMenuController extends UIController {
         params.gravity = getStartMenuGravity(taskbarPosition);
         params.extendIntoGestureArea = DesktopSessionState.isActive(context);
 
+        // Like the floating taskbar, offset by the status/navigation bars it is drawn below.
+        overlayInsets = DesktopSessionState.isActive(context) && !(host instanceof android.app.Activity);
+        if(overlayInsets)
+            applyOverlayInsets(params, TaskbarPosition.isVertical(taskbarPosition), taskbarPosition, 0);
+        currentHost = host;
+        currentParams = params;
+
         // Initialize views
         layout = (StartMenuLayout) LayoutInflater.from(U.wrapContext(context)).inflate(layoutId, null);
         layout.setAlpha(0);
@@ -239,12 +268,24 @@ public class StartMenuController extends UIController {
         searchView = layout.findViewById(R.id.search);
         searchViewClicked = false;
 
-        int backgroundTint = U.getBackgroundTint(context);
+        // The Start menu wears the taskbar's color, rounding, texture and text color.
+        int backgroundTint = U.getStartMenuBackgroundColor(context);
+        int menuTextColor = U.getStartMenuTextColor(context);
+        int cornerRadius = U.getStartMenuCornerRadius(context);
 
         FrameLayout startMenuFrame = layout.findViewById(R.id.start_menu_frame);
         FrameLayout searchViewLayout = layout.findViewById(R.id.search_view_layout);
-        startMenuFrame.setBackgroundColor(backgroundTint);
-        searchViewLayout.setBackgroundColor(backgroundTint);
+
+        GradientDrawable frameBackground = new GradientDrawable();
+        frameBackground.setColor(backgroundTint);
+        frameBackground.setCornerRadius(cornerRadius);
+        startMenuFrame.setBackground(
+                TaskbarTexture.wrap(context, frameBackground, backgroundTint, cornerRadius));
+        if(cornerRadius > 0) {
+            startMenuFrame.setOutlineProvider(ViewOutlineProvider.BACKGROUND);
+            startMenuFrame.setClipToOutline(true);
+        }
+        searchViewLayout.setBackgroundColor(0);
 
         if(shouldShowSearchBox) {
             if(!hasHardwareKeyboard) searchView.setIconifiedByDefault(true);
@@ -253,6 +294,13 @@ public class StartMenuController extends UIController {
                 searchViewClicked = true;
                 return false;
             });
+
+            EditText themedSearchText = searchView.findViewById(com.google.android.material.R.id.search_src_text);
+            if(themedSearchText != null) {
+                themedSearchText.setTextColor(menuTextColor);
+                themedSearchText.setHintTextColor(
+                        androidx.core.graphics.ColorUtils.setAlphaComponent(menuTextColor, 140));
+            }
 
             // Ctrl+Enter or Shift+Enter searches the web even when apps match.
             EditText searchText = searchView.findViewById(com.google.android.material.R.id.search_src_text);
@@ -365,6 +413,7 @@ public class StartMenuController extends UIController {
         applyMarginFix(host, layout, params);
 
         textView = layout.findViewById(R.id.no_apps_found);
+        textView.setTextColor(menuTextColor);
 
         U.registerReceiver(context, toggleReceiver, ACTION_TOGGLE_START_MENU);
         U.registerReceiver(context, hideReceiver, ACTION_HIDE_START_MENU);
@@ -372,6 +421,8 @@ public class StartMenuController extends UIController {
         U.registerReceiver(context, showSpaceReceiver, ACTION_SHOW_START_MENU_SPACE);
         U.registerReceiver(context, hideSpaceReceiver, ACTION_HIDE_START_MENU_SPACE);
         U.registerReceiver(context, resetReceiver, ACTION_RESET_START_MENU);
+        if(overlayInsets)
+            U.registerReceiver(context, insetsReceiver, ACTION_SYSTEM_INSETS_CHANGED);
 
         handler = U.newHandler();
         refreshApps(true);
@@ -809,6 +860,7 @@ public class StartMenuController extends UIController {
         U.unregisterReceiver(context, showSpaceReceiver);
         U.unregisterReceiver(context, hideSpaceReceiver);
         U.unregisterReceiver(context, resetReceiver);
+        U.unregisterReceiver(context, insetsReceiver);
 
         U.sendBroadcast(context, ACTION_START_MENU_DISAPPEARING);
     }

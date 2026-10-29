@@ -32,6 +32,7 @@ import com.farmerbb.taskbar.R;
 import com.farmerbb.taskbar.activity.SelectAppActivity;
 import com.farmerbb.taskbar.util.AppChooserDialog;
 import com.farmerbb.taskbar.util.Blacklist;
+import com.farmerbb.taskbar.util.PinnedAppsEditorDialog;
 import com.farmerbb.taskbar.util.TopApps;
 import com.farmerbb.taskbar.util.U;
 
@@ -62,6 +63,8 @@ public class GeneralFragment extends SettingsFragment {
                 && !U.isOverridingFreeformHack(getActivity(), false))
             findPreference(PREF_HIDE_TASKBAR).setSummary(R.string.tb_hide_taskbar_disclaimer);
 
+        findPreference(PREF_PINNED_APPS).setOnPreferenceClickListener(this);
+        findPreference(PREF_KEYBOARD_SHORTCUTS).setOnPreferenceClickListener(this);
         findPreference(PREF_CLOCK_APP).setOnPreferenceClickListener(this);
         findPreference(PREF_CALENDAR_APP).setOnPreferenceClickListener(this);
         findPreference(PREF_SEARCH_APP).setOnPreferenceClickListener(this);
@@ -146,6 +149,26 @@ public class GeneralFragment extends SettingsFragment {
         });
     }
 
+    private void showKeyboardShortcuts() {
+        String shortcuts = String.join("\n\n",
+                "Windows key: open or close the Start menu",
+                "Esc: close the Start menu",
+                "Alt+F4: exit the desktop",
+                "Ctrl+Alt+S: Andesk settings",
+                "Ctrl+Alt+A or Shift+F10: desktop menu (add apps, files, widgets)",
+                "Ctrl+Shift+F: add a file shortcut",
+                "Ctrl+Shift+N: add a folder shortcut",
+                "Ctrl-, Shift- or middle-click an app: open it in a new window",
+                "Ctrl+Enter or Shift+Enter in Start menu search: search the web",
+                "Right-click: the same as a long press");
+
+        new AlertDialog.Builder(getActivity())
+                .setTitle(R.string.tb_keyboard_shortcuts)
+                .setMessage(shortcuts)
+                .setPositiveButton(R.string.tb_action_ok, null)
+                .show();
+    }
+
     private void editSearchUrl() {
         EditText input = new EditText(getActivity());
         input.setSingleLine(true);
@@ -181,6 +204,12 @@ public class GeneralFragment extends SettingsFragment {
             case PREF_BLACKLIST:
                 Intent intent = U.getThemedIntent(getActivity(), SelectAppActivity.class);
                 startActivity(intent);
+                break;
+            case PREF_PINNED_APPS:
+                PinnedAppsEditorDialog.show(getActivity());
+                break;
+            case PREF_KEYBOARD_SHORTCUTS:
+                showKeyboardShortcuts();
                 break;
             case PREF_CLOCK_APP:
                 chooseApp(PREF_CLOCK_APP, R.string.tb_pref_title_clock_app);

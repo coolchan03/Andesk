@@ -70,6 +70,14 @@ Andesk is a session-owned Android desktop launcher developed from Braden Farmer'
 - Offer Classic, Windows 7, Windows 10, and Windows 11 inspired taskbar styles and taskbar size options.
 - Constrain ordinary freeform app windows to the usable display while preserving the invisible offscreen freeform helper.
 - Remove legacy Tasker, Kustom, paid/free settings transfer, Android-x86 and library integration.
+- Keep the overlay taskbar and Start menu clear of the system navigation bar: the desktop publishes the measured system bar insets and floating bars offset themselves by them.
+- The Start menu / app grid now follows the taskbar's colors, text color, corner radius and texture.
+- New taskbar textures (dots, lines, grid, carbon, noise) with subtle / medium / strong strength.
+- Taskbar position picker in Appearance (bottom, top, left or right corners).
+- Pinned apps editor (General): reorder, remove and add taskbar apps.
+- "Reset all appearance settings" returns styles, colors, texture, sizes, icons and overrides to defaults.
+- Keyboard shortcuts reference in General.
+- Clarified that "Hide status bar" only applies while the desktop is in front; while floating over freeform windows Android lets only the focused app hide it.
 - Replace the upstream installation identity with `st.advisory.andesk`; this is a separate Android installation from the previous package, so application data does not migrate automatically.
 
 ### Attribution

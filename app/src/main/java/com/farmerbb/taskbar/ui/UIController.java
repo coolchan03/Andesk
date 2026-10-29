@@ -27,6 +27,7 @@ import com.farmerbb.taskbar.activity.SecondaryHomeActivity;
 import com.farmerbb.taskbar.helper.LauncherHelper;
 import com.farmerbb.taskbar.util.CompatUtils;
 import com.farmerbb.taskbar.util.TaskbarPosition;
+import com.farmerbb.taskbar.util.SystemBarInsets;
 import com.farmerbb.taskbar.util.U;
 
 import static com.farmerbb.taskbar.util.Constants.*;
@@ -73,6 +74,27 @@ public abstract class UIController {
                 && !U.isChromeOs(context)
                 && !U.isShowHideNavbarSupported()
                 && TaskbarPosition.isBottom(context) ? U.getNavbarHeight(context) : -1;
+    }
+
+    /**
+     * Windows that float over other apps are drawn below the system bars. Offset them by the
+     * bars' measured size so the navigation buttons do not cover the taskbar. The desktop's own
+     * in-Activity views are already laid out inside the bars and must not use this.
+     *
+     * @param extraEdge extra gap to keep from the screen edge (a floating dock's margin)
+     */
+    protected void applyOverlayInsets(ViewParams params, boolean vertical, String position, int extraEdge) {
+        boolean top = !TaskbarPosition.isBottom(position);
+
+        // The anchored edge's system bar: status bar for top positions, navigation for bottom.
+        int edgeInset = top ? SystemBarInsets.getTop() : SystemBarInsets.getBottom();
+        params.bottomMargin = vertical ? edgeInset : edgeInset + extraEdge;
+
+        boolean rightSide = TaskbarPosition.isVerticalRight(position)
+                || position.equals(POSITION_BOTTOM_RIGHT)
+                || position.equals(POSITION_TOP_RIGHT);
+        int sideInset = rightSide ? SystemBarInsets.getRight() : SystemBarInsets.getLeft();
+        params.edgeMargin = sideInset + (vertical ? extraEdge : 0);
     }
 
     protected void applyMarginFix(UIHost host, View layout, ViewParams params) {
