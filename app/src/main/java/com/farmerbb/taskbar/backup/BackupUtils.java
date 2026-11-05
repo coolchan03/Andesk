@@ -242,8 +242,19 @@ public class BackupUtils {
                         && event != XmlPullParser.END_DOCUMENT);
                 if(event != XmlPullParser.START_TAG || !"map".equals(parser.getName()))
                     throw new IllegalArgumentException("Invalid preferences XML");
-                // Parse the rest of the document to catch truncation before mutation.
-                while(parser.next() != XmlPullParser.END_DOCUMENT) {}
+                // Some Android parsers accept truncated XML at end-of-file,
+                // so explicitly require the opening map and all nested tags to close.
+                int openTags = 1;
+                while((event = parser.next()) != XmlPullParser.END_DOCUMENT) {
+                    if(event == XmlPullParser.START_TAG)
+                        openTags++;
+                    else if(event == XmlPullParser.END_TAG)
+                        openTags--;
+                    if(openTags < 0)
+                        throw new IllegalArgumentException("Invalid preferences XML");
+                }
+                if(openTags != 0)
+                    throw new IllegalArgumentException("Unclosed preferences XML");
             } catch(XmlPullParserException | IOException e) {
                 throw new IllegalArgumentException("Invalid preferences XML", e);
             }
