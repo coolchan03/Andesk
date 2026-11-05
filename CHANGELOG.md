@@ -1,5 +1,20 @@
 # Andesk changelog
 
+## 0.1.3 - Reliability and performance audit (November 5, 2026)
+
+- Make backup imports bounded and streaming rather than relying on a single file read or trusting uncompressed ZIP entry sizes.
+- Validate the entire settings backup, including array lengths, component names, and preference XML, before replacing existing settings.
+- Preserve recoverable rollback snapshots of pinned apps, preferences, and desktop images to recover from interrupted or failed restore operations.
+- Add backup-validation and rollback regression tests, including malformed XML and incomplete backups.
+- Fix nullable wallpaper picker results, missing keyboard selection, missing desktop shortcut intents, unavailable profiles, and widget cleanup errors.
+- Keep shortcuts for temporarily unavailable Android apps or work profiles rather than deleting them from the desktop.
+- Cache settings-search XML for each dialog and reuse result list rows.
+- Downsample custom images and desktop wallpaper before decoding, reducing memory pressure on mobile devices.
+- Prevent stale Start menu search results and taskbar refresh workers from updating destroyed or replaced views.
+- Refresh the Control Center clock and date while the panel is open.
+- Reuse desktop grid cells and index file shortcuts instead of scanning all documents for each cell.
+- Include on-branch GitHub CI checks for compilation, automated tests, formatting, and Android lint.
+
 ## 0.1.2 - Desktop taskbar and widget-host corrections (October 15, 2026)
 
 - Render the taskbar, Start menu and dashboard inside the desktop Activity instead of depending on an external overlay service to draw the desktop.
