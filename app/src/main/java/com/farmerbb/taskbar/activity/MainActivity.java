@@ -43,6 +43,7 @@ import androidx.appcompat.widget.SwitchCompat;
 
 import com.farmerbb.taskbar.BuildConfig;
 import com.farmerbb.taskbar.R;
+import com.farmerbb.taskbar.backup.RestoreJournal;
 import com.farmerbb.taskbar.fragment.AboutFragment;
 import com.farmerbb.taskbar.fragment.AdvancedFragment;
 import com.farmerbb.taskbar.fragment.AppearanceFragment;
@@ -83,6 +84,22 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if(U.relaunchActivityIfNeeded(this)) return;
+
+        // Restore original settings before SharedPreferences are opened after a failed import.
+        if(savedInstanceState == null) {
+            File pendingRestore = new File(getFilesDir(), "restore_in_progress");
+            if(pendingRestore.exists()) {
+                try {
+                    RestoreJournal.rollback(this);
+                    RestoreJournal.clear(this);
+                } catch(java.io.IOException e) {
+                    android.util.Log.e("Andesk", "Cannot recover previous settings", e);
+                    // Keep the journal and marker so another launch can retry.
+                }
+            } else if(new File(getFilesDir(), "restore_successful").exists()) {
+                RestoreJournal.clear(this);
+            }
+        }
 
         U.registerReceiver(this, switchReceiver, ACTION_UPDATE_SWITCH);
 
@@ -188,7 +205,8 @@ public class MainActivity extends AppCompatActivity {
             if(restoreInProgress.exists() || restoreSuccessful.exists()) {
                 if(restoreInProgress.exists()) {
                     U.showToastLong(this, R.string.tb_restore_failed);
-                    restoreInProgress.delete();
+                    if(!new File(getFilesDir(), "restore_rollback").exists())
+                        restoreInProgress.delete();
                 }
 
                 if(restoreSuccessful.exists()) {

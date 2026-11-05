@@ -1563,6 +1563,11 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
         int columns = Math.max(1, (layout.getWidth() - (taskbarIsVertical ? iconSize : 0)) / desktopIconSize);
         int rows = Math.max(1, (layout.getHeight() - (!taskbarIsVertical ? iconSize : 0)) / desktopIconSize);
 
+        List<FrameLayout> recycledCells = new ArrayList<>();
+        for(int i = 0; i < desktopIcons.getChildCount(); i++) {
+            View child = desktopIcons.getChildAt(i);
+            if(child instanceof FrameLayout) recycledCells.add((FrameLayout) child);
+        }
         desktopIcons.removeAllViews();
         desktopIcons.setOrientation(GridLayout.VERTICAL);
         desktopIcons.setColumnCount(columns);
@@ -1581,12 +1586,14 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
             for(int i = 0; i < jsonIcons.length(); i++) {
                 DesktopIconInfo info = DesktopIconInfo.fromJson(jsonIcons.getJSONObject(i));
                 if(info != null) {
-                    if(launcherApps.isActivityEnabled(
-                            ComponentName.unflattenFromString(info.entry.getComponentName()),
-                            userManager.getUserForSerialNumber(info.entry.getUserId(this))))
+                    ComponentName component = info.entry == null ? null
+                            : ComponentName.unflattenFromString(info.entry.getComponentName());
+                    android.os.UserHandle user = info.entry == null ? null
+                            : userManager.getUserForSerialNumber(info.entry.getUserId(this));
+                    // Keep entries for unavailable profiles/apps; they may return later.
+                    if(component != null && user != null
+                            && launcherApps.isActivityEnabled(component, user))
                         icons.put(getIndex(info), info);
-                    else
-                        iconsToRemove.add(i);
                 }
             }
 
@@ -1604,6 +1611,15 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
         try { documents = new JSONArray(U.getSharedPreferences(this).getString("andesk_documents", "[]")); }
         catch(org.json.JSONException ignored) {}
 
+        SparseArray<org.json.JSONObject> documentsBySlot = new SparseArray<>();
+        for(int j = 0; j < documents.length(); j++) {
+            org.json.JSONObject document = documents.optJSONObject(j);
+            if(document == null) continue;
+            int col = document.optInt("column", -1);
+            int row = document.optInt("row", -1);
+            if(col >= 0 && col < columns && row >= 0 && row < rows)
+                documentsBySlot.put(col * rows + row, document);
+        }
         if(desktopAddButton != null && (icons.size() > 0 || documents.length() > 0))
             desktopAddButton.setVisibility(View.GONE);
         for(int i = 0; i < columns * rows; i++) {
@@ -1614,7 +1630,9 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
             params.width = 0;
             params.height = 0;
 
-            FrameLayout iconContainer = new FrameLayout(this);
+            FrameLayout iconContainer = i < recycledCells.size()
+                    ? recycledCells.get(i) : new FrameLayout(this);
+            iconContainer.removeAllViews();
             iconContainer.setLayoutParams(params);
             iconContainer.setOnDragListener(new DesktopIconDragListener());
 
@@ -1698,16 +1716,9 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
                 iconContainer.addView(inflateDesktopIcon(iconContainer, info.entry));
 
             if(info == null) {
-                for(int j = 0; j < documents.length(); j++) {
-                    org.json.JSONObject document = documents.optJSONObject(j);
-                    if(document == null) continue;
-                    DesktopIconInfo slot = getDesktopIconInfo(index);
-                    if(document.optInt("column", -1) == slot.column && document.optInt("row", -1) == slot.row) {
-                        View shortcutView = createDocumentView(iconContainer, document, index);
-                        iconContainer.addView(shortcutView);
-                        break;
-                    }
-                }
+                org.json.JSONObject document = documentsBySlot.get(index);
+                if(document != null)
+                    iconContainer.addView(createDocumentView(iconContainer, document, index));
             }
             desktopIcons.addView(iconContainer);
         }
@@ -2274,7 +2285,7 @@ public class HomeActivityDelegate extends AppCompatActivity implements UIHost {
         }
 
         if(requestCode == U.IMAGE_REQUEST_CODE) {
-            if(data.getData() == null)
+            if(data == null || data.getData() == null)
                 return;
 
             if(U.importImage(this, data.getData(), "desktop_wallpaper")) {

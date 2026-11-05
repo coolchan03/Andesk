@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - 'audit/**'
   pull_request:
     branches:
       - master

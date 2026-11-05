@@ -134,14 +134,14 @@ public class TaskbarController extends UIController {
     private Thread thread2;
 
     private boolean isShowingRecents = true;
-    private boolean shouldRefreshRecents = true;
+    private volatile boolean shouldRefreshRecents = true;
+    private volatile int refreshGeneration;
     private boolean taskbarShownTemporarily = false;
     private boolean taskbarHiddenTemporarily = false;
-    private boolean isRefreshingRecents = false;
     private boolean isFirstStart = true;
 
     private boolean startThread2 = false;
-    private boolean stopThread2 = false;
+    private volatile boolean stopThread2 = false;
 
     private int refreshInterval = -1;
     private long searchInterval = -1;
@@ -386,9 +386,13 @@ public class TaskbarController extends UIController {
         startButton = layout.findViewById(R.id.start_button);
         drawStartButton(context, startButton, pref);
 
-        refreshInterval = (int) (Float.parseFloat(pref.getString(PREF_REFRESH_FREQUENCY, "1")) * 1000);
-        if(refreshInterval == 0)
-            refreshInterval = 100;
+        try {
+            refreshInterval = (int) (Float.parseFloat(
+                    pref.getString(PREF_REFRESH_FREQUENCY, "1")) * 1000);
+        } catch(NumberFormatException error) {
+            refreshInterval = 1000;
+        }
+        refreshInterval = Math.max(300, refreshInterval);
 
         sortOrder = pref.getString(PREF_SORT_ORDER, "false");
         runningAppsOnly =
@@ -1019,53 +1023,51 @@ public class TaskbarController extends UIController {
     }
 
     private void startRefreshingRecents() {
+        // A generation token prevents an interrupted scan from updating a newer taskbar.
+        final int generation = ++refreshGeneration;
         if(thread != null) thread.interrupt();
         stopThread2 = true;
+        shouldRefreshRecents = true;
 
         SharedPreferences pref = U.getSharedPreferences(context);
         showHideAutomagically = pref.getBoolean(PREF_HIDE_WHEN_KEYBOARD_SHOWN, false);
-
         currentTaskbarIds.clear();
 
         handler = U.newHandler();
         thread = new Thread(() -> {
             updateRecentApps(true);
+            while(shouldRefreshRecents && generation == refreshGeneration
+                    && !Thread.currentThread().isInterrupted()) {
+                updateRecentApps(false);
 
-            if(!isRefreshingRecents) {
-                isRefreshingRecents = true;
-
-                while(shouldRefreshRecents) {
-                    updateRecentApps(false);
-
-                    if(showHideAutomagically && !positionIsVertical && !MenuHelper.getInstance().isStartMenuOpen()) {
-                        handler.post(() -> {
-                            if(layout != null) {
-                                int[] location = new int[2];
-                                layout.getLocationOnScreen(location);
-
-                                if(location[1] != 0) {
-                                    if(location[1] > currentTaskbarPosition) {
-                                        currentTaskbarPosition = location[1];
-                                    } else if(location[1] < currentTaskbarPosition) {
-                                        if(currentTaskbarPosition - location[1] == getNavBarSize())
-                                            currentTaskbarPosition = location[1];
-                                        else if(!startThread2) {
-                                            startThread2 = true;
-                                            tempHideTaskbar(true);
-                                        }
-                                    }
+                if(showHideAutomagically && !positionIsVertical
+                        && !MenuHelper.getInstance().isStartMenuOpen()) {
+                    handler.post(() -> {
+                        if(generation != refreshGeneration || layout == null) return;
+                        int[] location = new int[2];
+                        layout.getLocationOnScreen(location);
+                        if(location[1] != 0) {
+                            if(location[1] > currentTaskbarPosition) {
+                                currentTaskbarPosition = location[1];
+                            } else if(location[1] < currentTaskbarPosition) {
+                                if(currentTaskbarPosition - location[1] == getNavBarSize())
+                                    currentTaskbarPosition = location[1];
+                                else if(!startThread2) {
+                                    startThread2 = true;
+                                    tempHideTaskbar(true);
                                 }
                             }
-                        });
-                    }
-
-                    SystemClock.sleep(refreshInterval);
+                        }
+                    });
                 }
-
-                isRefreshingRecents = false;
+                try {
+                    Thread.sleep(Math.max(300, refreshInterval));
+                } catch(InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    break;
+                }
             }
-        });
-
+        }, "Andesk-recents");
         thread.start();
     }
 
@@ -1114,13 +1116,15 @@ public class TaskbarController extends UIController {
                 Intent homeIntent = new Intent(Intent.ACTION_MAIN);
                 homeIntent.addCategory(Intent.CATEGORY_HOME);
                 ResolveInfo defaultLauncher = pm.resolveActivity(homeIntent, PackageManager.MATCH_DEFAULT_ONLY);
+                String defaultHome = defaultLauncher == null || defaultLauncher.activityInfo == null
+                        ? "" : defaultLauncher.activityInfo.packageName;
 
                 // Filter out apps without a launcher intent
                 // Also filter out the current launcher, and Taskbar itself
                 for(AppEntry packageInfo : usageStatsList) {
                     if(hasLauncherIntent(packageInfo.getPackageName())
                             && !packageInfo.getPackageName().contains(BuildConfig.BASE_APPLICATION_ID)
-                            && !packageInfo.getPackageName().equals(defaultLauncher.activityInfo.packageName)
+                            && !packageInfo.getPackageName().equals(defaultHome)
                             && (!(U.launcherIsDefault(context) && pref.getBoolean(PREF_DESKTOP_MODE, false))
                             || !packageInfo.getPackageName().equals(pref.getString(PREF_HSL_ID, "null"))))
                         usageStatsList2.add(packageInfo);
@@ -1896,6 +1900,10 @@ public class TaskbarController extends UIController {
     @Override
     public void onDestroyHost(UIHost host) {
         shouldRefreshRecents = false;
+        ++refreshGeneration;
+        if(thread != null) thread.interrupt();
+        stopThread2 = true;
+        if(thread2 != null) thread2.interrupt();
 
         if(layout != null)
             try {
@@ -2262,6 +2270,7 @@ public class TaskbarController extends UIController {
     @TargetApi(Build.VERSION_CODES.M)
     private Drawable getBatteryDrawable() {
         BatteryManager bm = (BatteryManager) context.getSystemService(Context.BATTERY_SERVICE);
+        if(bm == null) return null;
         int batLevel = bm.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY);
 
         if(batLevel == Integer.MIN_VALUE)
@@ -2270,7 +2279,8 @@ public class TaskbarController extends UIController {
         IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
         Intent batteryStatus = context.registerReceiver(null, ifilter);
 
-        int status = batteryStatus.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
+        int status = batteryStatus == null ? -1
+                : batteryStatus.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
         boolean isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING ||
                 status == BatteryManager.BATTERY_STATUS_FULL;
 
@@ -2319,7 +2329,14 @@ public class TaskbarController extends UIController {
         WifiManager wifiManager = (WifiManager) context.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         int numberOfLevels = 5;
 
-        WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+        if(wifiManager == null) return null;
+        WifiInfo wifiInfo;
+        try {
+            wifiInfo = wifiManager.getConnectionInfo();
+        } catch(SecurityException e) {
+            return null;
+        }
+        if(wifiInfo == null) return null;
         int level = WifiManager.calculateSignalLevel(wifiInfo.getRssi(), numberOfLevels);
 
         String wifiRes = "tb_signal_wifi_" + level + "_bar";

@@ -19,8 +19,11 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.LauncherApps;
+import android.content.pm.LauncherActivityInfo;
+import android.os.UserHandle;
 import android.os.Process;
 import android.os.UserManager;
+import android.util.Xml;
 
 import com.farmerbb.taskbar.util.AppEntry;
 import com.farmerbb.taskbar.util.Blacklist;
@@ -38,6 +41,10 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.StringReader;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 public class BackupUtils {
@@ -181,7 +188,70 @@ public class BackupUtils {
         agent.putString(BACKUP_KEY_PREFERENCE, preferences.toString());
     }
 
+    private static void requireMatching(String[] names, String[] labels,
+            String field) {
+        if(names == null || labels == null || names.length != labels.length)
+            throw new IllegalArgumentException("Invalid backup arrays: " + field);
+        if(names.length > 10000)
+            throw new IllegalArgumentException("Backup array is too large: " + field);
+        for(int i = 0; i < names.length; i++) {
+            if(names[i] == null || labels[i] == null)
+                throw new IllegalArgumentException("Invalid entry in " + field);
+        }
+    }
+
+    /** Validate the complete document before any stored preferences or apps are cleared. */
+    public static void validateBackup(BackupAgent agent) {
+        String[] pinned = agent.getStringArray(BACKUP_KEY_PINNED_APPS_PACKAGE_NAMES);
+        String[] components = agent.getStringArray(BACKUP_KEY_PINNED_APPS_COMPONENT_NAMES);
+        String[] labels = agent.getStringArray(BACKUP_KEY_PINNED_APPS_LABELS);
+        requireMatching(pinned, labels, "pinned");
+        requireMatching(pinned, components, "pinned components");
+        long[] ids = agent.getLongArray(BACKUP_KEY_PINNED_APPS_USER_IDS);
+        if(ids != null && ids.length != pinned.length)
+            throw new IllegalArgumentException("Invalid pinned user IDs");
+        for(String value : components)
+            if(ComponentName.unflattenFromString(value) == null)
+                throw new IllegalArgumentException("Invalid pinned component");
+
+        String[] blocked = agent.getStringArray(BACKUP_KEY_BLOCKED_APPS_PACKAGE_NAMES);
+        requireMatching(blocked, agent.getStringArray(BACKUP_KEY_BLOCKED_APPS_COMPONENT_NAMES),
+                "blocked components");
+        requireMatching(blocked, agent.getStringArray(BACKUP_KEY_BLOCKED_APPS_LABELS),
+                "blocked labels");
+        requireMatching(agent.getStringArray(BACKUP_KEY_BLACKLIST_PACKAGE_NAMES),
+                agent.getStringArray(BACKUP_KEY_BLACKLIST_LABELS), "blacklist");
+        requireMatching(agent.getStringArray(BACKUP_KEY_TOP_APPS_PACKAGE_NAMES),
+                agent.getStringArray(BACKUP_KEY_TOP_APPS_LABELS), "top apps");
+        String[] sizes = agent.getStringArray(BACKUP_KEY_SAVED_WINDOW_SIZES_COMPONENT_NAMES);
+        String[] dimensions = agent.getStringArray(BACKUP_KEY_SAVED_WINDOW_SIZES_WINDOW_SIZES);
+        if((sizes == null) != (dimensions == null))
+            throw new IllegalArgumentException("Incomplete saved window sizes");
+        if(sizes != null) requireMatching(sizes, dimensions, "window sizes");
+        String preferences = agent.getString(BACKUP_KEY_PREFERENCE);
+        if(preferences == null)
+            throw new IllegalArgumentException("Missing preferences");
+        if(!preferences.isEmpty()) {
+            try {
+                XmlPullParser parser = Xml.newPullParser();
+                parser.setInput(new StringReader(preferences));
+                int event;
+                do {
+                    event = parser.next();
+                } while(event != XmlPullParser.START_TAG
+                        && event != XmlPullParser.END_DOCUMENT);
+                if(event != XmlPullParser.START_TAG || !"map".equals(parser.getName()))
+                    throw new IllegalArgumentException("Invalid preferences XML");
+                // Parse the rest of the document to catch truncation before mutation.
+                while(parser.next() != XmlPullParser.END_DOCUMENT) {}
+            } catch(XmlPullParserException | IOException e) {
+                throw new IllegalArgumentException("Invalid preferences XML", e);
+            }
+        }
+    }
+
     public static void restore(Context context, BackupAgent agent) {
+        validateBackup(agent);
         // Get pinned and blocked apps
         PinnedBlockedApps pba = PinnedBlockedApps.getInstance(context);
         pba.clear(context);
@@ -208,13 +278,15 @@ public class BackupUtils {
                 else
                     userId = userManager.getSerialNumberForUser(Process.myUserHandle());
 
+                UserHandle user = userManager.getUserForSerialNumber(userId);
+                if(user == null) continue; // Profile may not exist on this device.
+                LauncherActivityInfo activityInfo = launcherApps.resolveActivity(throwaway, user);
+                if(activityInfo == null) continue; // Uninstalled apps must not abort restore.
                 AppEntry newEntry = new AppEntry(
                         pinnedAppsPackageNames[i],
                         pinnedAppsComponentNames[i],
                         pinnedAppsLabels[i],
-                        IconCache.getInstance(context).getIcon(
-                                context,
-                                launcherApps.resolveActivity(throwaway, userManager.getUserForSerialNumber(userId))),
+                        IconCache.getInstance(context).getIcon(context, activityInfo),
                         true
                 );
 
@@ -290,13 +362,14 @@ public class BackupUtils {
 
         // Get shared preferences
         String contents = agent.getString(BACKUP_KEY_PREFERENCE);
-        if(contents.length() > 0)
-            try {
-                File file = new File(getSharedPreferencePath(context));
-                FileOutputStream output = new FileOutputStream(file);
-                output.write(contents.getBytes());
-                output.close();
-            } catch (IOException ignored) {}
+        if(contents.length() > 0) {
+            File file = new File(getSharedPreferencePath(context));
+            try(FileOutputStream output = new FileOutputStream(file)) {
+                output.write(contents.getBytes(StandardCharsets.UTF_8));
+            } catch(IOException e) {
+                throw new IllegalStateException("Cannot restore preferences", e);
+            }
+        }
     }
 
     private static String getSharedPreferencePath(Context context) {

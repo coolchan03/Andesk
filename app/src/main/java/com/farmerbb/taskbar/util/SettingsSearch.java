@@ -141,11 +141,15 @@ public final class SettingsSearch {
 
     /** Settings whose name or description contains every word of the query. */
     public static List<Result> search(Context context, String query) {
+        return search(index(context), query);
+    }
+
+    private static List<Result> search(List<Result> indexedSettings, String query) {
         List<Result> matches = new ArrayList<>();
         String[] words = query.trim().toLowerCase(Locale.getDefault()).split("\\s+");
         if(words.length == 0 || words[0].isEmpty()) return matches;
 
-        for(Result result : index(context)) {
+        for(Result result : indexedSettings) {
             String haystack = (result.title + " " + (result.summary == null ? "" : result.summary)
                     + " " + result.section).toLowerCase(Locale.getDefault());
 
@@ -177,26 +181,36 @@ public final class SettingsSearch {
         content.addView(input, new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
+        // Build the XML index once per dialog, never again on every keystroke.
+        final List<Result> indexedSettings = index(context);
         List<Result> shown = new ArrayList<>();
         ArrayAdapter<Result> adapter = new ArrayAdapter<Result>(context, 0, shown) {
             @Override
             public View getView(int position, View convertView, ViewGroup parent) {
                 Result result = getItem(position);
 
-                LinearLayout row = new LinearLayout(context);
-                row.setOrientation(LinearLayout.VERTICAL);
-                row.setPadding(0, Math.round(8 * density), 0, Math.round(8 * density));
-
-                TextView title = new TextView(context);
+                LinearLayout row;
+                TextView title;
+                TextView where;
+                if(convertView instanceof LinearLayout
+                        && ((LinearLayout) convertView).getChildCount() == 2) {
+                    row = (LinearLayout) convertView;
+                    title = (TextView) row.getChildAt(0);
+                    where = (TextView) row.getChildAt(1);
+                } else {
+                    row = new LinearLayout(context);
+                    row.setOrientation(LinearLayout.VERTICAL);
+                    row.setPadding(0, Math.round(8 * density), 0, Math.round(8 * density));
+                    title = new TextView(context);
+                    title.setTextSize(16);
+                    row.addView(title);
+                    where = new TextView(context);
+                    where.setTextSize(12);
+                    where.setAlpha(0.7f);
+                    row.addView(where);
+                }
                 title.setText(result.title);
-                title.setTextSize(16);
-                row.addView(title);
-
-                TextView where = new TextView(context);
                 where.setText(result.section);
-                where.setTextSize(12);
-                where.setAlpha(0.7f);
-                row.addView(where);
                 return row;
             }
         };
@@ -227,7 +241,7 @@ public final class SettingsSearch {
             @Override
             public void afterTextChanged(Editable s) {
                 adapter.clear();
-                adapter.addAll(search(context, s.toString()));
+                adapter.addAll(search(indexedSettings, s.toString()));
             }
         });
 

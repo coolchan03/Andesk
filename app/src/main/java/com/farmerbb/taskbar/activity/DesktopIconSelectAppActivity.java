@@ -38,6 +38,10 @@ public class DesktopIconSelectAppActivity extends AbstractSelectAppActivity {
 
     @Override
     public void selectApp(AppEntry entry) {
+        if(desktopIcon == null || entry == null) {
+            finish();
+            return;
+        }
         desktopIcon.entry = entry;
 
         try {

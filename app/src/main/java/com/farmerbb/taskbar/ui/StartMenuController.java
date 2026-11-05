@@ -80,6 +80,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import static com.farmerbb.taskbar.util.Constants.*;
 
@@ -93,7 +96,9 @@ public class StartMenuController extends UIController {
     private StartMenuAdapter adapter;
 
     private Handler handler;
-    private Thread thread;
+    private ExecutorService searchExecutor;
+    private Future<?> searchFuture;
+    private volatile int searchGeneration;
 
     private boolean hasSubmittedQuery = false;
     private boolean hasHardwareKeyboard = false;
@@ -561,10 +566,18 @@ public class StartMenuController extends UIController {
     }
 
     private void refreshApps(final String query, final boolean firstDraw) {
-        if(thread != null) thread.interrupt();
+        final int generation = ++searchGeneration;
+        if(searchFuture != null) searchFuture.cancel(true);
+        if(searchExecutor == null || searchExecutor.isShutdown())
+            searchExecutor = Executors.newSingleThreadExecutor(r -> {
+                Thread worker = new Thread(r, "Andesk-start-menu-search");
+                worker.setDaemon(true);
+                return worker;
+            });
 
         handler = U.newHandler();
-        thread = new Thread(() -> {
+        searchFuture = searchExecutor.submit(() -> {
+            if(generation != searchGeneration || Thread.currentThread().isInterrupted()) return;
             if(pm == null) pm = context.getPackageManager();
 
             UserManager userManager = (UserManager) context.getSystemService(Context.USER_SERVICE);
@@ -622,6 +635,7 @@ public class StartMenuController extends UIController {
                 }
             }
 
+            if(generation != searchGeneration || Thread.currentThread().isInterrupted()) return;
             // Now that we've generated the list of apps,
             // we need to determine if we need to redraw the start menu or not
             boolean shouldRedrawStartMenu = false;
@@ -651,6 +665,8 @@ public class StartMenuController extends UIController {
                         generateAppEntries(context, userManager, pm, queryList);
 
                 handler.post(() -> {
+                    if(generation != searchGeneration || layout == null
+                            || searchView == null || startMenu == null) return;
                     String queryText = searchView.getQuery().toString();
                     if(query == null && queryText.length() == 0
                             || query != null && query.equals(queryText)) {
@@ -683,8 +699,6 @@ public class StartMenuController extends UIController {
                 });
             }
         });
-
-        thread.start();
     }
 
     @VisibleForTesting
@@ -849,6 +863,12 @@ public class StartMenuController extends UIController {
 
     @Override
     public void onDestroyHost(UIHost host) {
+        ++searchGeneration;
+        if(searchFuture != null) searchFuture.cancel(true);
+        if(searchExecutor != null) searchExecutor.shutdownNow();
+        searchExecutor = null;
+        searchFuture = null;
+        if(handler != null) handler.removeCallbacksAndMessages(null);
         if(layout != null)
             try {
                 host.removeView(layout);

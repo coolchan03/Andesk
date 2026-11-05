@@ -21,6 +21,8 @@ import android.media.AudioManager;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.provider.Settings;
 import android.text.format.DateFormat;
 import android.view.ContextThemeWrapper;
@@ -53,6 +55,32 @@ public class SystemTrayActivity extends Activity {
     private int activeColor;
     private boolean darkPanel;
     private boolean askedForSettingsAccess;
+    private TextView clockView;
+    private TextView dateView;
+    private final Handler clockHandler = new Handler(Looper.getMainLooper());
+    private final Runnable updateClock = new Runnable() {
+        @Override
+        public void run() {
+            if(clockView != null)
+                clockView.setText(DateFormat.getTimeFormat(SystemTrayActivity.this).format(new Date()));
+            if(dateView != null)
+                dateView.setText(DateFormat.format("EEEE, MMMM d", new Date()));
+            clockHandler.postDelayed(this, 60000 - System.currentTimeMillis() % 60000);
+        }
+    };
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        clockHandler.removeCallbacks(updateClock);
+        updateClock.run();
+    }
+
+    @Override
+    protected void onPause() {
+        clockHandler.removeCallbacks(updateClock);
+        super.onPause();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -153,6 +181,7 @@ public class SystemTrayActivity extends Activity {
         header.setPadding(dp(6), 0, dp(6), dp(8));
 
         TextView time = new TextView(this);
+        clockView = time;
         time.setText(DateFormat.getTimeFormat(this).format(new Date()));
         time.setTextColor(foregroundColor);
         time.setTextSize(34);
@@ -166,6 +195,7 @@ public class SystemTrayActivity extends Activity {
         dateRow.setGravity(Gravity.CENTER_VERTICAL);
 
         TextView date = new TextView(this);
+        dateView = date;
         date.setText(DateFormat.format("EEEE, MMMM d", new Date()));
         date.setTextColor(ColorUtils.setAlphaComponent(foregroundColor, 200));
         date.setTextSize(15);
@@ -487,7 +517,7 @@ public class SystemTrayActivity extends Activity {
     private void startActivitySafely(Intent intent) {
         try {
             startActivity(intent);
-        } catch(ActivityNotFoundException ignored) {}
+        } catch(ActivityNotFoundException | SecurityException ignored) {}
     }
 
     private int dp(int value) {

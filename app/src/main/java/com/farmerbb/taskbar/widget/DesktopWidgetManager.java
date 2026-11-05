@@ -431,8 +431,13 @@ public class DesktopWidgetManager {
 
         container.removeView(entry.frame);
         entries.remove(entry.id);
-        appWidgetHost.deleteAppWidgetId(entry.id);
-        saveWidgets();
+        try {
+            appWidgetHost.deleteAppWidgetId(entry.id);
+        } catch(RuntimeException ignored) {
+            // Always persist layout removal, even if the system host is unavailable.
+        } finally {
+            saveWidgets();
+        }
     }
 
     /* Menu and edit mode */

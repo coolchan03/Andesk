@@ -1809,18 +1809,39 @@ public class U {
         if(file.exists()) {
             Handler handler = newHandler();
             new Thread(() -> {
-                Bitmap bitmap = BitmapFactory.decodeFile(file.getPath());
+                Bitmap bitmap = null;
+                try {
+                    android.util.DisplayMetrics metrics = context.getResources().getDisplayMetrics();
+                    boolean wallpaper = "desktop_wallpaper".equals(filename);
+                    int targetWidth = wallpaper ? Math.min(metrics.widthPixels, 2048)
+                            : Math.round(96 * metrics.density);
+                    int targetHeight = wallpaper ? Math.min(metrics.heightPixels, 2048)
+                            : Math.round(96 * metrics.density);
+                    BitmapFactory.Options bounds = new BitmapFactory.Options();
+                    bounds.inJustDecodeBounds = true;
+                    BitmapFactory.decodeFile(file.getPath(), bounds);
+                    int sample = 1;
+                    while(bounds.outWidth / sample > Math.max(1, targetWidth) * 2
+                            || bounds.outHeight / sample > Math.max(1, targetHeight) * 2)
+                        sample *= 2;
+                    BitmapFactory.Options options = new BitmapFactory.Options();
+                    options.inSampleSize = sample;
+                    bitmap = BitmapFactory.decodeFile(file.getPath(), options);
+                } catch(OutOfMemoryError error) {
+                    android.util.Log.w("Andesk", "Custom image could not fit in memory", error);
+                }
+                Bitmap decoded = bitmap;
                 handler.post(() -> {
-                    if(bitmap != null) {
-                        BitmapDrawable bitmapDrawable = new BitmapDrawable(context.getResources(), bitmap);
-                        bitmapDrawable.setFilterBitmap(bitmap.getWidth() * bitmap.getHeight() > 2000);
-                        view.setImageDrawable(bitmapDrawable);
+                    if(decoded != null) {
+                        BitmapDrawable drawable = new BitmapDrawable(context.getResources(), decoded);
+                        drawable.setFilterBitmap(decoded.getWidth() * decoded.getHeight() > 2000);
+                        view.setImageDrawable(drawable);
                     } else {
                         showToastLong(context, R.string.tb_error_reading_custom_start_image);
                         view.setImageDrawable(errorDrawable);
                     }
                 });
-            }).start();
+            }, "Andesk-image-decoder").start();
         } else
             view.setImageDrawable(errorDrawable);
     }
