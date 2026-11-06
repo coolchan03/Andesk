@@ -150,21 +150,9 @@ public class GeneralFragment extends SettingsFragment {
     }
 
     private void showKeyboardShortcuts() {
-        String shortcuts = String.join("\n\n",
-                "Windows key: open or close the Start menu",
-                "Esc: close the Start menu",
-                "Alt+F4: exit the desktop",
-                "Ctrl+Alt+S: Andesk settings",
-                "Ctrl+Alt+A or Shift+F10: desktop menu (add apps, files, widgets)",
-                "Ctrl+Shift+F: add a file shortcut",
-                "Ctrl+Shift+N: add a folder shortcut",
-                "Ctrl-, Shift- or middle-click an app: open it in a new window",
-                "Ctrl+Enter or Shift+Enter in Start menu search: search the web",
-                "Right-click: the same as a long press");
-
         new AlertDialog.Builder(getActivity())
                 .setTitle(R.string.tb_keyboard_shortcuts)
-                .setMessage(shortcuts)
+                .setMessage(R.string.tb_keyboard_shortcuts_list)
                 .setPositiveButton(R.string.tb_action_ok, null)
                 .show();
     }
