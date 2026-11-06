@@ -1,5 +1,12 @@
 # Andesk changelog
 
+## 0.1.4 - Stability pass and pinned apps polish (November 6, 2026)
+
+- Pinned apps editor: the taskbar now redraws once when the editor closes, so reordering, adding and removing show up immediately.
+- Pinned apps editor: clear messages when an app is already pinned or the taskbar is full (instead of doing nothing), and a "Remove all pinned apps" button.
+- Taskbar textures build each pattern tile once and reuse it, instead of regenerating it (the noise pattern loops over every pixel) on every taskbar redraw.
+- The keyboard shortcuts text lives in string resources rather than being hard-coded in the settings screen.
+
 ## 0.1.3 - Reliability and performance audit (November 5, 2026)
 
 - Make backup imports bounded and streaming rather than relying on a single file read or trusting uncompressed ZIP entry sizes.

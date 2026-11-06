@@ -594,5 +594,11 @@
     <string name="tb_pinned_add" translatable="false">Add an app</string>
     <string name="tb_pinned_done" translatable="false">Done</string>
     <string name="tb_keyboard_shortcuts" translatable="false">Keyboard shortcuts</string>
+    <string name="tb_keyboard_shortcuts_list" translatable="false">Windows key: open or close the Start menu\n\nEsc: close the Start menu\n\nAlt+F4: exit the desktop\n\nCtrl+Alt+S: Andesk settings\n\nCtrl+Alt+A or Shift+F10: desktop menu (add apps, files, widgets)\n\nCtrl+Shift+F: add a file shortcut\n\nCtrl+Shift+N: add a folder shortcut\n\nCtrl-, Shift- or middle-click an app: open it in a new window\n\nCtrl+Enter or Shift+Enter in Start menu search: search the web\n\nRight-click: the same as a long press</string>
+    <string name="tb_pinned_already" translatable="false">Already pinned</string>
+    <string name="tb_pinned_full" translatable="false">The taskbar is full. Remove an app first.</string>
+    <string name="tb_pinned_failed" translatable="false">Couldn\'t pin that app</string>
+    <string name="tb_pinned_clear" translatable="false">Remove all pinned apps</string>
+    <string name="tb_pinned_clear_confirm" translatable="false">Unpin every app from the taskbar?</string>
     <string name="tb_keyboard_shortcuts_summary" translatable="false">Shortcuts for a connected keyboard</string>
 </resources>

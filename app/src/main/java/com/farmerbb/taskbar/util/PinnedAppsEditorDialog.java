@@ -37,6 +37,7 @@ public final class PinnedAppsEditorDialog {
     private final Context context;
     private final float density;
     private LinearLayout list;
+    private boolean changed;
 
     private PinnedAppsEditorDialog(Context context) {
         this.context = context;
@@ -67,18 +68,47 @@ public final class PinnedAppsEditorDialog {
         Button add = new Button(context);
         add.setText(R.string.tb_pinned_add);
         add.setOnClickListener(v -> AppChooserDialog.show(context, R.string.tb_pinned_add, component -> {
-            if(component != null) {
-                U.pinApp(context, component);
+            if(component == null) return;
+
+            PinnedBlockedApps pinned = PinnedBlockedApps.getInstance(context);
+            if(pinned.isPinned(component.flattenToString())) {
+                U.showToast(context, R.string.tb_pinned_already);
+            } else if(pinned.getPinnedApps().size() >= U.getMaxNumOfEntries(context)) {
+                U.showToast(context, R.string.tb_pinned_full);
+            } else if(U.pinApp(context, component)) {
+                changed = true;
                 rebuild();
+            } else {
+                U.showToast(context, R.string.tb_pinned_failed);
             }
         }));
+
+        Button clear = new Button(context);
+        clear.setText(R.string.tb_pinned_clear);
+        clear.setOnClickListener(v -> new AlertDialog.Builder(context)
+                .setMessage(R.string.tb_pinned_clear_confirm)
+                .setNegativeButton(R.string.tb_action_cancel, null)
+                .setPositiveButton(R.string.tb_action_ok, (confirm, which) -> {
+                    PinnedBlockedApps pinned = PinnedBlockedApps.getInstance(context);
+                    for(AppEntry entry : new ArrayList<>(pinned.getPinnedApps()))
+                        pinned.removePinnedApp(context, entry.getComponentName());
+                    changed = true;
+                    rebuild();
+                })
+                .show());
         root.addView(add, new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        root.addView(clear, new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
         new AlertDialog.Builder(context)
                 .setTitle(R.string.tb_pinned_apps)
                 .setView(root)
                 .setPositiveButton(R.string.tb_pinned_done, null)
+                // Redraw the taskbar once, after all edits, rather than on every tap.
+                .setOnDismissListener(dialog -> {
+                    if(changed) U.restartTaskbar(context);
+                })
                 .show();
 
         rebuild();
@@ -127,6 +157,7 @@ public final class PinnedAppsEditorDialog {
             row.addView(makeButton("▼", i < pinned.size() - 1, v -> move(entry, -towardStart)));
             row.addView(makeButton("✕", true, v -> {
                 pinnedBlockedApps.removePinnedApp(context, entry.getComponentName());
+                changed = true;
                 rebuild();
             }));
 
@@ -148,7 +179,10 @@ public final class PinnedAppsEditorDialog {
     }
 
     private void move(AppEntry entry, int delta) {
-        PinnedBlockedApps.getInstance(context).movePinnedApp(context, entry.getComponentName(), delta);
-        rebuild();
+        if(PinnedBlockedApps.getInstance(context)
+                .movePinnedApp(context, entry.getComponentName(), delta)) {
+            changed = true;
+            rebuild();
+        }
     }
 }

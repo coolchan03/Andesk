@@ -28,12 +28,16 @@ import android.graphics.Shader;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 import static com.farmerbb.taskbar.util.Constants.*;
 
 /** A subtle pattern drawn over the taskbar and Start menu background. */
 public final class TaskbarTexture {
+    private static final Map<String, Bitmap> TILE_CACHE = new HashMap<>();
+
     private TaskbarTexture() {}
 
     /** The chosen pattern's name, e.g. "dots", or "none". */
@@ -54,9 +58,21 @@ public final class TaskbarTexture {
             return base;
 
         String strength = U.getSharedPreferences(context).getString(PREF_TASKBAR_TEXTURE_STRENGTH, "medium");
-        Drawable overlay = new PatternDrawable(
-                createTile(context, pattern, strength, U.isDarkBackground(backgroundColor)),
-                cornerRadius);
+        boolean dark = U.isDarkBackground(backgroundColor);
+        float density = context.getResources().getDisplayMetrics().density;
+
+        // The taskbar redraws often; build each tile (the noise one loops over every pixel) once.
+        String key = pattern + '|' + strength + '|' + dark + '|' + density;
+        Bitmap tile;
+        synchronized(TILE_CACHE) {
+            tile = TILE_CACHE.get(key);
+            if(tile == null) {
+                tile = createTile(context, pattern, strength, dark);
+                TILE_CACHE.put(key, tile);
+            }
+        }
+
+        Drawable overlay = new PatternDrawable(tile, cornerRadius);
 
         return new LayerDrawable(new Drawable[] { base, overlay });
     }
