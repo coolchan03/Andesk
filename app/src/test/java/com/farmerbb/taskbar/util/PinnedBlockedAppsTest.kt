@@ -155,7 +155,11 @@ class PinnedBlockedAppsTest {
     @Test
     fun testSurvivesRoundTripThroughDisk() {
         pinnedBlockedApps.addPinnedApp(context, appEntry)
-        val loaded = SerializedStore.load(context, "PinnedBlockedApps", PinnedBlockedApps::class.java)
+        val loaded = SerializedStore.load(
+            context,
+            "PinnedBlockedApps",
+            PinnedBlockedApps::class.java,
+        )
         Assert.assertNotNull(loaded)
         Assert.assertEquals(1, loaded!!.pinnedApps.size)
         Assert.assertEquals(packageName, loaded.pinnedApps[0].componentName)
@@ -163,19 +167,31 @@ class PinnedBlockedAppsTest {
 
     @Test
     fun testCorruptFileLoadsAsNull() {
-        context.openFileOutput("CorruptStore", Context.MODE_PRIVATE).use { it.write(byteArrayOf(1, 2, 3)) }
-        Assert.assertNull(SerializedStore.load(context, "CorruptStore", PinnedBlockedApps::class.java))
-        Assert.assertNull(SerializedStore.load(context, "MissingStore", PinnedBlockedApps::class.java))
+        context.openFileOutput("CorruptStore", Context.MODE_PRIVATE).use {
+            it.write(byteArrayOf(1, 2, 3))
+        }
+        Assert.assertNull(
+            SerializedStore.load(context, "CorruptStore", PinnedBlockedApps::class.java),
+        )
+        Assert.assertNull(
+            SerializedStore.load(context, "MissingStore", PinnedBlockedApps::class.java),
+        )
     }
 
     @Test
     fun testFailedSaveKeepsPreviousContents() {
-        Assert.assertTrue(SerializedStore.save(context, "Atomic", java.util.ArrayList(listOf("good"))))
+        Assert.assertTrue(
+            SerializedStore.save(context, "Atomic", java.util.ArrayList(listOf("good"))),
+        )
         class NotSerializable
         val bad = java.util.ArrayList<Any>(listOf(NotSerializable()))
         Assert.assertFalse(SerializedStore.save(context, "Atomic", bad))
         @Suppress("UNCHECKED_CAST")
-        val back = SerializedStore.load(context, "Atomic", java.util.ArrayList::class.java) as java.util.ArrayList<String>
+        val back = SerializedStore.load(
+            context,
+            "Atomic",
+            java.util.ArrayList::class.java,
+        ) as java.util.ArrayList<String>
         Assert.assertEquals(listOf("good"), back)
     }
 }

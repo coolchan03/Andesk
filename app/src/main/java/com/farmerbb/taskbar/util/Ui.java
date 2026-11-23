@@ -18,14 +18,19 @@ package com.farmerbb.taskbar.util;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.text.InputFilter;
+import android.text.InputType;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import com.farmerbb.taskbar.R;
 
 /**
  * Andesk's design system for views built in code: the spacing scale, type sizes and the few
@@ -69,7 +74,7 @@ public final class Ui {
                 return value.data;
             if(value.resourceId != 0) {
                 try {
-                    return context.getResources().getColor(value.resourceId, context.getTheme());
+                    return androidx.core.content.ContextCompat.getColor(context, value.resourceId);
                 } catch(RuntimeException ignored) {}
             }
         }
@@ -182,6 +187,69 @@ public final class Ui {
         label.setEllipsize(android.text.TextUtils.TruncateAt.END);
         label.setPadding(icon != null ? dp(context, SPACE_M) : 0, 0, dp(context, SPACE_S), 0);
         row.addView(label, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        return row;
+    }
+
+    public interface NameCallback {
+        void onName(String name);
+    }
+
+    /**
+     * Asks for a short name. The dialog stays open until the name is usable, so an empty entry
+     * shows an inline error instead of silently doing nothing.
+     */
+    public static void promptName(Context context, int titleRes, int hintRes, int maxLength,
+            NameCallback callback) {
+        Context themed = dialogContext(context);
+
+        EditText input = new EditText(themed);
+        input.setSingleLine(true);
+        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
+        input.setHint(hintRes);
+        input.setFilters(new InputFilter[] { new InputFilter.LengthFilter(maxLength) });
+
+        LinearLayout holder = column(themed);
+        padDialogBody(holder);
+        holder.addView(input);
+
+        AlertDialog prompt = new AlertDialog.Builder(context)
+                .setTitle(titleRes)
+                .setView(holder)
+                .setNegativeButton(R.string.tb_action_cancel, null)
+                .setPositiveButton(R.string.tb_action_ok, null)
+                .create();
+        prompt.setOnShowListener(d -> prompt.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+            String name = input.getText().toString().replaceAll("\\s+", " ").trim();
+            if(name.isEmpty()) {
+                input.setError(themed.getString(R.string.andesk_name_required));
+                return;
+            }
+
+            prompt.dismiss();
+            callback.onName(name);
+        }));
+        prompt.show();
+    }
+
+    /**
+     * A row for a saved, named item: tapping the text applies it, the trash button deletes it.
+     */
+    public static LinearLayout namedRow(Context context, String name, CharSequence caption,
+            Runnable onApply, Runnable onDelete) {
+        LinearLayout row = row(context);
+        row.setMinimumHeight(dp(context, TOUCH_TARGET));
+
+        LinearLayout text = column(context);
+        text.setPadding(0, dp(context, SPACE_XS), dp(context, SPACE_S), dp(context, SPACE_XS));
+        text.addView(body(context, name));
+        text.addView(caption(context, caption));
+        makeSelectable(text);
+        text.setContentDescription(context.getString(R.string.andesk_apply) + " " + name);
+        text.setOnClickListener(v -> onApply.run());
+        row.addView(text, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+
+        row.addView(iconButton(context, R.drawable.tb_delete, R.string.andesk_delete, true,
+                v -> onDelete.run()));
         return row;
     }
 }

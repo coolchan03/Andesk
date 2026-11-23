@@ -34,7 +34,7 @@ class AppearanceProfilesTest {
         assertNull(AppearanceProfiles.normalizeName(null))
         assertEquals(
             AppearanceProfiles.MAX_NAME_LENGTH,
-            AppearanceProfiles.normalizeName("x".repeat(100))!!.length
+            AppearanceProfiles.normalizeName("x".repeat(100))!!.length,
         )
     }
 
@@ -114,7 +114,7 @@ class AppearanceProfilesTest {
     fun applyIgnoresKeysThatAreNotPartOfTheLook() {
         pref.edit().putString(
             "andesk_appearance_profiles",
-            """{"Evil":{"unrelated_key":{"t":"s","v":"x"},"taskbar_style":{"t":"s","v":"kde"}}}"""
+            """{"Evil":{"unrelated_key":{"t":"s","v":"x"},"taskbar_style":{"t":"s","v":"kde"}}}""",
         ).commit()
 
         assertTrue(AppearanceProfiles.apply(context, "Evil"))

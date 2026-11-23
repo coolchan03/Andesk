@@ -88,7 +88,15 @@ public final class PinnedAppsEditorDialog {
                 })
                 .show());
 
+        Button sets = new Button(themed);
+        sets.setText(R.string.andesk_sets_button);
+        sets.setOnClickListener(v -> PinnedAppSetsDialog.show(context, () -> {
+            changed = true;
+            rebuild();
+        }));
+
         actions.addView(add, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        actions.addView(sets, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
         actions.addView(clear, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
         root.addView(actions);
 

@@ -17,14 +17,10 @@ package com.farmerbb.taskbar.util;
 
 import android.app.AlertDialog;
 import android.content.Context;
-import android.text.InputType;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
-import android.widget.TextView;
 
 import com.farmerbb.taskbar.R;
 
@@ -85,23 +81,9 @@ public final class AppearanceProfilesDialog {
         }
 
         for(String name : names) {
-            LinearLayout row = Ui.row(themed);
-            row.setMinimumHeight(Ui.dp(themed, Ui.TOUCH_TARGET));
-
-            // Tapping the name applies the profile; the trash button removes it.
-            LinearLayout text = Ui.column(themed);
-            text.setPadding(0, Ui.dp(themed, Ui.SPACE_XS), Ui.dp(themed, Ui.SPACE_S), Ui.dp(themed, Ui.SPACE_XS));
-            text.addView(Ui.body(themed, name));
-            text.addView(Ui.caption(themed, themed.getString(R.string.andesk_profiles_count,
-                    AppearanceProfiles.settingCount(context, name))));
-            Ui.makeSelectable(text);
-            text.setContentDescription(themed.getString(R.string.andesk_apply) + " " + name);
-            text.setOnClickListener(v -> apply(name));
-            row.addView(text, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-
-            row.addView(Ui.iconButton(themed, R.drawable.tb_delete, R.string.andesk_delete, true,
-                    v -> delete(name)));
-            list.addView(row);
+            list.addView(Ui.namedRow(themed, name,
+                    themed.getString(R.string.andesk_profiles_count, AppearanceProfiles.settingCount(context, name)),
+                    () -> apply(name), () -> delete(name)));
         }
     }
 
@@ -123,48 +105,27 @@ public final class AppearanceProfilesDialog {
     }
 
     private void promptForName() {
-        EditText input = new EditText(themed);
-        input.setSingleLine(true);
-        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
-        input.setHint(R.string.andesk_profiles_name_hint);
-        input.setFilters(new android.text.InputFilter[] {
-                new android.text.InputFilter.LengthFilter(AppearanceProfiles.MAX_NAME_LENGTH) });
+        Ui.promptName(context, R.string.andesk_profiles_save_current, R.string.andesk_profiles_name_hint,
+                AppearanceProfiles.MAX_NAME_LENGTH, entered -> {
+                    String name = AppearanceProfiles.normalizeName(entered);
+                    if(name == null) return;
 
-        LinearLayout holder = Ui.column(themed);
-        Ui.padDialogBody(holder);
-        holder.addView(input);
-
-        AlertDialog prompt = new AlertDialog.Builder(context)
-                .setTitle(R.string.andesk_profiles_save_current)
-                .setView(holder)
-                .setNegativeButton(R.string.tb_action_cancel, null)
-                .setPositiveButton(R.string.tb_action_ok, null)
-                .create();
-        prompt.setOnShowListener(d -> prompt.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener((View v) -> {
-            String name = AppearanceProfiles.normalizeName(input.getText().toString());
-            if(name == null) {
-                input.setError(themed.getString(R.string.andesk_profiles_name_required));
-                return;
-            }
-
-            if(AppearanceProfiles.exists(context, name)) {
-                confirmOverwrite(name, prompt);
-            } else {
-                store(name, prompt);
-            }
-        }));
-        prompt.show();
+                    if(AppearanceProfiles.exists(context, name))
+                        confirmOverwrite(name);
+                    else
+                        store(name);
+                });
     }
 
-    private void confirmOverwrite(String name, AlertDialog prompt) {
+    private void confirmOverwrite(String name) {
         new AlertDialog.Builder(context)
                 .setMessage(context.getString(R.string.andesk_profiles_overwrite, name))
                 .setNegativeButton(R.string.tb_action_cancel, null)
-                .setPositiveButton(R.string.tb_action_ok, (d, which) -> store(name, prompt))
+                .setPositiveButton(R.string.tb_action_ok, (d, which) -> store(name))
                 .show();
     }
 
-    private void store(String name, AlertDialog prompt) {
+    private void store(String name) {
         String saved = AppearanceProfiles.save(context, name);
         if(saved == null) {
             U.showToast(context, context.getString(R.string.andesk_profiles_full,
@@ -173,7 +134,6 @@ public final class AppearanceProfilesDialog {
         }
 
         U.showToast(context, context.getString(R.string.andesk_profiles_saved, saved));
-        prompt.dismiss();
         rebuild();
     }
 }
