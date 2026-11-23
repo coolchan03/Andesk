@@ -1,5 +1,26 @@
 # Andesk changelog
 
+## 0.1.5 - Design system, appearance profiles and pinned app sets (November 23, 2026)
+
+New:
+
+- **Appearance profiles:** Settings → Appearance → "Appearance profiles" saves the current look (style, colors, size, position, clock, icon options) under a name and switches back to it later. Applying a profile also restores settings that were at their default when it was saved. Up to 20 profiles; they are part of settings backups.
+- **Pinned app sets:** the pinned apps editor has a "Sets…" button to save the pinned apps as a named layout (for example Work or Media) and switch between layouts. Apps that were uninstalled or exceed the taskbar limit are skipped, and the result says how many.
+
+Design system:
+
+- One palette: the Andesk teal replaces the inherited indigo/orange in every theme, with separate light and dark accent tokens chosen for contrast (secondary text now meets 4.5:1 on its background). All dialog families (AppCompat and framework Material) take their colors from the same tokens; the hard-coded launcher-circle color now uses a token.
+- New `Ui` helper holds the spacing and type scale and the shared building blocks (list rows, icon buttons, empty states, name prompt, saved-item rows) for dialogs built in code. The pinned apps editor, app chooser and emoji picker now use it, resolve colors from the dialog theme (they were using the screen behind the dialog), use real icons with spoken labels instead of ▲▼✕ glyphs, and have ripple feedback.
+
+Fixes:
+
+- Pinned apps, blocked apps, top apps and saved window sizes are now written atomically. A crash or full disk during a save can no longer leave a truncated file that silently reset the list, streams are always closed, access is synchronized, duplicates are ignored, and readers get snapshots so the taskbar refresh can no longer hit a concurrent-modification crash while the list is edited.
+- Pinned apps restored from a backup without a stored user ID crashed when their icon was first loaded; the icon lookup is now null-safe.
+- The app chooser loaded every launcher icon on the main thread (a visible freeze on devices with many apps); it now loads in the background with a progress indicator, ignores duplicate entries, and no longer rebuilds list rows from scratch on each keystroke.
+- A non-numeric "number of recent apps" value (from a restored or edited preference) no longer crashes the taskbar; it falls back to 10.
+- Picking a wallpaper or image and returning with no data no longer crashes the Appearance screen.
+- The color picker's hex field no longer accepts signed values such as `-12345`.
+
 ## 0.1.4 - Stability pass and pinned apps polish (November 6, 2026)
 
 - Pinned apps editor: the taskbar now redraws once when the editor closes, so reordering, adding and removing show up immediately.

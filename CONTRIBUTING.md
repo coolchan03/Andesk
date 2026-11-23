@@ -17,6 +17,15 @@ Keep the existing Java namespace `com.farmerbb.taskbar` unless a separate migrat
 - Update tests for changed behavior. Do not remove or skip tests to make CI pass.
 - Maintain formatting with the existing Spotless and ktlint configuration; avoid unrelated formatting churn.
 
+## Design system
+
+Andesk has one palette and one set of building blocks; please use them instead of adding literals.
+
+- **Colors** are tokens in `app/src/main/res/values/colors.xml` (`tb_colorPrimary`, `tb_colorAccent`, `tb_colorAccent_dark`, `tb_danger`, …) and reach screens through the themes in `styles.xml`. Every theme family (AppCompat and framework Material, light and dark) must name the same tokens. Do not hard-code colors in layouts or Java except for overlay chrome that must stay fixed (for example window-resize handles) and illustrative previews.
+- **Views built in code** (dialogs) use `util/Ui.java`: its spacing and type scale, `listRow`, `iconButton`, `namedRow`, `emptyState` and `promptName`. Build them with `Ui.dialogContext(context)` so colors come from the dialog theme. Icon-only buttons need a content description.
+- **New strings** for Andesk-specific features go in `values/andesk_strings.xml` (`translatable="false"`) and use the `andesk_` prefix.
+- **Persisted lists** use `SerializedStore` (atomic writes); small JSON-backed collections (profiles, sets, icon overrides) store their data in preferences and must treat corrupt data as empty.
+
 ## Tests and CI
 
 All PRs should pass the workflow in [`.github/workflows/gradle.yml`](.github/workflows/gradle.yml), including:
