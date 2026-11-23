@@ -17,11 +17,6 @@ package com.farmerbb.taskbar.util;
 
 import android.content.Context;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,15 +31,19 @@ public class PinnedBlockedApps implements Serializable {
 
     private PinnedBlockedApps() {}
 
-    public List<AppEntry> getPinnedApps() {
-        return pinnedApps;
+    /** @return a snapshot, safe to iterate while another thread edits the list */
+    public synchronized List<AppEntry> getPinnedApps() {
+        return new ArrayList<>(pinnedApps);
     }
 
-    public List<AppEntry> getBlockedApps() {
-        return blockedApps;
+    /** @return a snapshot, safe to iterate while another thread edits the list */
+    public synchronized List<AppEntry> getBlockedApps() {
+        return new ArrayList<>(blockedApps);
     }
 
-    public void addPinnedApp(Context context, AppEntry entry) {
+    public synchronized void addPinnedApp(Context context, AppEntry entry) {
+        if(isPinned(entry.getComponentName())) return;
+
         pinnedApps.add(entry);
         save(context);
     }
@@ -54,7 +53,7 @@ public class PinnedBlockedApps implements Serializable {
      *
      * @return true if the order changed
      */
-    public boolean movePinnedApp(Context context, String componentName, int delta) {
+    public synchronized boolean movePinnedApp(Context context, String componentName, int delta) {
         int from = -1;
         for(int i = 0; i < pinnedApps.size(); i++) {
             if(pinnedApps.get(i).getComponentName().equals(componentName)) {
@@ -72,12 +71,14 @@ public class PinnedBlockedApps implements Serializable {
         return true;
     }
 
-    public void addBlockedApp(Context context, AppEntry entry) {
+    public synchronized void addBlockedApp(Context context, AppEntry entry) {
+        if(isBlocked(entry.getComponentName())) return;
+
         blockedApps.add(entry);
         save(context);
     }
 
-    public void removePinnedApp(Context context, String componentName) {
+    public synchronized void removePinnedApp(Context context, String componentName) {
         int number = -1;
 
         for(int i = 0; i < pinnedApps.size(); i++) {
@@ -92,7 +93,7 @@ public class PinnedBlockedApps implements Serializable {
         save(context);
     }
 
-    public void removeBlockedApp(Context context, String componentName) {
+    public synchronized void removeBlockedApp(Context context, String componentName) {
         int number = -1;
 
         for(int i = 0; i < blockedApps.size(); i++) {
@@ -107,7 +108,7 @@ public class PinnedBlockedApps implements Serializable {
         save(context);
     }
 
-    public boolean isPinned(String componentName) {
+    public synchronized boolean isPinned(String componentName) {
         for(int i = 0; i < pinnedApps.size(); i++) {
             if(pinnedApps.get(i).getComponentName().equals(componentName))
                 return true;
@@ -116,7 +117,7 @@ public class PinnedBlockedApps implements Serializable {
         return false;
     }
 
-    public boolean isBlocked(String componentName) {
+    public synchronized boolean isBlocked(String componentName) {
         for(int i = 0; i < blockedApps.size(); i++) {
             if(blockedApps.get(i).getComponentName().equals(componentName))
                 return true;
@@ -125,41 +126,21 @@ public class PinnedBlockedApps implements Serializable {
         return false;
     }
 
-    public void clear(Context context) {
+    public synchronized void clear(Context context) {
         pinnedApps.clear();
         blockedApps.clear();
         save(context);
     }
 
     private boolean save(Context context) {
-        try {
-            FileOutputStream fileOutputStream = context.openFileOutput("PinnedBlockedApps", Context.MODE_PRIVATE);
-            ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
-
-            objectOutputStream.writeObject(this);
-
-            objectOutputStream.close();
-            fileOutputStream.close();
-
-            return true;
-        } catch (IOException e) {
-            return false;
-        }
+        return SerializedStore.save(context, "PinnedBlockedApps", this);
     }
 
-    public static PinnedBlockedApps getInstance(Context context) {
-        if(theInstance == null)
-            try {
-                FileInputStream fileInputStream = context.openFileInput("PinnedBlockedApps");
-                ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
-
-                theInstance = (PinnedBlockedApps) objectInputStream.readObject();
-
-                objectInputStream.close();
-                fileInputStream.close();
-            } catch (IOException | ClassNotFoundException e) {
-                theInstance = new PinnedBlockedApps();
-            }
+    public static synchronized PinnedBlockedApps getInstance(Context context) {
+        if(theInstance == null) {
+            theInstance = SerializedStore.load(context, "PinnedBlockedApps", PinnedBlockedApps.class);
+            if(theInstance == null) theInstance = new PinnedBlockedApps();
+        }
 
         return theInstance;
     }

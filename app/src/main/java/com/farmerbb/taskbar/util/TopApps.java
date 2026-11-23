@@ -17,11 +17,6 @@ package com.farmerbb.taskbar.util;
 
 import android.content.Context;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,16 +30,19 @@ public class TopApps implements Serializable {
 
     private TopApps() {}
 
-    public List<BlacklistEntry> getTopApps() {
-        return topApps;
+    /** @return a snapshot, safe to iterate while another thread edits the list */
+    public synchronized List<BlacklistEntry> getTopApps() {
+        return new ArrayList<>(topApps);
     }
 
-    public void addTopApp(Context context, BlacklistEntry entry) {
+    public synchronized void addTopApp(Context context, BlacklistEntry entry) {
+        if(isTopApp(entry.getPackageName())) return;
+
         topApps.add(entry);
         save(context);
     }
 
-    public void removeTopApp(Context context, String packageName) {
+    public synchronized void removeTopApp(Context context, String packageName) {
         int number = -1;
 
         for(int i = 0; i < topApps.size(); i++) {
@@ -59,7 +57,7 @@ public class TopApps implements Serializable {
         save(context);
     }
 
-    public boolean isTopApp(String packageName) {
+    public synchronized boolean isTopApp(String packageName) {
         for(int i = 0; i < topApps.size(); i++) {
             if(topApps.get(i).getPackageName().equals(packageName))
                 return true;
@@ -69,39 +67,19 @@ public class TopApps implements Serializable {
     }
 
     private boolean save(Context context) {
-        try {
-            FileOutputStream fileOutputStream = context.openFileOutput("TopApps", Context.MODE_PRIVATE);
-            ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
-
-            objectOutputStream.writeObject(this);
-
-            objectOutputStream.close();
-            fileOutputStream.close();
-
-            return true;
-        } catch (IOException e) {
-            return false;
-        }
+        return SerializedStore.save(context, "TopApps", this);
     }
 
-    public void clear(Context context) {
+    public synchronized void clear(Context context) {
         topApps.clear();
         save(context);
     }
 
-    public static TopApps getInstance(Context context) {
-        if(theInstance == null)
-            try {
-                FileInputStream fileInputStream = context.openFileInput("TopApps");
-                ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
-
-                theInstance = (TopApps) objectInputStream.readObject();
-
-                objectInputStream.close();
-                fileInputStream.close();
-            } catch (IOException | ClassNotFoundException e) {
-                theInstance = new TopApps();
-            }
+    public static synchronized TopApps getInstance(Context context) {
+        if(theInstance == null) {
+            theInstance = SerializedStore.load(context, "TopApps", TopApps.class);
+            if(theInstance == null) theInstance = new TopApps();
+        }
 
         return theInstance;
     }
