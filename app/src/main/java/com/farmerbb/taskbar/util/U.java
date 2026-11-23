@@ -326,6 +326,10 @@ public class U {
         showToast(context, context.getString(message), Toast.LENGTH_SHORT);
     }
 
+    public static void showToast(Context context, String message) {
+        showToast(context, message, Toast.LENGTH_SHORT);
+    }
+
     public static void showToastLong(Context context, int message) {
         showToast(context, context.getString(message), Toast.LENGTH_LONG);
     }

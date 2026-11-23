@@ -85,18 +85,28 @@ public class AppEntry implements Serializable {
             if(iconByteArray != null)
                 icon = new BitmapDrawable(context.getResources(), BitmapFactory.decodeByteArray(iconByteArray, 0, iconByteArray.length));
             else {
-                Intent intent = new Intent();
-                intent.setComponent(ComponentName.unflattenFromString(componentName));
-
-                LauncherApps launcherApps = (LauncherApps) context.getSystemService(Context.LAUNCHER_APPS_SERVICE);
-                UserManager userManager = (UserManager) context.getSystemService(Context.USER_SERVICE);
-
-                LauncherActivityInfo appInfo = launcherApps.resolveActivity(intent, userManager.getUserForSerialNumber(userId));
-
-                icon = IconCache.getInstance(context).getIcon(context, appInfo);
+                icon = IconCache.getInstance(context).getIcon(context, resolveActivity(context));
             }
         }
         return icon;
+    }
+
+    /** @return the launcher activity for this entry, or null if it can no longer be resolved */
+    private LauncherActivityInfo resolveActivity(Context context) {
+        ComponentName component = componentName == null
+                ? null : ComponentName.unflattenFromString(componentName);
+        if(component == null) return null;
+
+        LauncherApps launcherApps = (LauncherApps) context.getSystemService(Context.LAUNCHER_APPS_SERVICE);
+        UserManager userManager = (UserManager) context.getSystemService(Context.USER_SERVICE);
+        if(launcherApps == null || userManager == null) return null;
+
+        try {
+            return launcherApps.resolveActivity(new Intent().setComponent(component),
+                    userManager.getUserForSerialNumber(getUserId(context)));
+        } catch(RuntimeException e) {
+            return null;
+        }
     }
 
     public long getLastTimeUsed() {

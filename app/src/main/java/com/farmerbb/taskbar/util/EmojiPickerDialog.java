@@ -49,14 +49,12 @@ public final class EmojiPickerDialog {
     private EmojiPickerDialog() {}
 
     public static void show(Context context, boolean askForLabel, Callback callback) {
-        float density = context.getResources().getDisplayMetrics().density;
-        int pad = Math.round(16 * density);
+        Context themed = Ui.dialogContext(context);
 
-        LinearLayout content = new LinearLayout(context);
-        content.setOrientation(LinearLayout.VERTICAL);
-        content.setPadding(pad, pad / 2, pad, 0);
+        LinearLayout content = Ui.column(themed);
+        Ui.padDialogBody(content);
 
-        EditText emojiInput = new EditText(context);
+        EditText emojiInput = new EditText(themed);
         emojiInput.setSingleLine(true);
         emojiInput.setHint(R.string.tb_emoji_hint);
         content.addView(emojiInput, new LinearLayout.LayoutParams(
@@ -64,22 +62,23 @@ public final class EmojiPickerDialog {
 
         EditText labelInput = null;
         if(askForLabel) {
-            labelInput = new EditText(context);
+            labelInput = new EditText(themed);
             labelInput.setSingleLine(true);
             labelInput.setHint(R.string.tb_emoji_label_hint);
             content.addView(labelInput, new LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         }
 
-        GridLayout grid = new GridLayout(context);
+        GridLayout grid = new GridLayout(themed);
         grid.setColumnCount(COLUMNS);
-        int cell = Math.round(48 * density);
+        int cell = Ui.dp(themed, Ui.TOUCH_TARGET);
         for(int codePoint : COMMON) {
             String emoji = new String(Character.toChars(codePoint));
-            TextView item = new TextView(context);
+            TextView item = new TextView(themed);
             item.setText(emoji);
             item.setTextSize(24);
             item.setGravity(Gravity.CENTER);
+            Ui.makeSelectable(item);
             item.setOnClickListener(v -> {
                 emojiInput.setText(emoji);
                 emojiInput.setSelection(emojiInput.getText().length());
@@ -88,10 +87,10 @@ public final class EmojiPickerDialog {
                     new ViewGroup.LayoutParams(cell, cell)));
         }
 
-        ScrollView scroll = new ScrollView(context);
+        ScrollView scroll = new ScrollView(themed);
         scroll.addView(grid);
         content.addView(scroll, new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, Math.round(220 * density)));
+                ViewGroup.LayoutParams.MATCH_PARENT, Ui.dp(themed, 220)));
 
         EditText finalLabelInput = labelInput;
         new AlertDialog.Builder(context)

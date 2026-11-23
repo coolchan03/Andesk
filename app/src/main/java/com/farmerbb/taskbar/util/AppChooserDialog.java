@@ -24,22 +24,26 @@ import android.content.pm.ResolveInfo;
 import android.graphics.drawable.Drawable;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import android.widget.ImageView;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.TextView;
+import android.widget.ProgressBar;
 
 import com.farmerbb.taskbar.R;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 /** A searchable list of the apps that can be launched, used to choose an app for an action. */
 public final class AppChooserDialog {
@@ -63,76 +67,87 @@ public final class AppChooserDialog {
     private AppChooserDialog() {}
 
     public static void show(Context context, int titleRes, Callback callback) {
-        PackageManager pm = context.getPackageManager();
-        Intent main = new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER);
+        Context themed = Ui.dialogContext(context);
 
-        List<Item> all = new ArrayList<>();
-        for(ResolveInfo info : pm.queryIntentActivities(main, 0)) {
-            all.add(new Item(
-                    String.valueOf(info.loadLabel(pm)),
-                    new ComponentName(info.activityInfo.packageName, info.activityInfo.name),
-                    info.loadIcon(pm)));
-        }
-        Collections.sort(all, (a, b) -> a.label.compareToIgnoreCase(b.label));
+        LinearLayout content = Ui.column(themed);
+        Ui.padDialogBody(content);
 
-        // The first row restores the automatic behavior.
-        all.add(0, new Item(context.getString(R.string.tb_app_automatic), null, null));
-
-        float density = context.getResources().getDisplayMetrics().density;
-        int pad = Math.round(16 * density);
-
-        LinearLayout content = new LinearLayout(context);
-        content.setOrientation(LinearLayout.VERTICAL);
-        content.setPadding(pad, pad / 2, pad, 0);
-
-        EditText filter = new EditText(context);
+        EditText filter = new EditText(themed);
         filter.setSingleLine(true);
         filter.setHint(R.string.tb_app_search_hint);
+        filter.setEnabled(false);
         content.addView(filter, new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
-        List<Item> shown = new ArrayList<>(all);
-        ArrayAdapter<Item> adapter = new ArrayAdapter<Item>(context, 0, shown) {
-            @Override
-            public View getView(int position, View convertView, ViewGroup parent) {
-                Item item = getItem(position);
-
-                LinearLayout row = new LinearLayout(context);
-                row.setOrientation(LinearLayout.HORIZONTAL);
-                row.setGravity(Gravity.CENTER_VERTICAL);
-                row.setPadding(0, Math.round(6 * density), 0, Math.round(6 * density));
-
-                ImageView icon = new ImageView(context);
-                if(item.icon != null)
-                    icon.setImageDrawable(item.icon);
-                row.addView(icon, new LinearLayout.LayoutParams(
-                        Math.round(36 * density), Math.round(36 * density)));
-
-                TextView label = new TextView(context);
-                label.setText(item.label);
-                label.setTextSize(16);
-                label.setPadding(Math.round(12 * density), 0, 0, 0);
-                row.addView(label);
-                return row;
-            }
-        };
-
-        ListView list = new ListView(context);
-        list.setAdapter(adapter);
-        content.addView(list, new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, Math.round(320 * density)));
+        // The app list is built off the main thread: loading every launcher icon takes long
+        // enough on a device with many apps to freeze the screen the dialog opens from.
+        ProgressBar progress = new ProgressBar(themed);
+        FrameLayout body = new FrameLayout(themed);
+        body.addView(progress, new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.CENTER));
+        content.addView(body, new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, Ui.dp(themed, 320)));
 
         AlertDialog dialog = new AlertDialog.Builder(context)
                 .setTitle(titleRes)
                 .setView(content)
                 .setNegativeButton(R.string.tb_action_cancel, null)
                 .create();
+        dialog.show();
 
+        Context app = context.getApplicationContext();
+        Handler main = new Handler(Looper.getMainLooper());
+        new Thread(() -> {
+            List<Item> loaded = loadItems(app);
+            main.post(() -> {
+                if(!dialog.isShowing()) return;
+
+                loaded.add(0, new Item(app.getString(R.string.tb_app_automatic), null, null));
+                bind(themed, dialog, content, filter, body, loaded, callback);
+            });
+        }, "AndeskAppChooser").start();
+    }
+
+    private static List<Item> loadItems(Context context) {
+        PackageManager pm = context.getPackageManager();
+        Intent main = new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER);
+
+        Set<ComponentName> seen = new HashSet<>();
+        List<Item> all = new ArrayList<>();
+        for(ResolveInfo info : pm.queryIntentActivities(main, 0)) {
+            ComponentName component = new ComponentName(info.activityInfo.packageName, info.activityInfo.name);
+            if(!seen.add(component)) continue;
+
+            all.add(new Item(String.valueOf(info.loadLabel(pm)), component, info.loadIcon(pm)));
+        }
+
+        Collections.sort(all, (a, b) -> a.label.compareToIgnoreCase(b.label));
+        return all;
+    }
+
+    private static void bind(Context themed, AlertDialog dialog, LinearLayout content, EditText filter,
+            FrameLayout body, List<Item> all, Callback callback) {
+        List<Item> shown = new ArrayList<>(all);
+        ArrayAdapter<Item> adapter = new ArrayAdapter<Item>(themed, 0, shown) {
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent) {
+                Item item = getItem(position);
+                return Ui.listRow(themed, item.icon, item.label);
+            }
+        };
+
+        ListView list = new ListView(themed);
+        list.setAdapter(adapter);
         list.setOnItemClickListener((parent, view, position, id) -> {
             callback.onChosen(adapter.getItem(position).component);
             dialog.dismiss();
         });
 
+        body.removeAllViews();
+        body.addView(list, new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+
+        filter.setEnabled(true);
         filter.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -143,15 +158,15 @@ public final class AppChooserDialog {
             @Override
             public void afterTextChanged(Editable s) {
                 String query = s.toString().trim().toLowerCase(Locale.getDefault());
+                adapter.setNotifyOnChange(false);
                 adapter.clear();
                 for(Item item : all) {
                     if(query.isEmpty() || item.label.toLowerCase(Locale.getDefault()).contains(query))
                         adapter.add(item);
                 }
+                adapter.notifyDataSetChanged();
             }
         });
-
-        dialog.show();
     }
 
     /** The label of an app's launcher activity, or null if it is not installed. */

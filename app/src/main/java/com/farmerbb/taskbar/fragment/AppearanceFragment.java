@@ -35,6 +35,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.farmerbb.taskbar.R;
 import com.farmerbb.taskbar.activity.IconPackActivity;
 import com.farmerbb.taskbar.util.AppearanceDefaults;
+import com.farmerbb.taskbar.util.AppearanceProfilesDialog;
 import com.farmerbb.taskbar.util.ColorPickerDialog;
 import com.farmerbb.taskbar.util.TaskbarStylePickerDialog;
 import com.farmerbb.taskbar.util.U;
@@ -100,6 +101,7 @@ public class AppearanceFragment extends SettingsFragment {
         findPreference(PREF_TASKBAR_STYLE).setOnPreferenceClickListener(this);
         findPreference(PREF_TASKBAR_POSITION_PICKER).setOnPreferenceClickListener(this);
         findPreference(PREF_RESET_APPEARANCE).setOnPreferenceClickListener(this);
+        findPreference(PREF_APPEARANCE_PROFILES).setOnPreferenceClickListener(this);
         bindPreferenceSummaryToValue(findPreference(PREF_TASKBAR_TEXTURE));
         bindPreferenceSummaryToValue(findPreference(PREF_TASKBAR_TEXTURE_STRENGTH));
         updateStyleSummary();
@@ -273,6 +275,17 @@ public class AppearanceFragment extends SettingsFragment {
             case PREF_TASKBAR_POSITION_PICKER:
                 showPositionPicker();
                 break;
+            case PREF_APPEARANCE_PROFILES:
+                AppearanceProfilesDialog.show(getActivity(), () -> {
+                    if(getActivity() == null) return;
+
+                    U.sendBroadcast(getActivity(), ACTION_REFRESH_DESKTOP_ICONS);
+                    U.restartTaskbar(getActivity());
+
+                    // Rebuild the screen (and the theme) with the applied look.
+                    getActivity().recreate();
+                });
+                break;
             case PREF_RESET_APPEARANCE:
                 new AlertDialog.Builder(getActivity())
                         .setTitle(R.string.tb_pref_title_reset_appearance)
@@ -320,7 +333,7 @@ public class AppearanceFragment extends SettingsFragment {
         }
 
         if(requestCode == U.IMAGE_REQUEST_CODE) {
-            if(data.getData() == null)
+            if(data == null || data.getData() == null)
                 return;
 
             if(U.importImage(getActivity(), data.getData(), "custom_image"))

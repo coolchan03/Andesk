@@ -17,14 +17,10 @@ package com.farmerbb.taskbar.util;
 
 import android.app.AlertDialog;
 import android.content.Context;
-import android.view.Gravity;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
-import android.widget.TextView;
 
 import com.farmerbb.taskbar.R;
 
@@ -35,37 +31,32 @@ import java.util.List;
 /** Lets the user reorder, add and remove the apps pinned to the taskbar. */
 public final class PinnedAppsEditorDialog {
     private final Context context;
-    private final float density;
+    private final Context themed;
     private LinearLayout list;
     private boolean changed;
 
     private PinnedAppsEditorDialog(Context context) {
         this.context = context;
-        this.density = context.getResources().getDisplayMetrics().density;
+        this.themed = Ui.dialogContext(context);
     }
 
     public static void show(Context context) {
         new PinnedAppsEditorDialog(context).display();
     }
 
-    private int dp(int value) {
-        return Math.round(value * density);
-    }
-
     private void display() {
-        LinearLayout root = new LinearLayout(context);
-        root.setOrientation(LinearLayout.VERTICAL);
-        root.setPadding(dp(16), dp(8), dp(16), 0);
+        LinearLayout root = Ui.column(themed);
+        Ui.padDialogBody(root);
 
-        list = new LinearLayout(context);
-        list.setOrientation(LinearLayout.VERTICAL);
+        list = Ui.column(themed);
 
-        ScrollView scroll = new ScrollView(context);
+        ScrollView scroll = new ScrollView(themed);
         scroll.addView(list);
         root.addView(scroll, new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, dp(300)));
+                ViewGroup.LayoutParams.MATCH_PARENT, Ui.dp(themed, 300)));
 
-        Button add = new Button(context);
+        LinearLayout actions = Ui.row(themed);
+        Button add = new Button(themed);
         add.setText(R.string.tb_pinned_add);
         add.setOnClickListener(v -> AppChooserDialog.show(context, R.string.tb_pinned_add, component -> {
             if(component == null) return;
@@ -83,23 +74,23 @@ public final class PinnedAppsEditorDialog {
             }
         }));
 
-        Button clear = new Button(context);
+        Button clear = new Button(themed);
         clear.setText(R.string.tb_pinned_clear);
         clear.setOnClickListener(v -> new AlertDialog.Builder(context)
                 .setMessage(R.string.tb_pinned_clear_confirm)
                 .setNegativeButton(R.string.tb_action_cancel, null)
                 .setPositiveButton(R.string.tb_action_ok, (confirm, which) -> {
                     PinnedBlockedApps pinned = PinnedBlockedApps.getInstance(context);
-                    for(AppEntry entry : new ArrayList<>(pinned.getPinnedApps()))
+                    for(AppEntry entry : pinned.getPinnedApps())
                         pinned.removePinnedApp(context, entry.getComponentName());
                     changed = true;
                     rebuild();
                 })
                 .show());
-        root.addView(add, new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        root.addView(clear, new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+
+        actions.addView(add, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        actions.addView(clear, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        root.addView(actions);
 
         new AlertDialog.Builder(context)
                 .setTitle(R.string.tb_pinned_apps)
@@ -125,37 +116,23 @@ public final class PinnedAppsEditorDialog {
         if(vertical) Collections.reverse(pinned);
 
         if(pinned.isEmpty()) {
-            TextView empty = new TextView(context);
-            empty.setText(R.string.tb_pinned_apps_empty);
-            empty.setPadding(0, dp(12), 0, dp(12));
-            list.addView(empty);
+            list.addView(Ui.emptyState(themed, R.string.tb_pinned_apps_empty));
             return;
         }
+
+        // "Up" is toward the start of the visible order, which is the other way in the
+        // stored order on a vertical taskbar.
+        int towardStart = vertical ? 1 : -1;
 
         for(int i = 0; i < pinned.size(); i++) {
             AppEntry entry = pinned.get(i);
 
-            LinearLayout row = new LinearLayout(context);
-            row.setOrientation(LinearLayout.HORIZONTAL);
-            row.setGravity(Gravity.CENTER_VERTICAL);
-            row.setPadding(0, dp(4), 0, dp(4));
-
-            ImageView icon = new ImageView(context);
-            icon.setImageDrawable(entry.getIcon(context));
-            row.addView(icon, new LinearLayout.LayoutParams(dp(36), dp(36)));
-
-            TextView label = new TextView(context);
-            label.setText(entry.getLabel());
-            label.setTextSize(16);
-            label.setPadding(dp(12), 0, dp(8), 0);
-            row.addView(label, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-
-            // "Up" is toward the start of the visible order, which is the other way in the
-            // stored order on a vertical taskbar.
-            int towardStart = vertical ? 1 : -1;
-            row.addView(makeButton("▲", i > 0, v -> move(entry, towardStart)));
-            row.addView(makeButton("▼", i < pinned.size() - 1, v -> move(entry, -towardStart)));
-            row.addView(makeButton("✕", true, v -> {
+            LinearLayout row = Ui.listRow(themed, entry.getIcon(context), entry.getLabel());
+            row.addView(Ui.iconButton(themed, R.drawable.tb_arrow_up, R.string.andesk_move_up,
+                    i > 0, v -> move(entry, towardStart)));
+            row.addView(Ui.iconButton(themed, R.drawable.tb_arrow_down, R.string.andesk_move_down,
+                    i < pinned.size() - 1, v -> move(entry, -towardStart)));
+            row.addView(Ui.iconButton(themed, R.drawable.tb_close, R.string.andesk_remove, true, v -> {
                 pinnedBlockedApps.removePinnedApp(context, entry.getComponentName());
                 changed = true;
                 rebuild();
@@ -163,19 +140,6 @@ public final class PinnedAppsEditorDialog {
 
             list.addView(row);
         }
-    }
-
-    private TextView makeButton(String symbol, boolean enabled, View.OnClickListener listener) {
-        TextView button = new TextView(context);
-        button.setText(symbol);
-        button.setTextSize(18);
-        button.setGravity(Gravity.CENTER);
-        button.setAlpha(enabled ? 1f : 0.25f);
-        button.setEnabled(enabled);
-        button.setContentDescription(symbol);
-        if(enabled) button.setOnClickListener(listener);
-        button.setLayoutParams(new LinearLayout.LayoutParams(dp(44), dp(44)));
-        return button;
     }
 
     private void move(AppEntry entry, int delta) {

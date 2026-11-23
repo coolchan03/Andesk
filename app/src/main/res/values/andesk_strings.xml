@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Shared actions and accessibility labels -->
+    <string name="andesk_move_up" translatable="false">Move up</string>
+    <string name="andesk_move_down" translatable="false">Move down</string>
+    <string name="andesk_remove" translatable="false">Remove</string>
+    <string name="andesk_delete" translatable="false">Delete</string>
+    <string name="andesk_apply" translatable="false">Apply</string>
+    <string name="andesk_close" translatable="false">Close</string>
+
+    <!-- Appearance profiles -->
+    <string name="andesk_pref_profiles" translatable="false">Appearance profiles</string>
+    <string name="andesk_pref_profiles_summary" translatable="false">Save the current look and switch between saved looks</string>
+    <string name="andesk_profiles_title" translatable="false">Appearance profiles</string>
+    <string name="andesk_profiles_save_current" translatable="false">Save current look…</string>
+    <string name="andesk_profiles_name_hint" translatable="false">Profile name</string>
+    <string name="andesk_profiles_empty" translatable="false">No saved profiles yet. Save the current look to switch back to it later.</string>
+    <string name="andesk_profiles_saved" translatable="false">Saved “%1$s”</string>
+    <string name="andesk_profiles_applied" translatable="false">Applied “%1$s”</string>
+    <string name="andesk_profiles_deleted" translatable="false">Deleted “%1$s”</string>
+    <string name="andesk_profiles_overwrite" translatable="false">“%1$s” already exists. Replace it with the current look?</string>
+    <string name="andesk_profiles_full" translatable="false">You can keep up to %1$d profiles. Delete one first.</string>
+    <string name="andesk_profiles_name_required" translatable="false">Enter a name for the profile</string>
+    <string name="andesk_profiles_count" translatable="false">%1$d settings</string>
+</resources>
