@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Shared actions and accessibility labels -->
+    <string name="andesk_move_up" translatable="false">Move up</string>
+    <string name="andesk_move_down" translatable="false">Move down</string>
+    <string name="andesk_remove" translatable="false">Remove</string>
+    <string name="andesk_delete" translatable="false">Delete</string>
+    <string name="andesk_apply" translatable="false">Apply</string>
+    <string name="andesk_close" translatable="false">Close</string>
+    <string name="andesk_name_required" translatable="false">Enter a name</string>
+
+    <!-- Appearance profiles -->
+    <string name="andesk_pref_profiles" translatable="false">Appearance profiles</string>
+    <string name="andesk_pref_profiles_summary" translatable="false">Save the current look and switch between saved looks</string>
+    <string name="andesk_profiles_title" translatable="false">Appearance profiles</string>
+    <string name="andesk_profiles_save_current" translatable="false">Save current look…</string>
+    <string name="andesk_profiles_name_hint" translatable="false">Profile name</string>
+    <string name="andesk_profiles_empty" translatable="false">No saved profiles yet. Save the current look to switch back to it later.</string>
+    <string name="andesk_profiles_saved" translatable="false">Saved “%1$s”</string>
+    <string name="andesk_profiles_applied" translatable="false">Applied “%1$s”</string>
+    <string name="andesk_profiles_deleted" translatable="false">Deleted “%1$s”</string>
+    <string name="andesk_profiles_overwrite" translatable="false">“%1$s” already exists. Replace it with the current look?</string>
+    <string name="andesk_profiles_full" translatable="false">You can keep up to %1$d profiles. Delete one first.</string>
+    <string name="andesk_profiles_name_required" translatable="false">Enter a name for the profile</string>
+    <string name="andesk_profiles_count" translatable="false">%1$d settings</string>
+
+    <!-- Pinned app sets -->
+    <string name="andesk_sets_button" translatable="false">Sets…</string>
+    <string name="andesk_sets_title" translatable="false">Pinned app sets</string>
+    <string name="andesk_sets_save_current" translatable="false">Save pinned apps as a set…</string>
+    <string name="andesk_sets_name_hint" translatable="false">Set name, for example Work</string>
+    <string name="andesk_sets_empty" translatable="false">No sets yet. Pin your apps, then save them as a set to switch back to this layout later.</string>
+    <string name="andesk_sets_saved" translatable="false">Saved set “%1$s”</string>
+    <string name="andesk_sets_deleted" translatable="false">Deleted set “%1$s”</string>
+    <string name="andesk_sets_overwrite" translatable="false">The set “%1$s” already exists. Replace it with the currently pinned apps?</string>
+    <string name="andesk_sets_full" translatable="false">You can keep up to %1$d sets. Delete one first.</string>
+    <string name="andesk_sets_apply_confirm" translatable="false">Replace the pinned apps with the set “%1$s”?</string>
+    <string name="andesk_sets_applied" translatable="false">Pinned the apps from “%1$s”</string>
+    <string name="andesk_sets_applied_skipped" translatable="false">Pinned the apps from “%1$s”. %2$d could not be pinned (uninstalled or over the taskbar limit).</string>
+    <plurals name="andesk_sets_apps" translatable="false">
+        <item quantity="one">%1$d app</item>
+        <item quantity="other">%1$d apps</item>
+    </plurals>
+</resources>

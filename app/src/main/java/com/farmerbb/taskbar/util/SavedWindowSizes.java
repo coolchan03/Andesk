@@ -19,11 +19,6 @@ import android.content.Context;
 
 import com.farmerbb.taskbar.R;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +34,7 @@ public class SavedWindowSizes implements Serializable {
 
     private SavedWindowSizes() {}
 
-    public void setWindowSize(Context context, String packageName, String windowSize) {
+    public synchronized void setWindowSize(Context context, String packageName, String windowSize) {
         int number = -1;
 
         for(int i = 0; i < savedApps.size(); i++) {
@@ -55,7 +50,7 @@ public class SavedWindowSizes implements Serializable {
         save(context);
     }
 
-    public String getWindowSize(Context context, String packageName) {
+    public synchronized String getWindowSize(Context context, String packageName) {
         for(SavedWindowSizesEntry entry : savedApps) {
             if(entry.getComponentName().equals(packageName))
                 return entry.getWindowSize();
@@ -64,45 +59,26 @@ public class SavedWindowSizes implements Serializable {
         return U.getSharedPreferences(context).getString(PREF_WINDOW_SIZE, "standard");
     }
 
-    public void clear(Context context) {
+    public synchronized void clear(Context context) {
         savedApps.clear();
         save(context);
     }
 
     private boolean save(Context context) {
-        try {
-            FileOutputStream fileOutputStream = context.openFileOutput("SavedWindowSizes", Context.MODE_PRIVATE);
-            ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
-
-            objectOutputStream.writeObject(this);
-
-            objectOutputStream.close();
-            fileOutputStream.close();
-
-            return true;
-        } catch (IOException e) {
-            return false;
-        }
+        return SerializedStore.save(context, "SavedWindowSizes", this);
     }
 
-    public static SavedWindowSizes getInstance(Context context) {
-        if(theInstance == null)
-            try {
-                FileInputStream fileInputStream = context.openFileInput("SavedWindowSizes");
-                ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
-
-                theInstance = (SavedWindowSizes) objectInputStream.readObject();
-
-                objectInputStream.close();
-                fileInputStream.close();
-            } catch (IOException | ClassNotFoundException e) {
-                theInstance = new SavedWindowSizes();
-            }
+    public static synchronized SavedWindowSizes getInstance(Context context) {
+        if(theInstance == null) {
+            theInstance = SerializedStore.load(context, "SavedWindowSizes", SavedWindowSizes.class);
+            if(theInstance == null) theInstance = new SavedWindowSizes();
+        }
 
         return theInstance;
     }
 
-    public List<SavedWindowSizesEntry> getSavedWindowSizes() {
-        return savedApps;
+    /** @return a snapshot, safe to iterate while another thread edits the list */
+    public synchronized List<SavedWindowSizesEntry> getSavedWindowSizes() {
+        return new ArrayList<>(savedApps);
     }
 }

@@ -326,6 +326,10 @@ public class U {
         showToast(context, context.getString(message), Toast.LENGTH_SHORT);
     }
 
+    public static void showToast(Context context, String message) {
+        showToast(context, message, Toast.LENGTH_SHORT);
+    }
+
     public static void showToastLong(Context context, int message) {
         showToast(context, context.getString(message), Toast.LENGTH_LONG);
     }
@@ -749,7 +753,7 @@ public class U {
 
         float iconSize = getTaskbarIconSize(context) / density;
 
-        int userMaxNumOfColumns = Integer.parseInt(pref.getString(PREF_MAX_NUM_OF_RECENTS, "10"));
+        int userMaxNumOfColumns = getMaxNumOfRecents(pref);
 
         while(baseTaskbarSize + iconSize < maxScreenSize
                 && numOfColumns < userMaxNumOfColumns) {
@@ -762,9 +766,19 @@ public class U {
 
     public static int getMaxNumOfEntries(Context context) {
         SharedPreferences pref = getSharedPreferences(context);
-        return pref.getBoolean(PREF_DISABLE_SCROLLING_LIST, false)
-                ? getMaxNumOfColumns(context)
-                : Integer.parseInt(pref.getString(PREF_MAX_NUM_OF_RECENTS, "10"));
+        if(pref.getBoolean(PREF_DISABLE_SCROLLING_LIST, false))
+            return getMaxNumOfColumns(context);
+
+        return getMaxNumOfRecents(pref);
+    }
+
+    /** The "number of recent apps" setting; a restored or hand-edited value may not be a number. */
+    private static int getMaxNumOfRecents(SharedPreferences pref) {
+        try {
+            return Math.max(0, Integer.parseInt(pref.getString(PREF_MAX_NUM_OF_RECENTS, "10")));
+        } catch(NumberFormatException e) {
+            return 10;
+        }
     }
 
     public static int getStatusBarHeight(Context context) {

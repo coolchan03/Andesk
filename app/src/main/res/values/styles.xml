@@ -16,6 +16,10 @@
 
 <resources>
 
+    <!-- One palette, two modes. Each family (AppCompat for settings, framework Material for
+         floating dialogs) names the same tokens, so a dialog opened from the settings screen
+         looks like part of it. -->
+
     <style name="TaskbarBase" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorPrimary">@color/tb_colorPrimary</item>
         <item name="colorPrimaryDark">@color/tb_colorPrimaryDark</item>
@@ -29,7 +33,7 @@
     <style name="TaskbarBase.Dark" parent="Theme.AppCompat.NoActionBar">
         <item name="colorPrimary">@color/tb_colorPrimary</item>
         <item name="colorPrimaryDark">@color/tb_colorPrimaryDark</item>
-        <item name="colorAccent">@color/tb_colorAccent</item>
+        <item name="colorAccent">@color/tb_colorAccent_dark</item>
         <item name="tb_start_menu_background">@color/tb_start_menu_background_dark</item>
         <item name="tb_text_color">@color/tb_text_color_dark</item>
         <item name="tb_main_activity_background">@color/tb_main_activity_background_dark</item>
@@ -49,6 +53,7 @@
     </style>
 
     <style name="Taskbar.HomeActivity" parent="Theme.AppCompat.NoActionBar">
+        <item name="colorAccent">@color/tb_colorAccent_dark</item>
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:windowShowWallpaper">true</item>
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
@@ -60,8 +65,19 @@
         <item name="android:backgroundDimEnabled">false</item>
     </style>
 
+    <!-- Framework dialog family: context menus, preference dialogs, control center. -->
     <style name="Taskbar.Dialog" parent="@android:style/Theme.Material.Light.Dialog">
         <item name="android:windowNoTitle">true</item>
+        <item name="android:colorPrimary">@color/tb_colorPrimary</item>
+        <item name="android:colorPrimaryDark">@color/tb_colorPrimaryDark</item>
+        <item name="android:colorAccent">@color/tb_colorAccent</item>
+    </style>
+
+    <style name="Taskbar.Dialog.Dark" parent="@android:style/Theme.Material.Dialog">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:colorPrimary">@color/tb_colorPrimary</item>
+        <item name="android:colorPrimaryDark">@color/tb_colorPrimaryDark</item>
+        <item name="android:colorAccent">@color/tb_colorAccent_dark</item>
     </style>
 
     <style name="Taskbar.ControlCenter" parent="@android:style/Theme.Material.Light.Dialog.NoActionBar">
@@ -69,36 +85,7 @@
         <item name="android:windowNoTitle">true</item>
         <item name="android:backgroundDimEnabled">false</item>
         <item name="android:windowBackground">@android:color/transparent</item>
-    </style>
-
-    <style name="Taskbar.Dialog.Dark" parent="@android:style/Theme.Material.Dialog">
-        <item name="android:windowNoTitle">true</item>
-    </style>
-
-    <style name="Taskbar.Dialog.Blacklist" parent="Theme.AppCompat.Light.Dialog">
-        <item name="colorPrimary">@color/tb_colorPrimary</item>
-        <item name="colorPrimaryDark">@color/tb_colorPrimaryDark</item>
-        <item name="colorAccent">@color/tb_colorAccent</item>
-    </style>
-
-    <style name="Taskbar.Dialog.Blacklist.Dark" parent="Theme.AppCompat.Dialog">
-        <item name="colorPrimary">@color/tb_colorPrimary</item>
-        <item name="colorPrimaryDark">@color/tb_colorPrimaryDark</item>
-        <item name="colorAccent">@color/tb_colorAccent</item>
-    </style>
-
-    <style name="Taskbar.Incognito" parent="@android:style/Theme.Material.Light">
-        <item name="android:windowIsFloating">true</item>
-        <item name="android:windowNoTitle">true</item>
-        <item name="android:backgroundDimAmount">0</item>
-        <item name="android:windowBackground">@android:color/transparent</item>
-    </style>
-
-    <style name="Taskbar.Incognito.Dark" parent="@android:style/Theme.Material">
-        <item name="android:windowIsFloating">true</item>
-        <item name="android:windowNoTitle">true</item>
-        <item name="android:backgroundDimAmount">0</item>
-        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:colorAccent">@color/tb_colorAccent</item>
     </style>
 
     <style name="Taskbar.Dialog.Preference" parent="@android:style/Theme.Material.Light.Dialog">
@@ -110,11 +97,41 @@
     <style name="Taskbar.Dialog.Preference.Dark" parent="@android:style/Theme.Material.Dialog">
         <item name="android:colorPrimary">@color/tb_colorPrimary</item>
         <item name="android:colorPrimaryDark">@color/tb_colorPrimaryDark</item>
+        <item name="android:colorAccent">@color/tb_colorAccent_dark</item>
+    </style>
+
+    <!-- AppCompat dialog family: app pickers, data management. -->
+    <style name="Taskbar.Dialog.Blacklist" parent="Theme.AppCompat.Light.Dialog">
+        <item name="colorPrimary">@color/tb_colorPrimary</item>
+        <item name="colorPrimaryDark">@color/tb_colorPrimaryDark</item>
+        <item name="colorAccent">@color/tb_colorAccent</item>
+    </style>
+
+    <style name="Taskbar.Dialog.Blacklist.Dark" parent="Theme.AppCompat.Dialog">
+        <item name="colorPrimary">@color/tb_colorPrimary</item>
+        <item name="colorPrimaryDark">@color/tb_colorPrimaryDark</item>
+        <item name="colorAccent">@color/tb_colorAccent_dark</item>
+    </style>
+
+    <style name="Taskbar.Incognito" parent="@android:style/Theme.Material.Light">
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:backgroundDimAmount">0</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:colorAccent">@color/tb_colorAccent</item>
+    </style>
+
+    <style name="Taskbar.Incognito.Dark" parent="@android:style/Theme.Material">
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:backgroundDimAmount">0</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:colorAccent">@color/tb_colorAccent_dark</item>
     </style>
 
     <style name="Taskbar.DimScreenActivity" parent="Theme.AppCompat">
         <item name="colorPrimary">@android:color/black</item>
+        <item name="colorAccent">@color/tb_colorAccent_dark</item>
         <item name="android:textColor">@android:color/white</item>
         <item name="android:windowBackground">@android:color/black</item>
         <item name="tb_settings_icon_color">@color/tb_settings_icon_color_dark</item>
@@ -132,10 +149,11 @@
     <style name="Taskbar.Dialog.FullWidth.Dark" parent="Theme.AppCompat.Dialog">
         <item name="colorPrimary">@color/tb_colorPrimary</item>
         <item name="colorPrimaryDark">@color/tb_colorPrimaryDark</item>
-        <item name="colorAccent">@color/tb_colorAccent</item>
+        <item name="colorAccent">@color/tb_colorAccent_dark</item>
         <item name="android:textColor">@android:color/white</item>
         <item name="android:windowMinWidthMajor">95%</item>
         <item name="android:windowMinWidthMinor">95%</item>
     </style>
+
 
 </resources>

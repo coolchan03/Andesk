@@ -21,6 +21,11 @@
         android:title="@string/tb_pref_category_style">
 
         <Preference
+            android:key="appearance_profiles"
+            android:title="@string/andesk_pref_profiles"
+            android:summary="@string/andesk_pref_profiles_summary"/>
+
+        <Preference
             android:key="taskbar_style"
             android:title="@string/tb_pref_title_taskbar_style"
             android:summary="@string/tb_pref_summary_taskbar_style"/>

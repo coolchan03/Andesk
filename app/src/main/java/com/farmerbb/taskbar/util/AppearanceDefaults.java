@@ -22,6 +22,8 @@ import static com.farmerbb.taskbar.util.Constants.*;
 
 /** Puts every appearance setting back to its default. */
 public final class AppearanceDefaults {
+    private static final String ICON_OVERRIDES_KEY = "andesk_icon_overrides";
+
     private static final String[] APPEARANCE_KEYS = {
             PREF_THEME,
             PREF_TASKBAR_STYLE,
@@ -48,10 +50,23 @@ public final class AppearanceDefaults {
             PREF_INVISIBLE_BUTTON,
             PREF_VISUAL_FEEDBACK,
             PREF_TRANSPARENT_START_MENU,
-            "andesk_icon_overrides"
+            ICON_OVERRIDES_KEY
     };
 
     private AppearanceDefaults() {}
+
+    /**
+     * The appearance settings that make up a saved look. Icon overrides are left out: they
+     * point at image files that belong to the device, not to a look.
+     */
+    public static String[] lookKeys() {
+        String[] keys = new String[APPEARANCE_KEYS.length - 1];
+        int count = 0;
+        for(String key : APPEARANCE_KEYS) {
+            if(!ICON_OVERRIDES_KEY.equals(key)) keys[count++] = key;
+        }
+        return keys;
+    }
 
     /** Removes the saved value of every appearance setting so each falls back to its default. */
     public static void reset(Context context) {

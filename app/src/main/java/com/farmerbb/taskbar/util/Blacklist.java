@@ -17,11 +17,6 @@ package com.farmerbb.taskbar.util;
 
 import android.content.Context;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,16 +30,19 @@ public class Blacklist implements Serializable {
 
     private Blacklist() {}
 
-    public List<BlacklistEntry> getBlockedApps() {
-        return blockedApps;
+    /** @return a snapshot, safe to iterate while another thread edits the list */
+    public synchronized List<BlacklistEntry> getBlockedApps() {
+        return new ArrayList<>(blockedApps);
     }
 
-    public void addBlockedApp(Context context, BlacklistEntry entry) {
+    public synchronized void addBlockedApp(Context context, BlacklistEntry entry) {
+        if(isBlocked(entry.getPackageName())) return;
+
         blockedApps.add(entry);
         save(context);
     }
 
-    public void removeBlockedApp(Context context, String packageName) {
+    public synchronized void removeBlockedApp(Context context, String packageName) {
         int number = -1;
 
         for(int i = 0; i < blockedApps.size(); i++) {
@@ -59,7 +57,7 @@ public class Blacklist implements Serializable {
         save(context);
     }
 
-    public boolean isBlocked(String packageName) {
+    public synchronized boolean isBlocked(String packageName) {
         for(int i = 0; i < blockedApps.size(); i++) {
             if(blockedApps.get(i).getPackageName().equals(packageName))
                 return true;
@@ -69,39 +67,19 @@ public class Blacklist implements Serializable {
     }
 
     private boolean save(Context context) {
-        try {
-            FileOutputStream fileOutputStream = context.openFileOutput("Blacklist", Context.MODE_PRIVATE);
-            ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
-
-            objectOutputStream.writeObject(this);
-
-            objectOutputStream.close();
-            fileOutputStream.close();
-
-            return true;
-        } catch (IOException e) {
-            return false;
-        }
+        return SerializedStore.save(context, "Blacklist", this);
     }
 
-    public void clear(Context context) {
+    public synchronized void clear(Context context) {
         blockedApps.clear();
         save(context);
     }
 
-    public static Blacklist getInstance(Context context) {
-        if(theInstance == null)
-            try {
-                FileInputStream fileInputStream = context.openFileInput("Blacklist");
-                ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
-
-                theInstance = (Blacklist) objectInputStream.readObject();
-
-                objectInputStream.close();
-                fileInputStream.close();
-            } catch (IOException | ClassNotFoundException e) {
-                theInstance = new Blacklist();
-            }
+    public static synchronized Blacklist getInstance(Context context) {
+        if(theInstance == null) {
+            theInstance = SerializedStore.load(context, "Blacklist", Blacklist.class);
+            if(theInstance == null) theInstance = new Blacklist();
+        }
 
         return theInstance;
     }

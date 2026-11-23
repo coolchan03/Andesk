@@ -246,6 +246,8 @@ public final class ColorPickerDialog {
         String value = text.trim();
         if(value.startsWith("#")) value = value.substring(1);
         if(value.length() != 6 && value.length() != 8) return null;
+        // Long.parseLong would also accept a sign, which is not part of a color code.
+        if(!value.matches("[0-9a-fA-F]+")) return null;
 
         try {
             long parsed = Long.parseLong(value, 16);

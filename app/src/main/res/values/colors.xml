@@ -15,12 +15,19 @@
 -->
 
 <resources>
-    <color name="tb_colorPrimary">#3F51B5</color> <!-- Indigo 500 -->
-    <color name="tb_colorPrimaryDark">#303F9F</color> <!-- Indigo 700 -->
-    <color name="tb_colorAccent">#FF7043</color> <!-- Deep Orange 400 -->
+    <!-- Andesk design tokens. Every theme, dialog and programmatic view takes its colors from
+         here; the launcher icon background (andesk_launcher_bg) is the brand teal. -->
+    <color name="tb_colorPrimary">#0D8F79</color>
+    <color name="tb_colorPrimaryDark">#0A6E5C</color>
+    <color name="tb_colorAccent">#0A7A67</color> <!-- 4.9:1 on the light surfaces -->
+    <color name="tb_colorAccent_dark">#4DD0B4</color> <!-- 7:1 on the dark surfaces -->
+    <color name="tb_danger">#C5221F</color>
+    <color name="tb_danger_dark">#F28B82</color>
+    <color name="tb_divider">#1F000000</color>
+    <color name="tb_divider_dark">#33FFFFFF</color>
 
-    <color name="tb_text_color">#757575</color>
-    <color name="tb_text_color_dark">#BEBEBE</color>
+    <color name="tb_text_color">#5F6368</color> <!-- 5.6:1 on tb_main_activity_background -->
+    <color name="tb_text_color_dark">#C4C7C5</color>
     <color name="tb_start_menu_background">#FAFAFA</color>
     <color name="tb_start_menu_background_dark">#303030</color>
     <color name="tb_main_activity_background">#F0F0F0</color>
@@ -34,7 +41,7 @@
     <color name="tb_alpha">#80808080</color>
 
     <color name="tb_launcher_adaptive_bg">#4557A6</color>
-    <color name="andesk_launcher_bg">#0D8F79</color>
+    <color name="andesk_launcher_bg">@color/tb_colorPrimary</color>
     <color name="tb_freeform_mode_adaptive_bg">#4790CD</color>
 
     <color name="tb_app_shortcut_bg">#F5F5F5</color>

@@ -12,7 +12,8 @@ Andesk provides a desktop, taskbar, Start menu, shortcuts, and Android widgets f
 - **Session exit:** Back from the desktop, Alt+F4, and Control Center → Exit Desktop request a full shutdown of taskbar, menus, notification, and overlay services. Removing the desktop from Recents should also end the session.
 - **No automatic startup:** after reboot, an app update, process death, or force-stop, the desktop must remain closed until Andesk is explicitly opened again. **An app cannot detect its own force-stop**; Android terminates its process.
 - **Desktop controls:** app shortcuts, drag from Start to desktop, files/folders where supported, Android widgets with positioning and resize, and a taskbar with running-app indicators.
-- **Appearance:** Classic and Windows 7/10/11-inspired taskbar presets, color/transparency settings, and Compact/Standard/Large sizing.
+- **Appearance:** Classic and Windows 7/10/11-inspired taskbar presets, color/transparency settings, and Compact/Standard/Large sizing. **Appearance profiles** save and restore a whole look by name.
+- **Pinned apps:** reorder, add and remove pinned apps in the editor, and keep named **sets** (for example Work and Media) to switch between layouts.
 - **Freeform windows:** request platform freeform windowing on compatible Android devices; Android and device manufacturer restrictions may limit this feature.
 - **Control Center:** supported system controls, settings, notification access, and Exit Desktop.
 

@@ -27,8 +27,7 @@ class PinnedBlockedAppsTest {
 
     @After
     fun tearDown() {
-        pinnedBlockedApps.blockedApps.clear()
-        pinnedBlockedApps.pinnedApps.clear()
+        pinnedBlockedApps.clear(context)
     }
 
     @Test
@@ -132,5 +131,67 @@ class PinnedBlockedAppsTest {
         Assert.assertFalse(pinnedBlockedApps.movePinnedApp(context, "third", -1))
         Assert.assertFalse(pinnedBlockedApps.movePinnedApp(context, "second", 1))
         Assert.assertFalse(pinnedBlockedApps.movePinnedApp(context, "missing", 1))
+    }
+
+    @Test
+    fun testDuplicateEntriesAreIgnored() {
+        pinnedBlockedApps.addPinnedApp(context, appEntry)
+        pinnedBlockedApps.addPinnedApp(context, appEntry)
+        pinnedBlockedApps.addBlockedApp(context, appEntry)
+        pinnedBlockedApps.addBlockedApp(context, appEntry)
+        Assert.assertEquals(1, pinnedBlockedApps.pinnedApps.size)
+        Assert.assertEquals(1, pinnedBlockedApps.blockedApps.size)
+    }
+
+    @Test
+    fun testGettersReturnSnapshots() {
+        pinnedBlockedApps.addPinnedApp(context, appEntry)
+        val snapshot = pinnedBlockedApps.pinnedApps
+        pinnedBlockedApps.removePinnedApp(context, packageName)
+        Assert.assertEquals(1, snapshot.size)
+        Assert.assertEquals(0, pinnedBlockedApps.pinnedApps.size)
+    }
+
+    @Test
+    fun testSurvivesRoundTripThroughDisk() {
+        pinnedBlockedApps.addPinnedApp(context, appEntry)
+        val loaded = SerializedStore.load(
+            context,
+            "PinnedBlockedApps",
+            PinnedBlockedApps::class.java,
+        )
+        Assert.assertNotNull(loaded)
+        Assert.assertEquals(1, loaded!!.pinnedApps.size)
+        Assert.assertEquals(packageName, loaded.pinnedApps[0].componentName)
+    }
+
+    @Test
+    fun testCorruptFileLoadsAsNull() {
+        context.openFileOutput("CorruptStore", Context.MODE_PRIVATE).use {
+            it.write(byteArrayOf(1, 2, 3))
+        }
+        Assert.assertNull(
+            SerializedStore.load(context, "CorruptStore", PinnedBlockedApps::class.java),
+        )
+        Assert.assertNull(
+            SerializedStore.load(context, "MissingStore", PinnedBlockedApps::class.java),
+        )
+    }
+
+    @Test
+    fun testFailedSaveKeepsPreviousContents() {
+        Assert.assertTrue(
+            SerializedStore.save(context, "Atomic", java.util.ArrayList(listOf("good"))),
+        )
+        class NotSerializable
+        val bad = java.util.ArrayList<Any>(listOf(NotSerializable()))
+        Assert.assertFalse(SerializedStore.save(context, "Atomic", bad))
+        @Suppress("UNCHECKED_CAST")
+        val back = SerializedStore.load(
+            context,
+            "Atomic",
+            java.util.ArrayList::class.java,
+        ) as java.util.ArrayList<String>
+        Assert.assertEquals(listOf("good"), back)
     }
 }
